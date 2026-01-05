@@ -1,13 +1,13 @@
-// import Login from "./pages/Login";
+  // import Login from "./pages/Login";
 
-// export default function App() {
-//   return <Login />;
-// }
+  // export default function App() {
+  //   return <Login />;
+  // }
 
-import { Home } from "./pages/Home"
+ import { Home } from "./pages/Home"
 
-function App() {
-  return <Home />
-}
+  function App() {
+    return <Home />
+  }
 
-export default App
+  export default App

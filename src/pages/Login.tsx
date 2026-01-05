@@ -93,7 +93,7 @@ export default function Login() {
         </div>
       </main>
 
-      <Footer variant="login" />
+      <Footer />
     </div>
   );
 }

@@ -54,7 +54,7 @@ export const translations = {
       emailExample: "Ex: nome.sobrenome@ubsbb.com",
     },
     footer: {
-      copyright: "© UBS 1998 – 2025. All rights reserved.",
+      copyright: "© UBS 1998 – 2025. Todos os direitos reservados.",
     },
   },
 
@@ -78,7 +78,7 @@ export const translations = {
       emailExample: "Bsp.: name.nachname@ubsbb.com",
     },
     footer: {
-      copyright: "© UBS 1998 – 2025. All rights reserved.",
+      copyright: "© UBS 1998 – 2025. Alle Rechte vorbehalten.",
     },
   },
 
@@ -102,7 +102,7 @@ export const translations = {
       emailExample: "Ex. : prenom.nom@ubsbb.com",
     },
     footer: {
-      copyright: "© UBS 1998 – 2025. All rights reserved.",
+      copyright: "© UBS 1998 – 2025. Tous droits réservés.",
     },
   },
 
@@ -126,7 +126,7 @@ export const translations = {
       emailExample: "Es.: nome.cognome@ubsbb.com",
     },
     footer: {
-      copyright: "© UBS 1998 – 2025. All rights reserved.",
+      copyright: "© UBS 1998 – 2025. Tutti i diritti riservati.",
     },
   },
 
@@ -150,7 +150,7 @@ export const translations = {
       emailExample: "Ej.: nombre.apellido@ubsbb.com",
     },
     footer: {
-      copyright: "© UBS 1998 – 2025. All rights reserved.",
+      copyright: "© UBS 1998 – 2025. Todos los derechos reservados.",
     },
   },
 } as const;

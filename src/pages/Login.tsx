@@ -26,11 +26,12 @@ export default function Login() {
   const greeting = t(`login.greeting.${greetingKey}`);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#fbf1f2] via-[#f7dfe1] to-[#f3cfd2]">
-      <Header />
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#fbf1f2] via-[#f7dfe1] to-[#f3cfd2]">
+      <Header variant="login" />
 
-      <main className="mx-auto flex min-h-[calc(100vh-56px-220px)] max-w-6xl items-center justify-center px-4">
-        <div className="w-full max-w-[520px] rounded-md bg-white px-10 pb-10 pt-12 shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
+      {/* padding vertical evita grudar no header em telas menores */}
+      <main className="mx-auto flex w-full max-w-6xl flex-1 items-start justify-center px-4 py-8 sm:items-center sm:py-12">
+        <div className="w-full max-w-[520px] rounded-md bg-white px-8 pb-10 pt-10 shadow-[0_10px_30px_rgba(0,0,0,0.18)] sm:px-10 sm:pt-12">
           <div className="text-center">
             <h1 className="text-6xl font-light tracking-tight">{greeting}</h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -65,7 +66,10 @@ export default function Login() {
                   sideOffset={12}
                   className="w-[320px] rounded-md border border-black/10 bg-white p-4 text-sm text-neutral-700 shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
                 >
-                  {t("login.emailInfo")}
+                  <div className="space-y-1">
+                    <div>{t("login.emailInfo")}</div>
+                    <div className="text-xs text-neutral-500">{t("login.emailExample")}</div>
+                  </div>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -78,15 +82,6 @@ export default function Login() {
               placeholder={t("login.passwordPlaceholder")}
             />
 
-            {/* Remember me */}
-            <label className="flex items-center gap-3 text-base">
-              <input
-                type="checkbox"
-                className="h-5 w-5 rounded-[2px] border border-neutral-700 accent-neutral-800"
-              />
-              {t("login.rememberMe")}
-            </label>
-
             {/* Continue */}
             <button
               type="button"
@@ -94,20 +89,11 @@ export default function Login() {
             >
               {t("login.continue")}
             </button>
-
-            {/* How to log in */}
-            <button
-              type="button"
-              className="mx-auto flex items-center gap-2 text-base font-semibold hover:underline"
-            >
-              <span className="text-red-600">›</span>
-              {t("login.howToLogin")}
-            </button>
           </div>
         </div>
       </main>
 
-      <Footer variant = "login"/>
+      <Footer />
     </div>
   );
 }

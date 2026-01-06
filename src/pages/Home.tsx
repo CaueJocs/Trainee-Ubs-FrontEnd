@@ -8,7 +8,7 @@ import { ApprovalsCard } from "@/components/layout/MyApprovals"
 export function Home() {
     return (
         <div className="flex min-h-screen flex-col">
-            <Header variant="home" />
+            <Header variant="default" />
 
             <main className="relative flex-1">
 
@@ -35,7 +35,8 @@ export function Home() {
 
             </main>
 
-            <Footer variant="home" />
+            <Footer />
+
 
         </div>
     )

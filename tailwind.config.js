@@ -23,6 +23,9 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        fontFamily: {
+          'open-sans': ['Open Sans', 'sans-serif'],
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

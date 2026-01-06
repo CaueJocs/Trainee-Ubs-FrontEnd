@@ -32,6 +32,11 @@
     --ring: 240 10% 3.9%;
 
     --radius: 0.5rem;
+
+    /* UBS Colors */
+    --ubs-red: #E60100;
+    --ubs-gray: #646464;
+    --ubs-midnight: #193D85;
   }
 
   body {

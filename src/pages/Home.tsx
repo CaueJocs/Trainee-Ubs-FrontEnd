@@ -13,7 +13,7 @@ export function Home() {
             <main className="flex flex-1 flex-col sm:flex-row items-center">
 
                 {/* Logo */}
-                <div className="hidden sm:flex sm:w-1/2 items-center justify-center p-4">
+                <div className="hidden md:flex lg:w-1/2 items-center justify-center p-4">
                     <img
                         src={expenseManagerLogo}
                         alt="UBS"
@@ -23,7 +23,7 @@ export function Home() {
                 </div>
 
                 {/* Table */}
-                <div className="flex w-full sm:w-1/2 items-center justify-center p-4">
+                <div className="flex w-full lg:w-1/2 items-center justify-center p-4">
                     <PendingApprovalsTable />
                 </div>
 

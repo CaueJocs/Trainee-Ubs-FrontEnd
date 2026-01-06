@@ -104,7 +104,7 @@ export function PendingApprovalsTable() {
 
     return (
         <TableContainer component={Card} sx={{ maxWidth: 900 }}>
-            <Table sx={{ minWidth: 350 }} size="medium" aria-label="pending approvals table">
+            <Table sx={{ minWidth: 350, minHeight: { xs: '70vh', lg: 'auto' } }} size="medium" aria-label="pending approvals table">
                 <TableHead>
                     <TableRow sx={{ bgcolor: 'error.main' }}>
                         <TableCell sx={{ color: 'white', fontWeight: 'medium' }}>Employee</TableCell>

@@ -27,7 +27,7 @@ interface ExpenseResponse {
 
 export function PendingApprovalsTable() {
 
-    const mockApprovals: ExpenseResponse[] = [
+    const mockPendingApprovals: ExpenseResponse[] = [
         {
             id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
             employeeId: 'e1234567-89ab-cdef-0123-456789abcdef',
@@ -97,25 +97,93 @@ export function PendingApprovalsTable() {
             receiptUrl: 'https://example.com/receipt/5',
             createdAt: '2026-01-02T20:10:00Z',
             status: ExpenseStatus.PENDING
+        },
+        {
+            id: 'f6a7b8c9-d0e1-2345-f123-456789012345',
+            employeeId: 'd6789012-34ef-1234-5678-9abcdef01234',
+            employeeName: 'Ana Rodrigues',
+            departmentName: 'Financeiro',
+            date: '2026-01-06T11:20:00-03:00',
+            category: ExpenseCategory.MEAL,
+            amount: 890.50,
+            currency: CurrencyCode.BRL,
+            description: 'Jantar com investidores',
+            receiptUrl: 'https://example.com/receipt/6',
+            createdAt: '2026-01-06T14:15:00Z',
+            status: ExpenseStatus.PENDING
+        },
+        {
+            id: 'a7b8c9d0-e1f2-3456-1234-567890123456',
+            employeeId: 'e7890123-45ef-2345-6789-abcdef012345',
+            employeeName: 'Lucas Mendes',
+            departmentName: 'Comercial',
+            date: '2025-12-30T13:45:00-03:00',
+            category: ExpenseCategory.TRANSPORT,
+            amount: 15500.00,
+            currency: CurrencyCode.BRL,
+            description: 'Passagem aérea para visita cliente',
+            receiptUrl: 'https://example.com/receipt/7',
+            createdAt: '2025-12-29T09:30:00Z',
+            status: ExpenseStatus.PENDING
+        },
+        {
+            id: 'b8c9d0e1-f2a3-4567-2345-678901234567',
+            employeeId: 'f8901234-56ef-3456-7890-bcdef0123456',
+            employeeName: 'Fernanda Lima',
+            departmentName: 'Jurídico',
+            date: '2026-01-01T10:30:00-03:00',
+            category: ExpenseCategory.OTHER,
+            amount: 2500.00,
+            currency: CurrencyCode.BRL,
+            description: 'Taxas de registro e documentação',
+            receiptUrl: 'https://example.com/receipt/8',
+            createdAt: '2025-12-31T16:45:00Z',
+            status: ExpenseStatus.PENDING
+        },
+        {
+            id: 'c9d0e1f2-a3b4-5678-3456-789012345678',
+            employeeId: 'a9012345-67ef-4567-8901-cdef01234567',
+            employeeName: 'Roberto Alves',
+            departmentName: 'Logística',
+            date: '2025-12-27T15:00:00-03:00',
+            category: ExpenseCategory.TRANSPORT,
+            amount: 4200.00,
+            currency: CurrencyCode.USD,
+            description: 'Frete internacional de equipamentos',
+            receiptUrl: 'https://example.com/receipt/9',
+            createdAt: '2025-12-27T18:20:00Z',
+            status: ExpenseStatus.PENDING
         }
     ]
 
-    const [pendingApprovals] = useState<ExpenseResponse[]>(mockApprovals)
+    const [pendingApprovals] = useState<ExpenseResponse[]>(mockPendingApprovals)
+
+    const handleRowClick = (approval: ExpenseResponse) => {
+        console.log(approval)
+    }
 
     return (
-        <TableContainer component={Card} sx={{ maxWidth: 900 }}>
-            <Table sx={{ minWidth: 350, minHeight: { xs: '70vh', lg: 'auto' } }} size="medium" aria-label="pending approvals table">
+        <TableContainer component={Card} sx={{ maxWidth: 900, maxHeight: { xs: '70vh', lg: '50vh' }, overflow: 'auto' }}>
+            <Table sx={{ minWidth: 350, minHeight: { xs: '70vh', lg: 'auto' } }} size="medium" stickyHeader aria-label="pending approvals table">
                 <TableHead>
-                    <TableRow sx={{ bgcolor: 'error.main' }}>
-                        <TableCell sx={{ color: 'white', fontWeight: 'medium' }}>Employee</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 'medium' }}>Department</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 'medium' }}>Category</TableCell>
-                        <TableCell align="right" sx={{ color: 'white', fontWeight: 'medium' }}>Amount</TableCell>
+                    <TableRow sx={{  }}>
+                        <TableCell sx={{ bgcolor: 'var(--ubs-midnight)', color: 'white', fontWeight: 'medium' }}>
+                            Employee
+                        </TableCell>
+                        <TableCell sx={{ bgcolor: 'var(--ubs-midnight)', color: 'white', fontWeight: 'medium' }}>
+                            Department
+                        </TableCell>
+                        <TableCell sx={{ bgcolor: 'var(--ubs-midnight)', color: 'white', fontWeight: 'medium' }}>
+                            Category
+                        </TableCell>
+                        <TableCell align="right" sx={{ bgcolor: 'var(--ubs-midnight)', color: 'white', fontWeight: 'medium' }}>
+                            Amount
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {pendingApprovals.map((approval) => (
-                        <TableRow key={approval.id}>
+                        <TableRow key={approval.id} onClick={() => handleRowClick(approval)} sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}>
                             <TableCell>
                                 {approval.employeeName}
                             </TableCell>

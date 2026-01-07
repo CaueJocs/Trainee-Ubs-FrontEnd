@@ -5,14 +5,21 @@ import type { ModalPayload } from "./types";
 import CustomizedSteppers from "./ExpenseStepper";
 
 const AnimatedTextField = styled(TextField)(() => ({
-  "& .MuiInput-root": {
-    position: "relative",
-  },
-  "& .MuiInput-root::before": {
+  // Target the underline element used by MUI's `standard` variant
+  "& .MuiInput-underline:before": {
     borderBottomColor: "#ccc",
-    transition: "border-bottom-color 0.3s ease",
+    transition: "border-bottom-color 0.25s ease",
   },
-  "& .MuiInput-root:hover::before": {
+  // Hover state (use recommended selector to avoid disabled inputs)
+  "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+    borderBottomColor: "var(--ubs-red)",
+  },
+  // Focused/after state
+  "& .MuiInput-underline:after": {
+    borderBottomColor: "var(--ubs-red)",
+  },
+  // Increase specificity in case other rules override
+  "&.Mui-focused .MuiInput-underline:after": {
     borderBottomColor: "var(--ubs-red)",
   },
 }));
@@ -115,7 +122,7 @@ export function Modal({ payload, onClose }: Props) {
                   <AnimatedTextField
                     key={valueKey}
                     label={label}
-                    value={displayValue }
+                    value={displayValue}
                     variant="standard"
                     fullWidth
                     slotProps={{

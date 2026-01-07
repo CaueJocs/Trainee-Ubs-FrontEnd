@@ -85,7 +85,7 @@ export function PendingApprovalsTable() {
       managerApproval: "Isabela Almeida",
       managerApprovalDate: "2026-01-03T14:00:00Z",
       financeApproval: "Rafael Gomes",
-      financeApprovalDate: "2026-01-03T15:00:00Z",
+      financeApprovalDate: "2026-01-04T15:00:00Z",
     },
     {
       id: "d4e5f6a7-b8c9-0123-def1-234567890123",

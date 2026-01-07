@@ -12,7 +12,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import type { ExpenseResponse } from '@/components/layout/PendingApprovalsTable';
 
-
+//This function determines coloring for each 'status' of the stepper
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 22,

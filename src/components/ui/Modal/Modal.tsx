@@ -4,6 +4,8 @@ import { styled } from "@mui/material/styles";
 import type { ModalPayload } from "./types";
 import CustomizedSteppers from "./ExpenseStepper";
 
+
+// This function is used to animate the red underline on hovered text fields
 const AnimatedTextField = styled(TextField)(() => ({
   // Target the underline element used by MUI's `standard` variant
   "& .MuiInput-underline:before": {
@@ -24,11 +26,20 @@ const AnimatedTextField = styled(TextField)(() => ({
   },
 }));
 
+// Format a Date to an unambiguous, global local-time string: YYYY-MM-DD HH:mm:ss
+function formatDateTime(d: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+    d.getDate()
+  )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+// Props for the Modal component
 interface Props {
   payload: ModalPayload;
   onClose: () => void;
 }
 
+// Define what should be shown on the 'description' of each field, and the according key on ExpenseResponse
 const expenseFields = [
   [{ label: "Employee Name", valueKey: "employeeName" }],
   [{ label: "Department", valueKey: "departmentName" }],
@@ -41,6 +52,7 @@ const expenseFields = [
   [{ label: "Description", valueKey: "description" }],
 ];
 
+//Functions to be implemented later, when endpoints are ready
 function handleApproveClick() {
     console.log("Approve button clicked");
 }
@@ -58,39 +70,43 @@ export function Modal({ payload, onClose }: Props) {
             {payload.data.employeeName}&apos;s Expense
           </h1>
 
+          {/*Stepper component being used with existing Expense data*/}
           <CustomizedSteppers expense={payload.data} />
 
           <div className="flex flex-col gap-6 px-5 pb-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {expenseFields.flat().map(({ label, valueKey }) => {
-                // Skip currency field if it's paired with amount
-                if (
-                  valueKey === "currency" &&
-                  expenseFields.some(
-                    (row) =>
-                      row.length === 2 &&
-                      row.some((r) => r.valueKey === "amount")
-                  )
-                ) {
-                  return null;
+                const raw = payload.data[valueKey as keyof typeof payload.data];
+                // Here's where all the text-fields are set, based on the ExpenseResponse data.
+                //There're some special cases for certain fields bellow (Formating).
+                
+                // Currency field (separate)
+                if (valueKey === "currency") {
+                  const currency = raw ?? "";
+                  return (
+                    <AnimatedTextField
+                      key="currency"
+                      label={label}
+                      value={currency}
+                      variant="standard"
+                      fullWidth
+                      slotProps={{ input: { readOnly: true } }}
+                    />
+                  );
                 }
 
-                // Special case: combine currency and amount
+                // Amount field (separate)
                 if (valueKey === "amount") {
-                  const currency =
-                    payload.data["currency" as keyof typeof payload.data];
-                  const amount =
-                    payload.data["amount" as keyof typeof payload.data];
-
+                  const amount = raw;
                   const formatted =
-                    currency && typeof amount === "number"
-                      ? `${currency} ${amount.toFixed(2)}`
-                      : "";
+                    typeof amount === "number"
+                      ? amount.toFixed(2)
+                      : amount ?? "";
 
                   return (
                     <AnimatedTextField
-                      key="currency_amount"
-                      label="Amount"
+                      key="amount"
+                      label={label}
                       value={formatted}
                       variant="standard"
                       fullWidth
@@ -99,22 +115,34 @@ export function Modal({ payload, onClose }: Props) {
                   );
                 }
 
-                const raw =
-                  payload.data[valueKey as keyof typeof payload.data];
+                // Description: make it wider and taller
+                if (valueKey === "description") {
+                  const desc = raw ?? "";
+                  return (
+                    <AnimatedTextField
+                      key="description"
+                      className="md:col-span-3"
+                      label={label}
+                      value={desc}
+                      variant="standard"
+                      fullWidth
+                      multiline
+                      minRows={4}
+                      slotProps={{ input: { readOnly: true } }}
+                    />
+                  );
+                }
 
                 let displayValue: string | number = raw ?? "";
 
-                // Format date-like fields to day/month/year (pt-BR)
+                // Format date-like fields to an unambiguous global format with time
                 if (
                   typeof raw === "string" &&
-                  (valueKey === "date" ||
-                    valueKey.toLowerCase().includes("date"))
+                  (valueKey === "date" || valueKey.toLowerCase().includes("date"))
                 ) {
                   const parsed = Date.parse(raw);
                   if (!isNaN(parsed)) {
-                    displayValue = new Date(parsed).toLocaleDateString(
-                      "pt-BR"
-                    );
+                    displayValue = formatDateTime(new Date(parsed));
                   }
                 }
 
@@ -134,6 +162,7 @@ export function Modal({ payload, onClose }: Props) {
             </div>
           </div>
           <div className="flex justify-end gap-4 p-5">
+            {/* //Action buttons */}
             <button
               className="
                 cursor-pointer
@@ -162,6 +191,9 @@ export function Modal({ payload, onClose }: Props) {
         </div>
       )}
 
+
+      {/* //I was inicially thinking of using this file to keep all modals,
+      but maybe that shouldn't be the way to do so. For now, just keeping this here. */}
       {payload.type === "NewExpense" && <div>Modal de exclusão</div>}
     </Dialog>
   );

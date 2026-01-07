@@ -39,6 +39,9 @@
     --ubs-gray: #646464;
     --ubs-seccondary-gray: #525252;
     --ubs-midnight: #193D85;
+
+    /* Figma Colors */
+    --light-gray-bg: #F1EFEF;
   }
 
   body {

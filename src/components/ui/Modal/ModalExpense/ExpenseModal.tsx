@@ -61,10 +61,10 @@ function handleDenyClick() {
     console.log("Deny button clicked");
 }
 
-export function Modal({ payload, onClose }: Props) {
+export function ExpenseModal({ payload, onClose }: Props) {
   return (
     <Dialog open onClose={onClose} maxWidth="lg" fullWidth>
-      {payload.type === "Expense" && (
+      
         <div>
           <h1 className="text-2xl font-light tracking-tight p-5">
             {payload.data.employeeName}&apos;s Expense
@@ -189,12 +189,6 @@ export function Modal({ payload, onClose }: Props) {
             </button>
           </div>
         </div>
-      )}
-
-
-      {/* //I was inicially thinking of using this file to keep all modals,
-      but maybe that shouldn't be the way to do so. For now, just keeping this here. */}
-      {payload.type === "NewExpense" && <div>Modal de exclusão</div>}
-    </Dialog>
-  );
+      </Dialog>
+    );
 }

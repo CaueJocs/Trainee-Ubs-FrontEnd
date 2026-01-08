@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 
-
+// This file serves to customize MUI standard layout to be the same as our pre-defined styles
 export const theme = createTheme({
   typography: {
     fontFamily: "inherit",

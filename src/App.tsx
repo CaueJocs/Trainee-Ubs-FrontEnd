@@ -7,6 +7,7 @@ import { theme } from "./components/ui/theme";
 import { Home } from "./pages/Home";
 import Login from "./pages/Login";
 import { MyExpenses } from "./pages/MyExpenses";
+import { MyApprovals } from "./pages/MyApprovals";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/my-expenses" element={<MyExpenses />} />
+            <Route path="/my-approvals" element={<MyApprovals />} />
           </Routes>
         </Router>
       </LocalizationProvider>

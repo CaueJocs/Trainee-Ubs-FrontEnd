@@ -3,6 +3,8 @@ import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import type { ModalContextType, ModalPayload } from "./ModalExpense/types";
 
+
+// To be 100% honest, i don't know why this file needs to exist, but without it, the home page modal won't load.
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
 export function ModalProvider({ children }: { children: ReactNode }) {

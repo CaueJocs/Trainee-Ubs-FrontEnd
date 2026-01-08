@@ -39,5 +39,36 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "#ccc",
+              transition: "border-color 200ms ease-in-out",
+            },
+            "&:hover fieldset": {
+              borderColor: "var(--ubs-red)",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "var(--ubs-red)",
+            },
+          },
+          "& .MuiInput-underline:before": {
+            borderBottomColor: "#ccc",
+            transition: "border-bottom-color 200ms ease-in-out",
+          },
+          "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+            borderBottomColor: "var(--ubs-red)",
+          },
+          "& .MuiInput-underline:after": {
+            borderBottomColor: "var(--ubs-red)",
+          },
+          "&.Mui-focused .MuiInput-underline:after": {
+            borderBottomColor: "var(--ubs-red)",
+          },
+        },
+      },
+    },
   },
 });

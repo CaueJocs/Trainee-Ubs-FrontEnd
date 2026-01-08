@@ -1,6 +1,6 @@
-import {Dialog,Select,MenuItem,FormControl,InputLabel,Autocomplete} from "@mui/material";
+import {Dialog,Select,MenuItem,FormControl,InputLabel,Autocomplete, Button} from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import dayjs, { Dayjs } from "dayjs";
+import  { Dayjs } from "dayjs";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
@@ -170,6 +170,7 @@ export function NewExpenseModal({ onClose }: Props) {
                 font-semibold text-white text-sm
                 transition-colors duration-200 ease-in-out"
             onClick={handleSubmit}>Save and create</button>
+            <Button variant="contained" sx={{bgcolor: "var(--ubs-red)"}}>Test</Button>
         </div>
       </div>
     </Dialog>

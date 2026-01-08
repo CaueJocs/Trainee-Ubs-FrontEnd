@@ -33,10 +33,34 @@
 
     --radius: 0.5rem;
 
-    /* UBS Colors */
+    /* UBS Primary Colors */
     --ubs-red: #E60100;
-    --ubs-gray: #646464;
     --ubs-midnight: #193D85;
+    --ubs-ocean: #0048C2;
+    --ubs-sky: #3783FF;
+    --ubs-ice: #DDF2FA;
+    --ubs-sunburst: #FAA100;
+    --ubs-sunflower: #FFD539;
+    --ubs-buttercup: #FFE66E;
+    --ubs-lemon: #FFF5AD;
+    --ubs-emerald: #007E35;
+    --ubs-forest: #00D581;
+    --ubs-leaf: #84FF9F;
+    --ubs-lime: #DBFEBC;
+    --ubs-gray: #646464; /* ubs-charcoal */
+    --ubs-steel: #969696;
+    --ubs-silver: #BEBEBE;
+    --ubs-chrome: #E6E6E6;
+
+    /* UBS Secondary Colors */
+    --ubs-aubergine: #543A87;
+    --ubs-grape: #6F4BB7;
+    --ubs-heather: #AA99DA;
+    --ubs-lavender: #D7CDEB;
+    --ubs-rust: #EC6400;
+    --ubs-tangerine: #FF7F17;
+    --ubs-peach: #FDA970;
+    --ubs-mango: #FFDCC7;
   }
 
   body {

@@ -197,7 +197,7 @@ export function NewExpenseModal({ onClose }: Props) {
             />
             <Button
               variant="contained"
-              sx={{ bgcolor: "var(--ubs-seccondary-gray)" }}
+              sx={{ bgcolor: "var(--ubs-gray)" }}
               startIcon={<CloudUploadIcon />}
               onClick={() => {
                 const input = (window as any)

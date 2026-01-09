@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Dialog, Autocomplete, Button } from "@mui/material";
+import { Dialog, Autocomplete, Button, Tooltip } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import TextField from "@mui/material/TextField";
@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
 import { CurrencyCode } from "@/enums/CurrencyCode";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 // All the data that we'll have on the form
 interface FormData {
@@ -107,7 +108,7 @@ export function NewExpenseModal({ onClose }: Props) {
           <TextField disabled label="Employee Name" value={form.employeeName} />
 
           <TextField disabled label="Department" value={form.departmentName} />
-          
+
           <Autocomplete
             options={Object.values(ExpenseCategory)}
             value={form.type || null}
@@ -179,7 +180,7 @@ export function NewExpenseModal({ onClose }: Props) {
               required
               disabled
               className="flex-1"
-              label="Receipt URL"
+              label="Receipt image"
               error={!!errors.amount}
               helperText={errors.amount ? "Required field" : ""}
               value={form.receiptUrl}
@@ -190,7 +191,7 @@ export function NewExpenseModal({ onClose }: Props) {
                 if (el) (window as any).__fileInputRef = el;
               }}
               type="file"
-              accept="image/*,.pdf"
+              accept=".png,.jpg,.jpeg,image/png,image/jpeg"
               style={{ display: "none" }}
               onChange={handleFileSelect}
             />
@@ -233,13 +234,31 @@ export function NewExpenseModal({ onClose }: Props) {
           >
             Save
           </Button>
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "var(--ubs-red)" }}
-            onClick={handleSaveAndCreate}
+
+          <Tooltip
+            title="Save the current expense and start a new one"
+            slotProps={{
+              popper: {
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: [0, -14],
+                    },
+                  },
+                ],
+              },
+            }}
           >
-            Save and create
-          </Button>
+            <Button
+              variant="contained"
+              sx={{ bgcolor: "var(--ubs-red)" }}
+              onClick={handleSaveAndCreate}
+              endIcon={<HelpOutlineIcon />}
+            >
+              Save and create
+            </Button>
+          </Tooltip>
         </div>
       </div>
     </Dialog>

@@ -5,6 +5,11 @@ export const theme = createTheme({
   typography: {
     fontFamily: "inherit",
   },
+  palette: {
+    primary: {
+      main: "#E60100",
+    },
+  },
   components: {
     MuiButton: {
       defaultProps: {

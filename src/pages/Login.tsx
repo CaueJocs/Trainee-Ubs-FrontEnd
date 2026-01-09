@@ -9,7 +9,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 type GreetingKey = "morning" | "afternoon" | "evening" | "night";
 
 function getGreetingKey(date = new Date()): GreetingKey {
-  const h = date.getHours();
+  const h = date.getUTCHours();
 
   if (h >= 5 && h < 12) return "morning";
   if (h >= 12 && h < 18) return "afternoon";

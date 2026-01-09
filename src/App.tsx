@@ -1,20 +1,21 @@
-// import Login from "./pages/Login";
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import { Home } from './pages/Home'
+import  Login  from './pages/Login'
+import { Access }  from './pages/Access/Access'
+import { Expenses } from './pages/Expenses/Expenses'
 
-// export default function App() {
-//   return <Login />;
-// }
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/access" element={<Access />} />
+        <Route path="/expenses" element={<Expenses />} />
+      </Routes>
+    </Router>
+  )
+}
 
-//   import { Home } from "./pages/Home"
-
-//   function App() {
-//    return <Home />
-//  }
-
-//   export default App
-
- import { Access } from "./pages/Access/Access";
-
-
- export default function App() {
-   return <Access />;
-  }
+export default App

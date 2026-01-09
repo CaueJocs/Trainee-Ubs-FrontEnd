@@ -5,16 +5,13 @@ import App from "./App.tsx";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/i18n/I18nContext";
-import { ModalProvider } from "@/components/ui/Modal/ModalProvider";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <I18nProvider>
-      <ModalProvider>
-        <TooltipProvider>
-          <App />
-        </TooltipProvider>
-      </ModalProvider>
+      <TooltipProvider>
+        <App />
+      </TooltipProvider>
     </I18nProvider>
   </StrictMode>
 );

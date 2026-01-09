@@ -256,7 +256,7 @@ export function NewExpenseModal({ onClose }: Props) {
               onClick={handleSaveAndCreate}
               endIcon={<HelpOutlineIcon />}
             >
-              Save and create
+              Save and Create
             </Button>
           </Tooltip>
         </div>

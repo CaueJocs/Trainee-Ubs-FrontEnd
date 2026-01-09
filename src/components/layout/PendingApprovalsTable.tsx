@@ -2,7 +2,7 @@ import { CurrencyCode } from "@/enums/CurrencyCode";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
 import { ExpenseStatus } from "@/enums/ExpenseStatus";
 import { useState } from "react";
-import { useModal } from "../ui/Modal/useModal";
+import { ExpenseModal } from "../ui/Modal/ModalExpense/ExpenseModal";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -24,11 +24,10 @@ export interface ExpenseResponse {
   receiptUrl: string;
   createdAt: string;
   status: ExpenseStatus;
-  managerApproval: string,
-  managerApprovalDate: string,
-  financeApproval: string,
-  financeApprovalDate: string,
-
+  managerApproval: string;
+  managerApprovalDate: string;
+  financeApproval: string;
+  financeApprovalDate: string;
 }
 
 export function PendingApprovalsTable() {
@@ -199,88 +198,89 @@ export function PendingApprovalsTable() {
 
   const [pendingApprovals] = useState<ExpenseResponse[]>(mockPendingApprovals);
 
-  const { openModal } = useModal();
+  const [selectedExpense, setSelectedExpense] =
+    useState<ExpenseResponse | null>(null);
 
   function handleOpenModal(approval: ExpenseResponse) {
-    openModal({
-      type: "Expense",
-      data: approval,
-    });
+    setSelectedExpense(approval);
+  }
+
+  function handleCloseModal() {
+    setSelectedExpense(null);
   }
 
   return (
-    <TableContainer
-      component={Card}
-      sx={{
-        maxWidth: 900,
-        maxHeight: { xs: "70vh", lg: "50vh" },
-        overflow: "auto",
-      }}
-    >
-      <Table
-        sx={{ minWidth: 350, minHeight: { xs: "70vh", lg: "auto" } }}
-        size="medium"
-        stickyHeader
-        aria-label="pending approvals table"
+    <>
+      <TableContainer
+        component={Card}
+        sx={{
+          maxWidth: 900,
+          maxHeight: { xs: "70vh", lg: "50vh" },
+          overflow: "auto",
+        }}
       >
-        <TableHead>
-          <TableRow sx={{}}>
-            <TableCell
-              sx={{
-                bgcolor: "var(--ubs-midnight)",
-                color: "white",
-                fontWeight: "medium",
-              }}
-            >
-              Employee
-            </TableCell>
-            <TableCell
-              sx={{
-                bgcolor: "var(--ubs-midnight)",
-                color: "white",
-                fontWeight: "medium",
-              }}
-            >
-              Department
-            </TableCell>
-            <TableCell
-              sx={{
-                bgcolor: "var(--ubs-midnight)",
-                color: "white",
-                fontWeight: "medium",
-              }}
-            >
-              Category
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{
-                bgcolor: "var(--ubs-midnight)",
-                color: "white",
-                fontWeight: "medium",
-              }}
-            >
-              Amount
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {pendingApprovals.map((approval) => (
-            <TableRow
-              key={approval.id}
-              onClick={() => handleOpenModal(approval)}
-              sx={{ cursor: "pointer", "&:hover": { bgcolor: "action.hover" } }}
-            >
-              <TableCell>{approval.employeeName}</TableCell>
-              <TableCell>{approval.departmentName}</TableCell>
-              <TableCell>{approval.category}</TableCell>
-              <TableCell align="right">
-                {approval.amount.toFixed(2)} ({approval.currency})
+        <Table
+          sx={{ minWidth: 350, minHeight: { xs: "70vh", lg: "auto" } }}
+          size="medium"
+          stickyHeader
+          aria-label="pending approvals table"
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell
+                sx={{ bgcolor: "var(--ubs-midnight)", color: "white" }}
+              >
+                Employee
+              </TableCell>
+              <TableCell
+                sx={{ bgcolor: "var(--ubs-midnight)", color: "white" }}
+              >
+                Department
+              </TableCell>
+              <TableCell
+                sx={{ bgcolor: "var(--ubs-midnight)", color: "white" }}
+              >
+                Category
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ bgcolor: "var(--ubs-midnight)", color: "white" }}
+              >
+                Amount
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {pendingApprovals.map((approval) => (
+              <TableRow
+                key={approval.id}
+                onClick={() => handleOpenModal(approval)}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+              >
+                <TableCell>{approval.employeeName}</TableCell>
+                <TableCell>{approval.departmentName}</TableCell>
+                <TableCell>{approval.category}</TableCell>
+                <TableCell align="right">
+                  {approval.amount.toFixed(2)} ({approval.currency})
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {selectedExpense && (
+        <ExpenseModal
+          payload={{
+            type: "Expense",
+            data: selectedExpense,
+          }}
+          onClose={handleCloseModal}
+        />
+      )}
+    </>
   );
 }

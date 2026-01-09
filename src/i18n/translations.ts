@@ -28,6 +28,7 @@ export const translations = {
       emailInfo:
         "Sign in with your corporate email",
       emailExample: "Ex: name.surname@ubsbb.com",
+      passwordValidation: "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. All rights reserved.",
@@ -52,6 +53,7 @@ export const translations = {
       emailInfo:
         "Entre com seu e-mail corporativo",
       emailExample: "Ex: nome.sobrenome@ubsbb.com",
+      passwordValidation: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Todos os direitos reservados.",
@@ -76,6 +78,7 @@ export const translations = {
       emailInfo:
         "Melden Sie sich mit Ihrer Firmen-E-Mail an",
       emailExample: "Bsp.: name.nachname@ubsbb.com",
+      passwordValidation: "Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Alle Rechte vorbehalten.",
@@ -100,6 +103,7 @@ export const translations = {
       emailInfo:
         "Connectez-vous avec votre e-mail professionnel",
       emailExample: "Ex. : prenom.nom@ubsbb.com",
+      passwordValidation: "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Tous droits réservés.",
@@ -124,6 +128,7 @@ export const translations = {
       emailInfo:
         "Accedi con la tua e-mail aziendale",
       emailExample: "Es.: nome.cognome@ubsbb.com",
+      passwordValidation: "La password deve contenere almeno una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Tutti i diritti riservati.",
@@ -148,6 +153,7 @@ export const translations = {
       emailInfo:
         "Inicia sesión con tu correo corporativo",
       emailExample: "Ej.: nombre.apellido@ubsbb.com",
+      passwordValidation: "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Todos los derechos reservados.",

@@ -24,6 +24,14 @@ export default function Login() {
   const greetingKey = React.useMemo(() => getGreetingKey(), []);
   const greeting = t(`login.greeting.${greetingKey}`);
 
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log({ email, password });
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#fbf1f2] via-[#f7dfe1] to-[#f3cfd2]">
       <Header variant="login" />
@@ -41,14 +49,17 @@ export default function Login() {
             </p>
           </div>
 
-          <form>
+          <form onSubmit={handleSubmit}>
 
             {/* Email Field */}
             <TextField
               type="email"
               autoComplete="email"
+              required
               fullWidth
               placeholder={t("login.emailPlaceholder")}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               slotProps={{
                 input: {
                   endAdornment: (
@@ -78,14 +89,25 @@ export default function Login() {
             <TextField
               type="password"
               autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               fullWidth
               placeholder={t("login.passwordPlaceholder")}
+              slotProps={{
+                htmlInput: {
+                  minLength: 8,
+                  maxLength: 64,
+                  pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
+                  title: t("login.passwordValidation"),
+                }
+              }}
               sx={{ mb: 4 }}
             />
 
             {/* Login Button */}
             <Button
-              type="button"
+              type="submit"
               fullWidth
               variant="contained"
               sx={{

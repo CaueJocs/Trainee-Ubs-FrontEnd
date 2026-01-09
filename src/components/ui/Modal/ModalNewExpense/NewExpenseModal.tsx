@@ -197,7 +197,7 @@ export function NewExpenseModal({ onClose }: Props) {
             />
             <Button
               variant="contained"
-              sx={{ bgcolor: "var(--ubs-gray)" }}
+              sx={{ bgcolor: "var(--ubs-charcoal)" }}
               startIcon={<CloudUploadIcon />}
               onClick={() => {
                 const input = (window as any)
@@ -222,7 +222,7 @@ export function NewExpenseModal({ onClose }: Props) {
         <div className="flex justify-end gap-4 p-5">
           <Button
             variant="contained"
-            sx={{ bgcolor: "var(--ubs-gray)" }}
+            sx={{ bgcolor: "var(--ubs-charcoal)" }}
             onClick={handleCancel}
           >
             Cancel

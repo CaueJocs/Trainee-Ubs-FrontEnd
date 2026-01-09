@@ -20,13 +20,13 @@ export const translations = {
       },
       subtitle: "Login UBS ExpenseManager",
 
-      emailPlaceholder: "Corporate email",
+      emailPlaceholder: "Corporate Email",
       passwordPlaceholder: "Password",
 
       continue: "Continue",
 
       emailInfo:
-        "Sign in with your corporate email and password. Employees can submit expenses, while Managers and Finance users can review and approve pending requests.",
+        "Sign in with your corporate email",
       emailExample: "Ex: name.surname@ubsbb.com",
     },
     footer: {
@@ -44,13 +44,13 @@ export const translations = {
       },
       subtitle: "Login UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail corporativo",
+      emailPlaceholder: "E-mail Corporativo",
       passwordPlaceholder: "Senha",
 
       continue: "Continuar",
 
       emailInfo:
-        "Entre com seu e-mail corporativo e senha. Funcionários registram despesas, enquanto Gestores e o Financeiro revisam e aprovam solicitações pendentes.",
+        "Entre com seu e-mail corporativo",
       emailExample: "Ex: nome.sobrenome@ubsbb.com",
     },
     footer: {
@@ -74,7 +74,7 @@ export const translations = {
       continue: "Weiter",
 
       emailInfo:
-        "Melden Sie sich mit Ihrer Firmen-E-Mail und Ihrem Passwort an. Mitarbeitende erfassen Spesen; Vorgesetzte und Finance prüfen und genehmigen offene Anfragen.",
+        "Melden Sie sich mit Ihrer Firmen-E-Mail an",
       emailExample: "Bsp.: name.nachname@ubsbb.com",
     },
     footer: {
@@ -92,13 +92,13 @@ export const translations = {
       },
       subtitle: "Connexion UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail professionnel",
+      emailPlaceholder: "E-mail Professionnel",
       passwordPlaceholder: "Mot de passe",
 
       continue: "Continuer",
 
       emailInfo:
-        "Connectez-vous avec votre e-mail professionnel et votre mot de passe. Les employés saisissent leurs dépenses; les managers et la Finance examinent et approuvent les demandes en attente.",
+        "Connectez-vous avec votre e-mail professionnel",
       emailExample: "Ex. : prenom.nom@ubsbb.com",
     },
     footer: {
@@ -116,13 +116,13 @@ export const translations = {
       },
       subtitle: "Accesso UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail aziendale",
+      emailPlaceholder: "E-mail Aziendale",
       passwordPlaceholder: "Password",
 
       continue: "Continua",
 
       emailInfo:
-        "Accedi con la tua e-mail aziendale e password. I dipendenti registrano le spese; Manager e Finance verificano e approvano le richieste in sospeso.",
+        "Accedi con la tua e-mail aziendale",
       emailExample: "Es.: nome.cognome@ubsbb.com",
     },
     footer: {
@@ -140,13 +140,13 @@ export const translations = {
       },
       subtitle: "Inicio de sesión UBS ExpenseManager",
 
-      emailPlaceholder: "Correo corporativo",
+      emailPlaceholder: "Correo Corporativo",
       passwordPlaceholder: "Contraseña",
 
       continue: "Continuar",
 
       emailInfo:
-        "Inicia sesión con tu correo corporativo y contraseña. Los empleados registran gastos; Managers y Finanzas revisan y aprueban solicitudes pendientes.",
+        "Inicia sesión con tu correo corporativo",
       emailExample: "Ej.: nombre.apellido@ubsbb.com",
     },
     footer: {

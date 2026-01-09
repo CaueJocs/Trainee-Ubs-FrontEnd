@@ -1,11 +1,10 @@
 import * as React from "react";
-import { Info } from "lucide-react";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/i18n/I18nContext";
+import { Tooltip, IconButton, TextField, Button, InputAdornment } from "@mui/material";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 type GreetingKey = "morning" | "afternoon" | "evening" | "night";
 
@@ -40,55 +39,67 @@ export default function Login() {
           </div>
 
           <div className="mt-10 space-y-5">
-            {/* Email + tooltip */}
-            <div className="relative">
-              <input
-                type="email"
-                autoComplete="email"
-                className="h-12 w-full rounded-[3px] border border-neutral-800/70 px-4 pr-12 text-base outline-none focus:border-neutral-800"
-                placeholder={t("login.emailPlaceholder")}
-              />
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-700 hover:text-neutral-900"
-                    aria-label="Info"
-                  >
-                    <Info className="h-5 w-5" />
-                  </button>
-                </TooltipTrigger>
-
-                <TooltipContent
-                  side="right"
-                  align="center"
-                  sideOffset={12}
-                  className="w-[320px] rounded-md border border-black/10 bg-white p-4 text-sm text-neutral-700 shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
-                >
-                  <div className="space-y-1">
-                    <div>{t("login.emailInfo")}</div>
-                    <div className="text-xs text-neutral-500">{t("login.emailExample")}</div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            {/* Password */}
-            <input
-              type="password"
-              autoComplete="current-password"
-              className="h-12 w-full rounded-[3px] border border-neutral-800/70 px-4 text-base outline-none focus:border-neutral-800"
-              placeholder={t("login.passwordPlaceholder")}
+            {/* Email Field */}
+            <TextField
+              type="email"
+              autoComplete="email"
+              fullWidth
+              placeholder={t("login.emailPlaceholder")}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Tooltip
+                        title={
+                          <div className="space-y-1">
+                            <div>{t("login.emailInfo")}</div>
+                            <div className="text-[var(--ubs-silver)]">{t("login.emailExample")}</div>
+                          </div>
+                        }
+                        placement="right"
+                        arrow
+                      >
+                        <IconButton size="small" edge="end" aria-label="Info">
+                          <InfoOutlinedIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+              sx={{ mb: 1 }}
             />
 
-            {/* Continue */}
-            <button
+            {/* Password Field */}
+            <TextField
+              type="password"
+              autoComplete="current-password"
+              fullWidth
+              placeholder={t("login.passwordPlaceholder")}
+              sx={{ mb: 1 }}
+            />
+
+            {/* Login Button */}
+            <Button
               type="button"
-              className="h-14 w-full rounded-[3px] bg-neutral-700 text-base font-semibold text-white hover:bg-neutral-800"
+              fullWidth
+              variant="contained"
+              sx={{
+                height: '56px',
+                borderRadius: '3px',
+                bgcolor: 'rgb(64, 64, 64)',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  bgcolor: 'rgb(38, 38, 38)',
+                },
+              }}
             >
               {t("login.continue")}
-            </button>
+            </Button>
+
           </div>
         </div>
       </main>

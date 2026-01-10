@@ -50,7 +50,7 @@ export default function Login() {
       <Header variant="login" />
 
       {/* padding vertical evita grudar no header em telas menores */}
-      <main className="mx-auto flex w-full max-w-6xl flex-1 items-start justify-center px-4 py-8 sm:items-center sm:py-12">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-4 py-8 sm:py-12">
         
         {/* Login Card */}
         <div className="w-full max-w-[520px] rounded-md bg-white px-8 pb-10 pt-10 shadow-[0_10px_30px_rgba(0,0,0,0.18)] sm:px-10 sm:pt-12">
@@ -119,7 +119,7 @@ export default function Login() {
 
             {error && (
               <Alert icon={<ErrorOutlineIcon fontSize="medium" />} severity="error" sx={{ mt: 1 }}>
-                Invalid email or password. Please try again.
+                {t("login.errorInvalidCredentials")}
               </Alert>
             )}
 

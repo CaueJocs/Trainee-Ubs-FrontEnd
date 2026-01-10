@@ -8,6 +8,7 @@ import { Home } from "./pages/Home";
 import Login from "./pages/Login";
 import { MyExpenses } from "./pages/MyExpenses";
 import { MyApprovals } from "./pages/MyApprovals";
+import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
 
 function App() {
   return (
@@ -18,8 +19,9 @@ function App() {
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/my-expenses" element={<MyExpenses />} />
-            <Route path="/my-approvals" element={<MyApprovals />} />
+            <Route path="/expenses" element={<MyExpenses />} />
+            <Route path="/approvals" element={<MyApprovals />} />
+            <Route path="/budget" element={<BudgetConfigurator />} />
           </Routes>
         </Router>
       </LocalizationProvider>

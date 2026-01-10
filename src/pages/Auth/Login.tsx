@@ -3,8 +3,13 @@ import * as React from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useI18n } from "@/i18n/I18nContext";
-import { Tooltip, IconButton, TextField, Button, InputAdornment } from "@mui/material";
+import { Tooltip, IconButton, TextField, Button, InputAdornment, Alert } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { AuthService } from "@/services/AuthService";
+import type { LoginRequest } from "@/interfaces/Login";
+import { useNavigate } from "react-router-dom";
+
 
 type GreetingKey = "morning" | "afternoon" | "evening" | "night";
 
@@ -19,6 +24,7 @@ function getGreetingKey(date = new Date()): GreetingKey {
 
 export default function Login() {
   const { t } = useI18n();
+  const navigate = useNavigate();
 
   // calcula 1x quando abre a página
   const greetingKey = React.useMemo(() => getGreetingKey(), []);
@@ -26,10 +32,17 @@ export default function Login() {
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({ email, password });
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(false);
+    const loginRequest: LoginRequest = { email, password };
+    if (await AuthService.login(loginRequest)) {
+      navigate('/home');
+    }else {
+      setError(true);
+    }
   };
 
   return (
@@ -96,14 +109,19 @@ export default function Login() {
               placeholder={t("login.passwordPlaceholder")}
               slotProps={{
                 htmlInput: {
-                  minLength: 8,
+                  //minLength: 8,
                   maxLength: 64,
-                  pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
+                  //pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
                   title: t("login.passwordValidation"),
                 }
               }}
-              sx={{ mb: 4 }}
             />
+
+            {error && (
+              <Alert icon={<ErrorOutlineIcon fontSize="medium" />} severity="error" sx={{ mt: 1 }}>
+                Invalid email or password. Please try again.
+              </Alert>
+            )}
 
             {/* Login Button */}
             <Button
@@ -120,6 +138,7 @@ export default function Login() {
                 '&:hover': {
                   bgcolor: 'black',
                 },
+                mt: 4
               }}
             >
               {t("login.continue")}

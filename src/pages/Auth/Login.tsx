@@ -49,14 +49,13 @@ export default function Login() {
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#fbf1f2] via-[#f7dfe1] to-[#f3cfd2]">
       <Header variant="login" />
 
-      {/* padding vertical evita grudar no header em telas menores */}
-      <main className="mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-4 py-8 sm:py-12">
+      <main className="mx-auto flex w-full flex-1 items-center justify-center px-4 py-8">
         
         {/* Login Card */}
-        <div className="w-full max-w-[520px] rounded-md bg-white px-8 pb-10 pt-10 shadow-[0_10px_30px_rgba(0,0,0,0.18)] sm:px-10 sm:pt-12">
+        <div className="w-full max-w-[520px] rounded-md bg-white px-8 py-10 sm:px-10 sm:pt-12 shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
           
           <div className="text-center">
-            <h1 className="text-6xl font-light tracking-tight">{greeting}</h1>
+            <h1 className="text-6xl font-light">{greeting}</h1>
             <p className="mt-2 text-sm text-[var(--ubs-charcoal)]">
               {t("login.subtitle")}
             </p>
@@ -129,7 +128,7 @@ export default function Login() {
               fullWidth
               variant="contained"
               sx={{
-                height: '56px',
+                height: '3.5rem',
                 borderRadius: '3px',
                 bgcolor: 'var(--ubs-coal)',
                 fontSize: '1rem',

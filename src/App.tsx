@@ -9,6 +9,7 @@ import Login from "./pages/Auth/Login";
 import { MyExpenses } from "./pages/MyExpenses";
 import { MyApprovals } from "./pages/MyApprovals";
 import { ProtectedRoutes } from "./pages/Auth/ProtectedRoutes";
+import { Access } from "./pages/Access/Access";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/my-expenses" element={<MyExpenses />} />
               <Route path="/my-approvals" element={<MyApprovals />} />
+              <Route path="/access" element={<Access />} />
             </Route>
           </Routes>
         </Router>

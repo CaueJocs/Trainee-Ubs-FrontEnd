@@ -5,6 +5,7 @@ import { useState } from "react";
 import { BudgetModal } from "./BugdetModal";
 
 interface areaBugdetResponse {
+  id : number
   areaName: string;
   monthlyBudget: number;
 }

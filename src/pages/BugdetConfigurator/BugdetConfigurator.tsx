@@ -24,28 +24,6 @@ export function BudgetConfigurator() {
           <h1 className="text-2xl font-light tracking-tight pt-5 pl-5 pb-3">
             Bugdet Configurator{" "}
           </h1>
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: activeButton ? "var(--ubs-red)" : "var(--ubs-gray)",
-              ml: 2,
-              borderRadius: 5,
-            }}
-            onClick={handleAreaClick}
-          >
-            Area Bugdet
-          </Button>
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: !activeButton ? "var(--ubs-red)" : "var(--ubs-gray)",
-              ml: 2,
-              borderRadius: 5,
-            }}
-            onClick={handleExpenseTypeClick}
-          >
-            Expense type Bugdet
-          </Button>
           <div className="flex flex-1 items-center justify-center p-5">
             <BudgdetTable />
           </div>

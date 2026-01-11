@@ -5,9 +5,10 @@ import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./components/ui/theme";
 
 import { Home } from "./pages/Home";
-import Login from "./pages/Login";
+import Login from "./pages/Auth/Login";
 import { MyExpenses } from "./pages/MyExpenses";
 import { MyApprovals } from "./pages/MyApprovals";
+import { ProtectedRoutes } from "./pages/Auth/ProtectedRoutes";
 
 function App() {
   return (
@@ -15,11 +16,13 @@ function App() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Router>
           <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="/home" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/my-expenses" element={<MyExpenses />} />
-            <Route path="/my-approvals" element={<MyApprovals />} />
+            <Route element={<ProtectedRoutes />}>
+              <Route path="/" element={<Navigate to="/home" replace />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/my-expenses" element={<MyExpenses />} />
+              <Route path="/my-approvals" element={<MyApprovals />} />
+            </Route>
           </Routes>
         </Router>
       </LocalizationProvider>

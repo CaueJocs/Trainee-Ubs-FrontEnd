@@ -129,7 +129,7 @@ export function ExpenseModal({ payload, onClose }: Props) {
           {/* //Action buttons */}
           <Button
             variant="contained"
-            sx={{ bgcolor: "var(--ubs-gray)" }}
+            sx={{ bgcolor: "var(--ubs-charcoal)" }}
             onClick={handleDenyClick}
           >
             Deny

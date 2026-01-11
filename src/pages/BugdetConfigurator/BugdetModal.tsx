@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/refs */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//Some errors needed to be ignored, because there're somethings in MUI that only work with 'any' type.
 
 import {
   Button,
@@ -34,75 +33,46 @@ type RowError = {
   budgetValue?: boolean;
 };
 
+// Function that updated Expense Type options to allow max 2 of each type
+const getAvailableExpenseTypeOptions = (rows: any[], rowId: number) => {
+  const usage = rows.reduce<Record<string, number>>((acc, row) => {
+    if (!row.expenseTypeName) return acc;
+    acc[row.expenseTypeName] = (acc[row.expenseTypeName] || 0) + 1;
+    return acc;
+  }, {});
 
-function getAvailableExpenseTypeOptions(rows, editingRowId) {
-  // For each expense type, if both Monthly and Daily are present, exclude it
-  const used = {};
-  rows.forEach(row => {
-    if (row.id === editingRowId) return; // ignore the row being edited
-    if (!used[row.expenseTypeName]) used[row.expenseTypeName] = new Set();
-    used[row.expenseTypeName].add(row.budgetType);
+  return Object.values(ExpenseCategory).filter((type) => {
+    const count = usage[type] || 0;
+    const currentRow = rows.find((r) => r.id === rowId);
+    if (currentRow?.expenseTypeName === type) return true;
+    return count < 2;
   });
-  return Object.values(ExpenseCategory).filter(type => {
-    return !used[type] || used[type].size < 2;
-  });
-}
+};
 
-function getAvailableBudgetTypeOptions(rows, expenseTypeName, editingRowId) {
-  // For the selected expenseType, exclude budgetTypes already used (except for the row being edited)
-  const used = new Set();
-  rows.forEach(row => {
-    if (row.id === editingRowId) return;
-    if (row.expenseTypeName === expenseTypeName) {
-      used.add(row.budgetType);
-    }
-  });
-  return ["Monthly", "Daily"].filter(type => !used.has(type));
-}
+// Function that updates Budget Type options to allow only one of each type per Expense Type
+const getAvailableBudgetTypeOptions = (rows: any[], rowId: number) => {
+  const row = rows.find((r) => r.id === rowId);
+  if (!row?.expenseTypeName) return ["Monthly", "Daily"];
 
-const columns: GridColDef[] = [
-  {
-    field: "expenseTypeName",
-    headerName: "Name",
-    flex: 1,
-    editable: true,
-    type: "singleSelect",
-    valueOptions: (params) => getAvailableExpenseTypeOptions(params.api.getAllRowModels().toArray(), params.id),
-  },
-  {
-    field: "budgetType",
-    headerName: "Budget type",
-    flex: 1,
-    editable: true,
-    type: "singleSelect",
-    valueOptions: (params) => getAvailableBudgetTypeOptions(
-      params.api.getAllRowModels().toArray(),
-      params.row.expenseTypeName,
-      params.id
-    ),
-  },
-  {
-    field: "budgetValue",
-    headerName: "Budget Value",
-    flex: 1,
-    editable: true,
-  },
-];
+  const used = rows
+    .filter((r) => r.expenseTypeName === row.expenseTypeName && r.id !== rowId)
+    .map((r) => r.budgetType);
+
+  return ["Monthly", "Daily"].filter((type) => !used.includes(type));
+};
 
 export function BudgetModal({ open, payload, onClose }: Props) {
   const [, forceRender] = useState(0);
   const [newMonthlyBudget, setNewMonthlyBudget] = useState(payload.areaBudget);
   const [rowErrors, setRowErrors] = useState<Record<number, RowError>>({});
-  const [expenseTypeOptions , setExpenseTypeOptions] = useState(Object.values(ExpenseCategory));
-  const [budgetTypeOptions , setBudgetTypeOptions] = useState(["Monthly", "Daily"]);
 
   const apiRef = useGridApiRef();
-  
 
-  const [rows, setRows] = useState([
+  //Hardcoded initial rows for demonstration purposes
+  const [rows, setRows] = useState<any[]>([
     {
       id: 1,
-      expenseTypeName: "FOOD",
+      expenseTypeName: "MEAL",
       budgetType: "Monthly",
       budgetValue: 123123,
       isNew: false,
@@ -111,14 +81,41 @@ export function BudgetModal({ open, payload, onClose }: Props) {
 
   const newRows = rows.filter((row) => row.isNew);
 
+  //Sets errors if the user doesn't fill the row correctly
   const validateRow = (row: any): RowError => ({
-    expenseTypeName: !expenseTypeOptions.includes(row.expenseTypeName),
-    budgetType: !budgetTypeOptions.includes(row.budgetType),
+    expenseTypeName: !row.expenseTypeName,
+    budgetType: !row.budgetType,
     budgetValue: isNaN(row.budgetValue) || row.budgetValue <= 0,
   });
 
-  
+  const columns: GridColDef[] = [
+    {
+      field: "expenseTypeName",
+      headerName: "Name",
+      flex: 1,
+      editable: true,
+      type: "singleSelect",
+      valueOptions: (params) =>
+        getAvailableExpenseTypeOptions(rows, params.id as number),
+    },
+    {
+      field: "budgetType",
+      headerName: "Budget type",
+      flex: 1,
+      editable: true,
+      type: "singleSelect",
+      valueOptions: (params) =>
+        getAvailableBudgetTypeOptions(rows, params.id as number),
+    },
+    {
+      field: "budgetValue",
+      headerName: "Budget Value",
+      flex: 1,
+      editable: true,
+    },
+  ];
 
+  //Adds new empty row to be filled
   const handleAddRow = () => {
     setRows((prev) => [
       ...prev,
@@ -132,19 +129,18 @@ export function BudgetModal({ open, payload, onClose }: Props) {
     ]);
   };
 
+  //Deletes all checkboxed rows
   const handleDeleteRow = () => {
     if (!apiRef.current) return;
 
     const selectedIds = Array.from(apiRef.current.getSelectedRows().keys());
-
     if (!selectedIds.length) return;
 
     setRows((prev) => prev.filter((row) => !selectedIds.includes(row.id)));
-
-    //Causes console error, but it's the only way to clear selection after deletion
     apiRef.current.setRowSelectionModel([]);
   };
 
+  //Updates row data and validates it
   const handleProcessRowUpdate = (newRow: any) => {
     setRows((prev) => prev.map((row) => (row.id === newRow.id ? newRow : row)));
 
@@ -179,12 +175,13 @@ export function BudgetModal({ open, payload, onClose }: Props) {
     if (hasError) return;
 
     if (newMonthlyBudget !== payload.areaBudget) {
-      console.log("Updated Monthly Budget:", newMonthlyBudget);
+      console.log(`Updated monthly budget to: ${newMonthlyBudget}`);
       console.log(newRows);
     } else {
-      console.log("Monthly Budget unchanged.");
+      console.log("No changes to monthly budget.");
       console.log(newRows);
     }
+
   };
 
   return (
@@ -195,6 +192,7 @@ export function BudgetModal({ open, payload, onClose }: Props) {
 
       <div className="bg-[var(--light-gray-bg)] m-4 p-4">
         <div className="pl-2 pt-5 pb-5">
+          {/* TextField to update the area's monthly budget */}
           <TextField
             label="Monthly Budget"
             value={newMonthlyBudget}
@@ -247,10 +245,7 @@ export function BudgetModal({ open, payload, onClose }: Props) {
           autoHeight
           disableRowSelectionOnClick
           processRowUpdate={handleProcessRowUpdate}
-          onRowSelectionModelChange={() => {
-            forceRender((n) => n + 1);
-          }}
-          //Causes console error, but it's the only way to force row style update
+          onRowSelectionModelChange={() => forceRender((n) => n + 1)}
           getRowClassName={(params) =>
             rowErrors[params.id] ? "bg-red-100" : ""
           }
@@ -267,7 +262,7 @@ export function BudgetModal({ open, payload, onClose }: Props) {
         <Button sx={{ bgcolor: "var(--ubs-gray)" }} onClick={onClose}>
           Cancel
         </Button>
-        
+
         <Button
           sx={{
             bgcolor: "var(--ubs-red)",

@@ -20,14 +20,16 @@ export const translations = {
       },
       subtitle: "Login UBS ExpenseManager",
 
-      emailPlaceholder: "Corporate email",
+      emailPlaceholder: "Corporate Email",
       passwordPlaceholder: "Password",
 
       continue: "Continue",
 
       emailInfo:
-        "Sign in with your corporate email and password. Employees can submit expenses, while Managers and Finance users can review and approve pending requests.",
+        "Sign in with your corporate email",
       emailExample: "Ex: name.surname@ubsbb.com",
+      passwordValidation: "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character.",
+      errorInvalidCredentials: "Invalid email or password. Please try again.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. All rights reserved.",
@@ -44,14 +46,16 @@ export const translations = {
       },
       subtitle: "Login UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail corporativo",
+      emailPlaceholder: "E-mail Corporativo",
       passwordPlaceholder: "Senha",
 
       continue: "Continuar",
 
       emailInfo:
-        "Entre com seu e-mail corporativo e senha. Funcionários registram despesas, enquanto Gestores e o Financeiro revisam e aprovam solicitações pendentes.",
+        "Entre com seu e-mail corporativo",
       emailExample: "Ex: nome.sobrenome@ubsbb.com",
+      passwordValidation: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+      errorInvalidCredentials: "E-mail ou senha inválidos. Por favor, tente novamente.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Todos os direitos reservados.",
@@ -74,8 +78,10 @@ export const translations = {
       continue: "Weiter",
 
       emailInfo:
-        "Melden Sie sich mit Ihrer Firmen-E-Mail und Ihrem Passwort an. Mitarbeitende erfassen Spesen; Vorgesetzte und Finance prüfen und genehmigen offene Anfragen.",
+        "Melden Sie sich mit Ihrer Firmen-E-Mail an",
       emailExample: "Bsp.: name.nachname@ubsbb.com",
+      passwordValidation: "Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
+      errorInvalidCredentials: "Ungültige E-Mail oder Passwort. Bitte versuchen Sie es erneut.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Alle Rechte vorbehalten.",
@@ -92,14 +98,16 @@ export const translations = {
       },
       subtitle: "Connexion UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail professionnel",
+      emailPlaceholder: "E-mail Professionnel",
       passwordPlaceholder: "Mot de passe",
 
       continue: "Continuer",
 
       emailInfo:
-        "Connectez-vous avec votre e-mail professionnel et votre mot de passe. Les employés saisissent leurs dépenses; les managers et la Finance examinent et approuvent les demandes en attente.",
+        "Connectez-vous avec votre e-mail professionnel",
       emailExample: "Ex. : prenom.nom@ubsbb.com",
+      passwordValidation: "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.",
+      errorInvalidCredentials: "E-mail ou mot de passe invalide. Veuillez réessayer.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Tous droits réservés.",
@@ -116,14 +124,16 @@ export const translations = {
       },
       subtitle: "Accesso UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail aziendale",
+      emailPlaceholder: "E-mail Aziendale",
       passwordPlaceholder: "Password",
 
       continue: "Continua",
 
       emailInfo:
-        "Accedi con la tua e-mail aziendale e password. I dipendenti registrano le spese; Manager e Finance verificano e approvano le richieste in sospeso.",
+        "Accedi con la tua e-mail aziendale",
       emailExample: "Es.: nome.cognome@ubsbb.com",
+      passwordValidation: "La password deve contenere almeno una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale.",
+      errorInvalidCredentials: "E-mail o password non validi. Per favore riprova.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Tutti i diritti riservati.",
@@ -140,14 +150,16 @@ export const translations = {
       },
       subtitle: "Inicio de sesión UBS ExpenseManager",
 
-      emailPlaceholder: "Correo corporativo",
+      emailPlaceholder: "Correo Corporativo",
       passwordPlaceholder: "Contraseña",
 
       continue: "Continuar",
 
       emailInfo:
-        "Inicia sesión con tu correo corporativo y contraseña. Los empleados registran gastos; Managers y Finanzas revisan y aprueban solicitudes pendientes.",
+        "Inicia sesión con tu correo corporativo",
       emailExample: "Ej.: nombre.apellido@ubsbb.com",
+      passwordValidation: "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.",
+      errorInvalidCredentials: "Correo o contraseña inválidos. Por favor, inténtalo de nuevo.",
     },
     footer: {
       copyright: "© UBS 1998 – 2025. Todos los derechos reservados.",

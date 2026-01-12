@@ -8,8 +8,6 @@ import {
 } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 
 import { NewUserModal, type NewUserForm } from "./NewUserModal";
 import { EditUserDialog } from "./EditUserDialog";
@@ -182,7 +180,6 @@ export function Access() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
 
       <main className="flex flex-1 flex-col items-center p-4">
         <div className="bg-[var(--light-gray-bg)] w-full h-auto">
@@ -243,7 +240,6 @@ export function Access() {
           </Alert>
         </Snackbar>
 
-      <Footer />
     </div>
   );
 }

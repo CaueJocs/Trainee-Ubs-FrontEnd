@@ -53,4 +53,24 @@ export class EmployeeService {
     }
   }
 
+  static async activateEmployee(id: string): Promise<boolean> {
+    try {
+      await EmployeeApi.activateEmployee(id);
+      return true;
+    } catch (error) {
+      console.error('Activate Employee Exception:', error);
+      return false;
+    }
+  }
+
+  static async deactivateEmployee(id: string): Promise<boolean> {
+    try {
+      await EmployeeApi.deactivateEmployee(id);
+      return true;
+    } catch (error) {
+      console.error('Deactivate Employee Exception:', error);
+      return false;
+    }
+  }
+
 }

@@ -59,21 +59,39 @@ export function Access() {
     setEditingRow(null);
   }, []);
 
-  const handleDeactivateEmployee = useCallback((employeeId: string) => {
-    // WIP - Integrate Activate/Deactivate API
-    console.log(`Employee deactivated\n ${employeeId}`);
-    setRows((prev) =>
-      prev.map((r) => (String(r.id) === String(employeeId) ? { ...r, active: false } : r))
-    );
-  }, []);
+  const handleDeactivateEmployee = useCallback(async (employeeId: string) => {
+    const success = await EmployeeService.deactivateEmployee(employeeId);
 
-  const handleActivateEmployee = useCallback((employeeId: string) => {
-    // WIP - Integrate Activate/Deactivate API
-    console.log(`Employee activated\n ${employeeId}`);
-    setRows((prev) =>
-      prev.map((r) => (String(r.id) === String(employeeId) ? { ...r, active: true } : r))
-    );
-  }, []);
+    if (success) {
+      setRows((prev) =>
+        prev.map((r) => (String(r.id) === String(employeeId) ? { ...r, active: false } : r))
+      );
+      setSnackSeverity("success");
+      setSnackMessage(t("access.employeeDeactivated"));
+      setSnackOpen(true);
+    } else {
+      setSnackSeverity("error");
+      setSnackMessage(t("access.employeeDeactivateFailed"));
+      setSnackOpen(true);
+    }
+  }, [t]);
+
+  const handleActivateEmployee = useCallback(async (employeeId: string) => {
+    const success = await EmployeeService.activateEmployee(employeeId);
+
+    if (success) {
+      setRows((prev) =>
+        prev.map((r) => (String(r.id) === String(employeeId) ? { ...r, active: true } : r))
+      );
+      setSnackSeverity("success");
+      setSnackMessage(t("access.employeeActivated"));
+      setSnackOpen(true);
+    } else {
+      setSnackSeverity("error");
+      setSnackMessage(t("access.employeeActivateFailed"));
+      setSnackOpen(true);
+    }
+  }, [t]);
 
   const handleSaveNew = useCallback(
     async (_mode: "save" | "saveAndCreate", values: NewUserForm) => {

@@ -1,6 +1,7 @@
 import { startTransition, useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 
+import { useI18n } from "@/i18n/I18nContext";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -35,6 +36,7 @@ const EMPTY_FORM: NewUserForm = {
 };
 
 export function NewUserModal({ open, onClose, onSave }: Props) {
+  const { t } = useI18n();
   const [form, setForm] = useState<NewUserForm>(EMPTY_FORM);
   const [departments, setDepartments] = useState<string[]>([]);
   const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
@@ -93,7 +95,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
 
-      <DialogTitle>New user</DialogTitle>
+      <DialogTitle>{t("access.newUser")}</DialogTitle>
 
       <DialogContent>
         <Box
@@ -108,7 +110,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
           }}
         >
           <TextField
-            label="Name"
+            label={t("access.name")}
             value={form.name}
             onChange={setField("name")}
             size="small"
@@ -116,7 +118,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
           />
 
           <TextField
-            label="Email"
+            label={t("access.email")}
             value={form.email}
             onChange={setField("email")}
             size="small"
@@ -125,7 +127,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
           />
 
           <TextField
-            label="Password"
+            label={t("access.password")}
             value={form.password}
             onChange={setField("password")}
             size="small"
@@ -136,14 +138,14 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
                 minLength: 8,
                 maxLength: 64,
                 pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
-                title: "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+                title: t("access.passwordValidation"),
               }
             }}
           />
 
           <TextField
             select
-            label="Department"
+            label={t("access.department")}
             value={form.departmentName}
             onChange={setField("departmentName")}
             size="small"
@@ -156,13 +158,13 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
                 </MenuItem>
               ))
             ) : (
-              <MenuItem value="">No departments</MenuItem>
+              <MenuItem value="">{t("access.noDepartments")}</MenuItem>
             )}
           </TextField>
 
           <TextField
             select
-            label="Manager"
+            label={t("access.manager")}
             value={form.managerId}
             onChange={setField("managerId")}
             size="small"
@@ -175,13 +177,13 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
                 </MenuItem>
               ))
             ) : (
-              <MenuItem value="">No managers</MenuItem>
+              <MenuItem value="">{t("access.noManagers")}</MenuItem>
             )}
           </TextField>
 
           <TextField
             select
-            label="Role"
+            label={t("access.role")}
             value={form.role}
             onChange={setField("role")}
             size="small"
@@ -194,7 +196,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
           </TextField>
 
           <TextField
-            label="Position"
+            label={t("access.position")}
             value={form.position}
             onChange={setField("position")}
             size="small"
@@ -206,7 +208,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose} variant="contained" color="secondary" disabled={submitting} type="button">
-          Cancel
+          {t("access.cancel")}
         </Button>
 
         <Button
@@ -216,10 +218,10 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
           color="primary"
           disabled={submitting}
         >
-          {submitting ? "Saving..." : "Save"}
+          {submitting ? t("access.saving") : t("access.save")}
         </Button>
 
-        <Tooltip title="Save the current employee and create a new one" placement="top" arrow>
+        <Tooltip title={t("access.saveAndCreateTooltip")} placement="top" arrow>
           <Button
             onClick={(e) => {
               const form = document.getElementById("new-user-form") as HTMLFormElement;
@@ -233,7 +235,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             type="button"
             endIcon={<HelpOutlineIcon />}
           >
-            {submitting ? "Saving..." : "Save and create"}
+            {submitting ? t("access.saving") : t("access.saveAndCreate")}
           </Button>
         </Tooltip>
       </DialogActions>

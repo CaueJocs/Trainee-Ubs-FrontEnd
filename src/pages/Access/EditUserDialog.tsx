@@ -1,6 +1,7 @@
 import { startTransition, useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 
+import { useI18n } from "@/i18n/I18nContext";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -22,6 +23,7 @@ type Props = {
 
 
 export function EditUserDialog({ open, user, onClose, onSave }: Props) {
+  const { t } = useI18n();
   const [employee, setEmployee] = useState<EmployeeRow | null>(null);
   const [departments, setDepartments] = useState<string[]>([]);
   const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
@@ -80,7 +82,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
 
-      <DialogTitle>Edit user</DialogTitle>
+      <DialogTitle>{t("access.editUser")}</DialogTitle>
 
       <DialogContent>
         <Box
@@ -95,7 +97,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
           }}
         >
           <TextField
-            label="Name"
+            label={t("access.name")}
             value={employee?.name ?? ""}
             onChange={setField("name")}
             size="small"
@@ -104,7 +106,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
           />
 
           <TextField
-            label="Email"
+            label={t("access.email")}
             value={employee?.email ?? ""}
             onChange={setField("email")}
             size="small"
@@ -114,7 +116,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
   
           <TextField
             select
-            label="Manager"
+            label={t("access.manager")}
             value={employee?.managerId ?? ""}
             onChange={setField("managerId")}
             size="small"
@@ -127,13 +129,13 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
                 </MenuItem>
               ))
             ) : (
-              <MenuItem value="">No managers</MenuItem>
+              <MenuItem value="">{t("access.noManagers")}</MenuItem>
             )}
           </TextField>
 
           <TextField
             select
-            label="Department"
+            label={t("access.department")}
             value={employee?.departmentName ?? ""}
             onChange={setField("departmentName")}
             size="small"
@@ -146,12 +148,12 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
                   </MenuItem>
                 ))
               : (
-                <MenuItem value="">No departments</MenuItem>
+                <MenuItem value="">{t("access.noDepartments")}</MenuItem>
               )}
           </TextField>
 
           <TextField
-            label="Position"
+            label={t("access.position")}
             value={employee?.position ?? ""}
             onChange={setField("position")}
             size="small"
@@ -169,7 +171,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
           color="secondary"
           type="button"
         >
-          Cancel
+          {t("access.cancel")}
         </Button>
         <Button
           type="submit"
@@ -178,7 +180,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
           color="primary"
           disabled={submitting}
         >
-          {submitting ? "Saving..." : "Save"}
+          {submitting ? t("access.saving") : t("access.save")}
         </Button>
 
       </DialogActions>

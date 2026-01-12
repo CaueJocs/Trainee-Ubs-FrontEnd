@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-
+import { useI18n } from "@/i18n/I18nContext";
 import Switch from "@mui/material/Switch";
 
 import {
@@ -23,6 +23,7 @@ export type EmployeeRow = EmployeeResponse;
 const INITIAL_ROWS: EmployeeRow[] = [];
 
 export function Access() {
+  const { t } = useI18n();
   const [rows, setRows] = useState<EmployeeRow[]>(INITIAL_ROWS);
 
   // Add user modal
@@ -75,7 +76,7 @@ export function Access() {
   }, []);
 
   const handleSaveNew = useCallback(
-    async (mode: "save" | "saveAndCreate", values: NewUserForm) => {
+    async (_mode: "save" | "saveAndCreate", values: NewUserForm) => {
       const result = await EmployeeService.createEmployee(values);
 
       if (result) {
@@ -83,18 +84,18 @@ export function Access() {
         setRows((prev) => [...prev, result]);
         // Show success notification
         setSnackSeverity("success");
-        setSnackMessage("Employee created successfully.");
+        setSnackMessage(t("access.employeeCreated"));
         setSnackOpen(true);
         return true;
       } else {
         // Show error notification
         setSnackSeverity("error");
-        setSnackMessage("Failed to create employee.");
+        setSnackMessage(t("access.employeeFailed"));
         setSnackOpen(true);
         return false;
       }
     },
-    []
+    [t]
   );
 
   const handleSaveEdit = useCallback(async (updated: EmployeeRow) => {
@@ -117,28 +118,28 @@ export function Access() {
       );
       // Show success notification
       setSnackSeverity("success");
-      setSnackMessage("Employee updated successfully.");
+      setSnackMessage(t("access.employeeUpdated"));
       setSnackOpen(true);
       return true;
     } else {
       // Show error notification
       setSnackSeverity("error");
-      setSnackMessage("Failed to update employee.");
+      setSnackMessage(t("access.employeeUpdateFailed"));
       setSnackOpen(true);
       return false;
     }
-  }, []);
+  }, [t]);
 
   const columns = useMemo<GridColDef<EmployeeRow>[]>(
     () => [
-      { field: "name", headerName: "Name", flex: 1, minWidth: 150 },
-      { field: "email", headerName: "Email", flex: 1, minWidth: 150 },
-      { field: "position", headerName: "Position", flex: 1, minWidth: 150 },
-      { field: "departmentName", headerName: "Department", flex: 1, minWidth: 150 },
-      { field: "role", headerName: "Role", flex: 1, minWidth: 150 },
+      { field: "name", headerName: t("access.name"), flex: 1, minWidth: 150 },
+      { field: "email", headerName: t("access.email"), flex: 1, minWidth: 150 },
+      { field: "position", headerName: t("access.position"), flex: 1, minWidth: 150 },
+      { field: "departmentName", headerName: t("access.department"), flex: 1, minWidth: 150 },
+      { field: "role", headerName: t("access.role"), flex: 1, minWidth: 150 },
       {
         field: "active",
-        headerName: "Active",
+        headerName: t("access.active"),
         flex: 0,
         minWidth: 100,
         renderCell: (params) => (
@@ -157,7 +158,7 @@ export function Access() {
         ),
       },
     ],
-    [handleActivateEmployee, handleDeactivateEmployee]
+    [handleActivateEmployee, handleDeactivateEmployee, t]
   );
 
   return (
@@ -167,9 +168,9 @@ export function Access() {
       <main className="flex flex-1 flex-col items-center p-4">
         <div className="bg-[var(--light-gray-bg)] w-full h-auto">
           <h1 className="text-2xl font-light tracking-tight pt-5 pl-5 pb-3">
-            Access
+            {t("access.title")}
           </h1>
-          <Button variant="contained" sx={{bgcolor: "var(--ubs-red)" , ml: 2}} onClick={() => openNewUser()}>New User</Button>  
+          <Button variant="contained" sx={{bgcolor: "var(--ubs-red)" , ml: 2}} onClick={() => openNewUser()}>{t("access.newUser")}</Button>  
           <section className="p-2 sm:p-4">
               <DataGrid
                 rows={rows}

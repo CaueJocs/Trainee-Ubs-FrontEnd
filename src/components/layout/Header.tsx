@@ -74,8 +74,6 @@ export function Header({
     return (
       <header className="border-t bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-      <header className="border-t bg-white/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           {/* Left */}
           <div className="flex min-w-0 items-center gap-3">
             <img
@@ -93,12 +91,9 @@ export function Header({
 
           {/* Right */}
           <div className="flex shrink-0 items-center gap-4">
-          <div className="flex shrink-0 items-center gap-4">
             <LanguageDropdown />
           </div>
         </div>
-
-        <div className="h-px bg-black/15" />
 
         <div className="h-px bg-black/15" />
       </header>
@@ -222,9 +217,6 @@ export function Header({
         </div>
       </div>
 
-      <div className="h-px bg-black/15" />
-    </header>
-  );
       <div className="h-px bg-black/15" />
     </header>
   );

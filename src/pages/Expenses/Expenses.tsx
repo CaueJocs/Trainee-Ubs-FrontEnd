@@ -11,8 +11,8 @@ import type { GridColDef } from "@mui/x-data-grid";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
-import { UserProfileDialog, type UserProfile } from "./UserProfileDialog";
-import { ResetPasswordDialog } from "./ResetPasswordDialog";
+import { UserProfileDialog, type UserProfile } from "../Access/UserProfileDialog";
+import { ResetPasswordDialog } from "../Access/ResetPasswordDialog";
 
 type ExpenseRow = {
   id: number;

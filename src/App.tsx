@@ -9,6 +9,7 @@ import Login from "./pages/Auth/Login";
 import { MyExpenses } from "./pages/MyExpenses";
 import { MyApprovals } from "./pages/MyApprovals";
 import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
+import { Expenses } from "./pages/Expenses/Expenses";
 import { ProtectedRoutes } from "./pages/Auth/ProtectedRoutes";
 
 function App() {
@@ -18,13 +19,14 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route element={<ProtectedRoutes />}>
+            {/* <Route element={<ProtectedRoutes />}> */}
               <Route path="/" element={<Navigate to="/home" replace />} />
               <Route path="/home" element={<Home />} />
               <Route path="/my-expenses" element={<MyExpenses />} />
               <Route path="/my-approvals" element={<MyApprovals />} />
               <Route path="/budget" element={<BudgetConfigurator />} />
-            </Route>
+              <Route path="/burrada" element={<Expenses />} />
+            {/* </Route> */}
           </Routes>
         </Router>
       </LocalizationProvider>

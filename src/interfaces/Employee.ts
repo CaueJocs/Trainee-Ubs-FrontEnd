@@ -6,15 +6,18 @@ export interface EmployeeResponse {
     email: string;
     departmentName: string;
     role: Role;
+    position: string;
+    managerId: string;
     active: boolean;
 }
 
 export interface EmployeeRequest {
     name: string;
     email: string;
-    managerId: string;
     password: string;
-    departmentId: string;
+    departmentName: string;
     position: string;
+    managerId: string;
     role: Role;
+    active: boolean;
 }

@@ -123,16 +123,14 @@ export function Header({
             </div>
 
             {/* Notifications */}
-            <Tooltip title="Notifications" placement="left" arrow>
-              <button
-                type="button"
-                aria-label="Open notifications"
-                onClick={openNotifications}
-                className="opacity-70 hover:opacity-100"
-              >
-                <NotificationsIcon className="h-7 w-7 cursor-pointer" />
-              </button>
-            </Tooltip>
+            <button
+              type="button"
+              aria-label="Open notifications"
+              onClick={openNotifications}
+              className="opacity-70 hover:opacity-100"
+            >
+              <NotificationsIcon className="h-7 w-7 cursor-pointer" />
+            </button>
 
             <Menu
               anchorEl={notifAnchorEl}
@@ -157,16 +155,14 @@ export function Header({
             </Menu>
 
             {/* Account dropdown */}
-            <Tooltip title="Account" placement="right" arrow>
-              <button
-                type="button"
-                aria-label="Open account menu"
-                onClick={openAccountMenu}
-                className="opacity-70 hover:opacity-100"
-              >
-                <AccountBoxIcon className="h-7 w-7 cursor-pointer" />
-              </button>
-            </Tooltip>
+            <button
+              type="button"
+              aria-label="Open account menu"
+              onClick={openAccountMenu}
+              className="opacity-70 hover:opacity-100"
+            >
+              <AccountBoxIcon className="h-7 w-7 cursor-pointer" />
+            </button>
 
             <Menu
               anchorEl={accountAnchorEl}

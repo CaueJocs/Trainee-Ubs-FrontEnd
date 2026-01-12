@@ -171,6 +171,7 @@ export function Access() {
                 handleDeactivateEmployee(params.row.id);
               }
             }}
+            onClick={(event) => event.stopPropagation()}
             color="secondary"
           />
         ),

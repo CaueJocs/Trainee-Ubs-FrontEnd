@@ -6,17 +6,11 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 
-import {
-  DataGrid,
-  GridActionsCellItem,
-} from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import type { GridColDef, GridRowId } from "@mui/x-data-grid";
 
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-
-import { NewUserModal, type NewUserForm } from "./NewUserModal";
-import { EditUserDialog, type AccessRow } from "./EditUserDialog";
+import { NewUserModal, type NewUserForm } from "../../components/ui/Modal/Access/NewUserModal";
+import { EditUserDialog, type AccessRow } from "../../components/ui/Modal/Access/EditUserDialog";
 
 const INITIAL_ROWS: AccessRow[] = [
   {
@@ -79,22 +73,27 @@ export function Access() {
     []
   );
 
-  const handleSaveEdit = useCallback((updated: AccessRow) => {
-    setRows((prev) => {
-      const currentId = editingRow?.id;
+  const handleSaveEdit = useCallback(
+    (updated: AccessRow) => {
+      setRows((prev) => {
+        const currentId = editingRow?.id;
 
-      // Se o usuário alterou o ID, validar duplicidade
-      if (currentId != null && updated.id !== currentId) {
-        const exists = prev.some((r) => r.id === updated.id);
-        if (exists) {
-          window.alert("This Id already exists. Please choose another one.");
-          return prev;
+        // Se o usuário alterou o ID, validar duplicidade
+        if (currentId != null && updated.id !== currentId) {
+          const exists = prev.some((r) => r.id === updated.id);
+          if (exists) {
+            window.alert("This Id already exists. Please choose another one.");
+            return prev;
+          }
         }
-      }
 
-      return prev.map((r) => (r.id === (editingRow?.id ?? updated.id) ? updated : r));
-    });
-  }, [editingRow]);
+        return prev.map((r) =>
+          r.id === (editingRow?.id ?? updated.id) ? updated : r
+        );
+      });
+    },
+    [editingRow]
+  );
 
   const columns = useMemo<GridColDef<AccessRow>[]>(
     () => [
@@ -191,9 +190,7 @@ export function Access() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-
+    <div className="flex w-full flex-col">
       <main className="flex-1 bg-white">
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
           <Box sx={{ mt: 3 }}>
@@ -240,11 +237,8 @@ export function Access() {
           user={editingRow}
           onClose={closeEdit}
           onSave={handleSaveEdit}
-          
         />
       </main>
-
-      <Footer />
     </div>
   );
 }

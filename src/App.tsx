@@ -8,6 +8,7 @@ import { Home } from "./pages/Home";
 import Login from "./pages/Auth/Login";
 import { MyExpenses } from "./pages/MyExpenses";
 import { MyApprovals } from "./pages/MyApprovals";
+import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
 import { ProtectedRoutes } from "./pages/Auth/ProtectedRoutes";
 import { Access } from "./pages/Access/Access";
 
@@ -23,6 +24,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/my-expenses" element={<MyExpenses />} />
               <Route path="/my-approvals" element={<MyApprovals />} />
+              <Route path="/budget" element={<BudgetConfigurator />} />
               <Route path="/access" element={<Access />} />
             </Route>
           </Routes>

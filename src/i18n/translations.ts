@@ -11,7 +11,6 @@ export const LANGUAGES: { value: Lang; label: string }[] = [
 
 export const translations = {
   en: {
-    header: { country: "Switzerland" },
     login: {
       greeting: {
         morning: "Good morning",
@@ -19,33 +18,25 @@ export const translations = {
         evening: "Good evening",
         night: "Good night",
       },
-      subtitle: "Login UBS Connect",
+      subtitle: "Login UBS ExpenseManager",
 
-      emailPlaceholder: "Corporate email",
+      emailPlaceholder: "Corporate Email",
       passwordPlaceholder: "Password",
 
-      rememberMe: "Remember me",
       continue: "Continue",
-      howToLogin: "How to log in",
 
       emailInfo:
-        "Sign in with your corporate email and password. Employees can submit expenses, while Managers and Finance users can review and approve pending requests.",
+        "Sign in with your corporate email",
+      emailExample: "Ex: name.surname@ubsbb.com",
+      passwordValidation: "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character.",
+      errorInvalidCredentials: "Invalid email or password. Please try again.",
     },
     footer: {
-      links: {
-        info: "Information on UBS",
-        terms: "Terms of use",
-        privacy: "Privacy statement",
-        report: "Report fraudulent mail",
-      },
-      disclaimer:
-        "The products, services, information and/or materials contained within these web pages may not be available for residents of certain jurisdictions. Please consult the sales restrictions relating to the products or services in question for further information.",
       copyright: "© UBS 1998 – 2025. All rights reserved.",
     },
   },
 
   pt: {
-    header: { country: "Suíça" },
     login: {
       greeting: {
         morning: "Bom dia",
@@ -53,33 +44,25 @@ export const translations = {
         evening: "Boa noite",
         night: "Boa noite",
       },
-      subtitle: "Login UBS Connect",
+      subtitle: "Login UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail corporativo",
+      emailPlaceholder: "E-mail Corporativo",
       passwordPlaceholder: "Senha",
 
-      rememberMe: "Lembrar-me",
       continue: "Continuar",
-      howToLogin: "Como entrar",
 
       emailInfo:
-        "Entre com seu e-mail corporativo e senha. Funcionários registram despesas, enquanto Gestores e o Financeiro revisam e aprovam solicitações pendentes.",
+        "Entre com seu e-mail corporativo",
+      emailExample: "Ex: nome.sobrenome@ubsbb.com",
+      passwordValidation: "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+      errorInvalidCredentials: "E-mail ou senha inválidos. Por favor, tente novamente.",
     },
     footer: {
-      links: {
-        info: "Informações sobre a UBS",
-        terms: "Termos de uso",
-        privacy: "Política de privacidade",
-        report: "Reportar e-mail fraudulento",
-      },
-      disclaimer:
-        "Os produtos, serviços, informações e/ou materiais contidos nestas páginas podem não estar disponíveis para residentes de determinadas jurisdições. Consulte as restrições de venda relacionadas aos produtos ou serviços em questão para mais informações.",
       copyright: "© UBS 1998 – 2025. Todos os direitos reservados.",
     },
   },
 
   de: {
-    header: { country: "Schweiz" },
     login: {
       greeting: {
         morning: "Guten Morgen",
@@ -87,33 +70,25 @@ export const translations = {
         evening: "Guten Abend",
         night: "Gute Nacht",
       },
-      subtitle: "Login UBS Connect",
+      subtitle: "Login UBS ExpenseManager",
 
       emailPlaceholder: "Firmen-E-Mail",
       passwordPlaceholder: "Passwort",
 
-      rememberMe: "Angemeldet bleiben",
       continue: "Weiter",
-      howToLogin: "So melden Sie sich an",
 
       emailInfo:
-        "Melden Sie sich mit Ihrer Firmen-E-Mail und Ihrem Passwort an. Mitarbeitende erfassen Spesen; Vorgesetzte und Finance prüfen und genehmigen offene Anfragen.",
+        "Melden Sie sich mit Ihrer Firmen-E-Mail an",
+      emailExample: "Bsp.: name.nachname@ubsbb.com",
+      passwordValidation: "Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
+      errorInvalidCredentials: "Ungültige E-Mail oder Passwort. Bitte versuchen Sie es erneut.",
     },
     footer: {
-      links: {
-        info: "Informationen über UBS",
-        terms: "Nutzungsbedingungen",
-        privacy: "Datenschutzerklärung",
-        report: "Betrugsverdacht melden",
-      },
-      disclaimer:
-        "Die Produkte, Dienstleistungen, Informationen und/oder Materialien auf diesen Webseiten sind möglicherweise nicht für Bewohner bestimmter Rechtsgebiete verfügbar. Bitte konsultieren Sie die Verkaufsbeschränkungen für die betreffenden Produkte oder Dienstleistungen.",
       copyright: "© UBS 1998 – 2025. Alle Rechte vorbehalten.",
     },
   },
 
   fr: {
-    header: { country: "Suisse" },
     login: {
       greeting: {
         morning: "Bonjour",
@@ -121,33 +96,25 @@ export const translations = {
         evening: "Bonsoir",
         night: "Bonne nuit",
       },
-      subtitle: "Connexion UBS Connect",
+      subtitle: "Connexion UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail professionnel",
+      emailPlaceholder: "E-mail Professionnel",
       passwordPlaceholder: "Mot de passe",
 
-      rememberMe: "Se souvenir de moi",
       continue: "Continuer",
-      howToLogin: "Comment se connecter",
 
       emailInfo:
-        "Connectez-vous avec votre e-mail professionnel et votre mot de passe. Les employés saisissent leurs dépenses; les managers et la Finance examinent et approuvent les demandes en attente.",
+        "Connectez-vous avec votre e-mail professionnel",
+      emailExample: "Ex. : prenom.nom@ubsbb.com",
+      passwordValidation: "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.",
+      errorInvalidCredentials: "E-mail ou mot de passe invalide. Veuillez réessayer.",
     },
     footer: {
-      links: {
-        info: "Informations sur UBS",
-        terms: "Conditions d’utilisation",
-        privacy: "Déclaration de confidentialité",
-        report: "Signaler un e-mail frauduleux",
-      },
-      disclaimer:
-        "Les produits, services, informations et/ou documents contenus sur ces pages peuvent ne pas être disponibles pour les résidents de certaines juridictions. Veuillez consulter les restrictions de vente relatives aux produits ou services concernés.",
       copyright: "© UBS 1998 – 2025. Tous droits réservés.",
     },
   },
 
   it: {
-    header: { country: "Svizzera" },
     login: {
       greeting: {
         morning: "Buongiorno",
@@ -155,33 +122,25 @@ export const translations = {
         evening: "Buonasera",
         night: "Buonanotte",
       },
-      subtitle: "Accesso UBS Connect",
+      subtitle: "Accesso UBS ExpenseManager",
 
-      emailPlaceholder: "E-mail aziendale",
+      emailPlaceholder: "E-mail Aziendale",
       passwordPlaceholder: "Password",
 
-      rememberMe: "Ricordami",
       continue: "Continua",
-      howToLogin: "Come accedere",
 
       emailInfo:
-        "Accedi con la tua e-mail aziendale e password. I dipendenti registrano le spese; Manager e Finance verificano e approvano le richieste in sospeso.",
+        "Accedi con la tua e-mail aziendale",
+      emailExample: "Es.: nome.cognome@ubsbb.com",
+      passwordValidation: "La password deve contenere almeno una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale.",
+      errorInvalidCredentials: "E-mail o password non validi. Per favore riprova.",
     },
     footer: {
-      links: {
-        info: "Informazioni su UBS",
-        terms: "Termini di utilizzo",
-        privacy: "Informativa sulla privacy",
-        report: "Segnala e-mail fraudolenta",
-      },
-      disclaimer:
-        "I prodotti, servizi, informazioni e/o materiali contenuti in queste pagine potrebbero non essere disponibili per i residenti di alcune giurisdizioni. Consultare le restrizioni di vendita relative ai prodotti o servizi in questione.",
       copyright: "© UBS 1998 – 2025. Tutti i diritti riservati.",
     },
   },
 
   es: {
-    header: { country: "Suiza" },
     login: {
       greeting: {
         morning: "Buenos días",
@@ -189,27 +148,20 @@ export const translations = {
         evening: "Buenas noches",
         night: "Buenas noches",
       },
-      subtitle: "Inicio de sesión UBS Connect",
+      subtitle: "Inicio de sesión UBS ExpenseManager",
 
-      emailPlaceholder: "Correo corporativo",
+      emailPlaceholder: "Correo Corporativo",
       passwordPlaceholder: "Contraseña",
 
-      rememberMe: "Recordarme",
       continue: "Continuar",
-      howToLogin: "Cómo iniciar sesión",
 
       emailInfo:
-        "Inicia sesión con tu correo corporativo y contraseña. Los empleados registran gastos; Managers y Finanzas revisan y aprueban solicitudes pendientes.",
+        "Inicia sesión con tu correo corporativo",
+      emailExample: "Ej.: nombre.apellido@ubsbb.com",
+      passwordValidation: "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.",
+      errorInvalidCredentials: "Correo o contraseña inválidos. Por favor, inténtalo de nuevo.",
     },
     footer: {
-      links: {
-        info: "Información sobre UBS",
-        terms: "Términos de uso",
-        privacy: "Declaración de privacidad",
-        report: "Reportar correo fraudulento",
-      },
-      disclaimer:
-        "Los productos, servicios, información y/o materiales de estas páginas pueden no estar disponibles para residentes de ciertas jurisdicciones. Consulte las restricciones de venta relacionadas con los productos o servicios en cuestión para más información.",
       copyright: "© UBS 1998 – 2025. Todos los derechos reservados.",
     },
   },

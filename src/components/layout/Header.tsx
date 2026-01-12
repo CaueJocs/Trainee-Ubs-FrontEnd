@@ -19,6 +19,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { LanguageDropdown } from "@/components/layout/LanguageDropdown";
 import { useI18n } from "@/i18n/I18nContext";
 import { AuthService } from "@/services/AuthService";
+import { Role } from "@/enums/Role";
 
 type HeaderVariant = "default" | "login";
 
@@ -38,6 +39,11 @@ export function Header({
   onSignOut,
 }: HeaderProps) {
   const { t } = useI18n();
+
+  // navbar permissions
+  const user = AuthService.getUser();
+  const canAccess = (roles: Role[]) => !!user && roles.includes(user.role as Role);
+
   // Notifications (placeholder)
   const notifications = useMemo<string[]>(() => [], []);
 
@@ -201,13 +207,47 @@ export function Header({
 
         {/* Linha 2: menu */}
         <div className="flex h-10 items-center">
-          <nav className="flex gap-6 text-base text-black/70">
-            <Link className="cursor-pointer hover:text-black" to="/access">
-              {t("header.access")}
+          <nav className="flex gap-6 text-base text-[var(--ubs-coal)]">
+            {canAccess([Role.ADMIN]) && (
+              <Link className="cursor-pointer hover:text-black" to="/access">
+                {t("header.access")}
+              </Link>
+            )}
+            {canAccess([Role.ADMIN]) && (
+              <Link className="cursor-pointer hover:text-black" to="/departments">
+                {t("header.departments")}
+              </Link>
+            )}
+            {canAccess([Role.EMPLOYEE, Role.MANAGER, Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-expenses">
+              {t("header.myExpenses")}
             </Link>
-            <Link className="cursor-pointer hover:text-black" to="/expenses">
-              {t("header.expenses")}
+            )}
+            {canAccess([Role.EMPLOYEE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-expenses">
+              {t("header.pendingExpenses")}
             </Link>
+            )}
+            {canAccess([Role.EMPLOYEE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-expenses">
+              {t("header.approvedExpenses")}
+            </Link>
+            )}
+            {canAccess([Role.MANAGER, Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-approvals">
+              {t("header.approvals")}
+            </Link>
+            )}
+            {canAccess([Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/budget">
+              {t("header.budget")}
+            </Link>
+            )}
+            {canAccess([Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/reports">
+              {t("header.reports")}
+            </Link>
+            )}
           </nav>
         </div>
       </div>

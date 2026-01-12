@@ -75,31 +75,29 @@ export function Access() {
   }, []);
 
   const handleSaveNew = useCallback(
-    (mode: "save" | "saveAndCreate", values: NewUserForm) => {
-      setRows((prev) => {
-        const maxId = prev.reduce((acc, r) => Math.max(acc, r.id), 0);
-        const nextId = maxId + 1;
+    async (mode: "save" | "saveAndCreate", values: NewUserForm) => {
+      const result = await EmployeeService.createEmployee(values);
 
-        const newRow: EmployeeRow = {
-          id: nextId,
-          name: values.name,
-          email: values.email,
-          manager: values.manager,
-          area: values.area,
-        };
-
-        return [...prev, newRow];
-      });
-
-      // fechamento/reset é controlado pelo componente NewUserModal
-      // (ele fecha no "save" e mantém aberto no "saveAndCreate")
-      void mode;
+      if (result) {
+        // Add new employee to rows from server response
+        setRows((prev) => [...prev, result]);
+        // Show success notification
+        setSnackSeverity("success");
+        setSnackMessage("Employee created successfully.");
+        setSnackOpen(true);
+        return true;
+      } else {
+        // Show error notification
+        setSnackSeverity("error");
+        setSnackMessage("Failed to create employee.");
+        setSnackOpen(true);
+        return false;
+      }
     },
     []
   );
 
   const handleSaveEdit = useCallback(async (updated: EmployeeRow) => {
-
     const payload: UpdateEmployeeRequest = {
       name: updated.name,
       email: updated.email,
@@ -113,11 +111,17 @@ export function Access() {
     const result = await EmployeeService.putEmployee(String(updated.id), payload);
 
     if (result) {
+      // Update rows with server response to ensure data consistency
+      setRows((prev) =>
+        prev.map((r) => (String(r.id) === String(updated.id) ? result : r))
+      );
+      // Show success notification
       setSnackSeverity("success");
       setSnackMessage("Employee updated successfully.");
       setSnackOpen(true);
       return true;
-    }else{
+    } else {
+      // Show error notification
       setSnackSeverity("error");
       setSnackMessage("Failed to update employee.");
       setSnackOpen(true);
@@ -161,7 +165,7 @@ export function Access() {
       <Header />
 
       <main className="flex flex-1 flex-col items-center p-4">
-        <div className="bg-[var(--light-gray-bg)] w-100vh w-full h-auto">
+        <div className="bg-[var(--light-gray-bg)] w-full h-auto">
           <h1 className="text-2xl font-light tracking-tight pt-5 pl-5 pb-3">
             Access
           </h1>

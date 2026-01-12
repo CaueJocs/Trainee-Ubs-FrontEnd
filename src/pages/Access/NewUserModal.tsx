@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 
 import Dialog from "@mui/material/Dialog";
@@ -8,45 +8,89 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
+import { MenuItem } from "@mui/material";
+import { DepartmentService } from "@/services/DepartmentService";
+import { EmployeeService } from "@/services/EmployeeService";
+import type { EmployeeRequest } from "@/interfaces/Employee";
+import { Role } from "@/enums/Role";
 
-export type NewUserForm = {
-  email: string;
-  name: string;
-  password: string;
-  manager: string;
-  area: string;
-};
+export type NewUserForm = EmployeeRequest;
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave: (mode: "save" | "saveAndCreate", values: NewUserForm) => void;
+  onSave: (mode: "save" | "saveAndCreate", values: NewUserForm) => Promise<boolean>;
 };
 
 const EMPTY_FORM: NewUserForm = {
-  email: "",
   name: "",
+  email: "",
   password: "",
-  manager: "",
-  area: "",
+  departmentName: "",
+  position: "",
+  managerId: "",
+  role: Role.EMPLOYEE,
+  active: true,
 };
 
 export function NewUserModal({ open, onClose, onSave }: Props) {
   const [form, setForm] = useState<NewUserForm>(EMPTY_FORM);
+  const [departments, setDepartments] = useState<string[]>([]);
+  const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (open) setForm(EMPTY_FORM);
+    if (open) {
+      startTransition(() => setForm(EMPTY_FORM));
+    }
   }, [open]);
+
+  useEffect(() => {
+    let cancelled = false;
+    DepartmentService.getDepartments().then((list) => {
+      if (cancelled) return;
+      setDepartments(list.map((d) => d.name));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    EmployeeService.getAllManagers().then((list) => {
+      if (cancelled) return;
+      setManagers(list.map((m) => ({ id: m.id, name: m.name })));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const isReady = useMemo(
+    () => Boolean(form.name?.trim() && form.email?.trim() && form.password?.trim() && form.departmentName),
+    [form]
+  );
 
   const setField =
     (key: keyof NewUserForm) => (e: ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const handleSave = (mode: "save" | "saveAndCreate") => {
-    onSave(mode, form);
-
-    if (mode === "save") onClose();
-    if (mode === "saveAndCreate") setForm(EMPTY_FORM);
+  const handleSave = async (mode: "save" | "saveAndCreate") => {
+    if (submitting || !isReady) return;
+    setSubmitting(true);
+    try {
+      const success = await onSave(mode, form);
+      if (success) {
+        if (mode === "save") {
+          onClose();
+        } else {
+          setForm(EMPTY_FORM);
+        }
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -60,66 +104,115 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             mt: 1,
             display: "grid",
             gap: 2,
-            gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
           }}
         >
           <TextField
-            label="User email"
-            value={form.email}
-            onChange={setField("email")}
-            size="small"
-          />
-
-          <TextField
-            label="User name"
+            label="Name"
             value={form.name}
             onChange={setField("name")}
             size="small"
+            required
           />
 
           <TextField
-            label="User password"
+            label="Email"
+            value={form.email}
+            onChange={setField("email")}
+            size="small"
+            required
+          />
+
+          <TextField
+            label="Password"
             value={form.password}
             onChange={setField("password")}
             size="small"
             type="password"
+            required
           />
 
           <TextField
-            label="User's manager"
-            value={form.manager}
-            onChange={setField("manager")}
+            select
+            label="Department"
+            value={form.departmentName}
+            onChange={setField("departmentName")}
             size="small"
-          />
+            required
+          >
+            {departments.length > 0 ? (
+              departments.map((dept) => (
+                <MenuItem key={dept} value={dept}>
+                  {dept}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="">No departments</MenuItem>
+            )}
+          </TextField>
 
           <TextField
-            label="User's Area"
-            value={form.area}
-            onChange={setField("area")}
+            select
+            label="Manager"
+            value={form.managerId}
+            onChange={setField("managerId")}
             size="small"
+          >
+            {managers.length > 0 ? (
+              managers.map((manager) => (
+                <MenuItem key={manager.id} value={manager.id}>
+                  {manager.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="">No managers</MenuItem>
+            )}
+          </TextField>
+
+          <TextField
+            select
+            label="Role"
+            value={form.role}
+            onChange={setField("role")}
+            size="small"
+          >
+            <MenuItem value={Role.EMPLOYEE}>Employee</MenuItem>
+            <MenuItem value={Role.MANAGER}>Manager</MenuItem>
+            <MenuItem value={Role.FINANCE}>Finance</MenuItem>
+            <MenuItem value={Role.ADMIN}>Admin</MenuItem>
+          </TextField>
+
+          <TextField
+            label="Position"
+            value={form.position}
+            onChange={setField("position")}
+            size="small"
+            sx={{ gridColumn: "1 / -1" }}
           />
         </Box>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} color="inherit">
+        <Button onClick={onClose} variant="contained" color="secondary" disabled={submitting}>
           Cancel
         </Button>
 
         <Button
           onClick={() => handleSave("save")}
           variant="contained"
-          color="error"
+          color="primary"
+          disabled={!isReady || submitting}
         >
-          Save
+          {submitting ? "Saving..." : "Save"}
         </Button>
 
         <Button
           onClick={() => handleSave("saveAndCreate")}
           variant="contained"
-          color="error"
+          color="primary"
+          disabled={!isReady || submitting}
         >
-          Save and create
+          {submitting ? "Saving..." : "Save and create"}
         </Button>
       </DialogActions>
     </Dialog>

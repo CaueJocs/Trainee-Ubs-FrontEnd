@@ -25,6 +25,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
   const [employee, setEmployee] = useState<EmployeeRow | null>(null);
   const [departments, setDepartments] = useState<string[]>([]);
   const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -56,19 +57,28 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
     };
   }, []);
 
-  const isReady = useMemo(() => Boolean(employee), [employee]);
+  const isReady = useMemo(
+    () => Boolean(employee?.name?.trim() && employee?.email?.trim()),
+    [employee]
+  );
 
   const setField =
     (key: keyof EmployeeRow) => (e: ChangeEvent<HTMLInputElement>) => {
       if (!employee) return;
-      const value = key === "id" ? Number(e.target.value) : e.target.value;
-      setEmployee({ ...employee, [key]: value as string });
+      setEmployee({ ...employee, [key]: e.target.value });
     };
 
   const handleSave = async () => {
-    if (!employee) return;
-    await onSave(employee);
-    onClose();
+    if (!employee || submitting) return;
+    setSubmitting(true);
+    try {
+      const success = await onSave(employee);
+      if (success) {
+        onClose();
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -159,9 +169,9 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
           onClick={handleSave}
           variant="contained"
           color="primary"
-          disabled={!isReady}
+          disabled={!isReady || submitting}
         >
-          Save
+          {submitting ? "Saving..." : "Save"}
         </Button>
 
       </DialogActions>

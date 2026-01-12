@@ -43,4 +43,14 @@ export class EmployeeService {
     }
   }
 
+  static async createEmployee(employeeData: EmployeeRequest): Promise<EmployeeResponse | null> {
+    try {
+      const response = await EmployeeApi.createEmployee(employeeData);
+      return response;
+    } catch (error) {
+      console.error('Create Employee Exception:', error);
+      return null;
+    }
+  }
+
 }

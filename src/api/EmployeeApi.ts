@@ -1,5 +1,5 @@
 import { http } from "./BaseApi";
-import type { EmployeeResponse, UpdateEmployeeRequest } from "@/interfaces/Employee";
+import type { EmployeeRequest, EmployeeResponse, UpdateEmployeeRequest } from "@/interfaces/Employee";
 
 export const EmployeeApi = {
 
@@ -20,6 +20,11 @@ export const EmployeeApi = {
 
   putEmployee: async (id: string, employeeData: UpdateEmployeeRequest): Promise<EmployeeResponse> => {
     const response = await http.put<EmployeeResponse>(`/employees/${id}`, employeeData);
+    return response.data;
+  },
+
+  createEmployee: async (employeeData: EmployeeRequest): Promise<EmployeeResponse> => {
+    const response = await http.post<EmployeeResponse>('/employees', employeeData);
     return response.data;
   }
 

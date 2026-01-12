@@ -27,16 +27,16 @@ function App() {
           <Routes>
             {/* //Since layout has different header/footer we separate login route */}
             <Route path="/login" element={<Login />} />
-            {/* <Route element={<ProtectedRoutes />}> */}
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/my-expenses" element={<MyExpenses />} />
-              <Route path="/my-approvals" element={<MyApprovals />} />
-              <Route path="/budget" element={<BudgetConfigurator />} />
-              <Route path="/access" element={<Access />} />
+            <Route element={<ProtectedRoutes />}>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Navigate to="/home" replace />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/my-expenses" element={<MyExpenses />} />
+                <Route path="/my-approvals" element={<MyApprovals />} />
+                <Route path="/budget" element={<BudgetConfigurator />} />
+                <Route path="/access" element={<Access />} />
+              </Route>
             </Route>
-            {/* </Route> */}
           </Routes>
         </Router>
       </LocalizationProvider>

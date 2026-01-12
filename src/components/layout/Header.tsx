@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 
@@ -18,6 +18,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 import { LanguageDropdown } from "@/components/layout/LanguageDropdown";
+import { AuthService } from "@/services/AuthService";
 
 type HeaderVariant = "default" | "login";
 
@@ -43,17 +44,17 @@ export function Header({
   const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
   const isNotifOpen = Boolean(notifAnchorEl);
 
-  const openNotifications = (e: MouseEvent<HTMLButtonElement>) =>
-    setNotifAnchorEl(e.currentTarget);
-  const closeNotifications = () => setNotifAnchorEl(null);
+  const openNotifications = useCallback((e: MouseEvent<HTMLButtonElement>) =>
+    setNotifAnchorEl(e.currentTarget), []);
+  const closeNotifications = useCallback(() => setNotifAnchorEl(null), []);
 
   // Account menu
   const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(null);
   const isAccountOpen = Boolean(accountAnchorEl);
 
-  const openAccountMenu = (e: MouseEvent<HTMLButtonElement>) =>
-    setAccountAnchorEl(e.currentTarget);
-  const closeAccountMenu = () => setAccountAnchorEl(null);
+  const openAccountMenu = useCallback((e: MouseEvent<HTMLButtonElement>) =>
+    setAccountAnchorEl(e.currentTarget), []);
+  const closeAccountMenu = useCallback(() => setAccountAnchorEl(null), []);
 
   const handleProfile = () => {
     closeAccountMenu();
@@ -65,10 +66,11 @@ export function Header({
     onOpenResetPassword?.();
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = useCallback(() => {
     closeAccountMenu();
     onSignOut?.();
-  };
+    AuthService.logout();
+  }, [closeAccountMenu, onSignOut]);
 
   if (variant === "login") {
     return (
@@ -115,6 +117,11 @@ export function Header({
           </Link>
 
           <div className="flex items-center gap-4">
+
+            <div className="flex shrink-0 items-center gap-4">
+              <LanguageDropdown />
+            </div>
+
             {/* Notifications */}
             <Tooltip title="Notifications" placement="bottom">
               <button

@@ -1,26 +1,10 @@
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { useState } from "react";
-
 import BudgdetTable from "./BudgdetTable";
-import Button from "@mui/material/Button";
 
 export function BudgetConfigurator() {
-  const [activeButton, setActivebutton] = useState<boolean>(true);
-
-  function handleAreaClick() {
-    setActivebutton(true);
-  }
-
-  function handleExpenseTypeClick() {
-    setActivebutton(false);
-  }
-
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header variant="default" />
+    <div className="flex w-full flex-col">
       <main className="flex flex-1 flex-col items-center p-4">
-        <div className="bg-[var(--light-gray-bg)] w-100vh w-full ">
+        <div className="bg-[var(--light-gray-bg)] w-100vh w-full pb-5">
           <h1 className="text-2xl font-light tracking-tight pt-5 pl-5 pb-3">
             Bugdet Configurator{" "}
           </h1>
@@ -29,7 +13,6 @@ export function BudgetConfigurator() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

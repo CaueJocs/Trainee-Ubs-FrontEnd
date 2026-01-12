@@ -6,7 +6,6 @@ import ubsLogo from "@/assets/images/ubs-logo.svg";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
-import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
@@ -18,6 +17,7 @@ import SecurityIcon from "@mui/icons-material/Security";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 import { LanguageDropdown } from "@/components/layout/LanguageDropdown";
+import { useI18n } from "@/i18n/I18nContext";
 import { AuthService } from "@/services/AuthService";
 
 type HeaderVariant = "default" | "login";
@@ -37,6 +37,7 @@ export function Header({
   onOpenResetPassword,
   onSignOut,
 }: HeaderProps) {
+  const { t } = useI18n();
   // Notifications (placeholder)
   const notifications = useMemo<string[]>(() => [], []);
 
@@ -125,7 +126,7 @@ export function Header({
             {/* Notifications */}
             <button
               type="button"
-              aria-label="Open notifications"
+              aria-label={t("header.notifications")}
               onClick={openNotifications}
               className="opacity-70 hover:opacity-100"
             >
@@ -140,24 +141,24 @@ export function Header({
               transformOrigin={{ vertical: "top", horizontal: "center" }}
             >
               <Typography sx={{ px: 2, pb: 0.5, fontWeight: 600 }}>
-                Notifications
+                {t("header.notifications")}
               </Typography>
               <Divider />
 
               {notifications.length === 0 ? (
-                <MenuItem disabled>No notifications yet</MenuItem>
+                <MenuItem disabled>{t("header.noNotifications")}</MenuItem>
               ) : (
                 notifications.map((n, i) => <MenuItem key={i}>{n}</MenuItem>)
               )}
 
               <Divider />
-              <MenuItem onClick={closeNotifications}>View all</MenuItem>
+              <MenuItem onClick={closeNotifications}>{t("header.viewAll")}</MenuItem>
             </Menu>
 
             {/* Account dropdown */}
             <button
               type="button"
-              aria-label="Open account menu"
+              aria-label={t("header.account")}
               onClick={openAccountMenu}
               className="opacity-70 hover:opacity-100"
             >
@@ -176,14 +177,14 @@ export function Header({
                 <ListItemIcon>
                   <AccountCircleIcon fontSize="small" />
                 </ListItemIcon>
-                Profile
+                {t("header.profile")}
               </MenuItem>
 
               <MenuItem onClick={handleResetPassword}>
                 <ListItemIcon>
                   <SecurityIcon fontSize="small" />
                 </ListItemIcon>
-                Reset password
+                {t("header.resetPassword")}
               </MenuItem>
 
               <Divider />
@@ -192,7 +193,7 @@ export function Header({
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
-                Sign out
+                {t("header.signOut")}
               </MenuItem>
             </Menu>
           </div>
@@ -202,10 +203,10 @@ export function Header({
         <div className="flex h-10 items-center">
           <nav className="flex gap-6 text-base text-black/70">
             <Link className="cursor-pointer hover:text-black" to="/access">
-              Access
+              {t("header.access")}
             </Link>
             <Link className="cursor-pointer hover:text-black" to="/expenses">
-              Expenses
+              {t("header.expenses")}
             </Link>
           </nav>
         </div>

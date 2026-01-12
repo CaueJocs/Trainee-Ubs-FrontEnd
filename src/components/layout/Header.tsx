@@ -3,8 +3,8 @@ import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 
 import ubsLogo from "@/assets/images/ubs-logo.svg";
-import userIcon from "@/assets/images/user-icon.png";
-import bellIcon from "@/assets/images/bell-icon.png";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
@@ -123,19 +123,14 @@ export function Header({
             </div>
 
             {/* Notifications */}
-            <Tooltip title="Notifications" placement="bottom">
+            <Tooltip title="Notifications" placement="left" arrow>
               <button
                 type="button"
                 aria-label="Open notifications"
                 onClick={openNotifications}
                 className="opacity-70 hover:opacity-100"
               >
-                <img
-                  src={bellIcon}
-                  alt="notifications"
-                  className="h-7 w-7 cursor-pointer"
-                  draggable={false}
-                />
+                <NotificationsIcon className="h-7 w-7 cursor-pointer" />
               </button>
             </Tooltip>
 
@@ -143,10 +138,10 @@ export function Header({
               anchorEl={notifAnchorEl}
               open={isNotifOpen}
               onClose={closeNotifications}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              transformOrigin={{ vertical: "top", horizontal: "center" }}
             >
-              <Typography sx={{ px: 2, pt: 1.5, pb: 0.5, fontWeight: 600 }}>
+              <Typography sx={{ px: 2, pb: 0.5, fontWeight: 600 }}>
                 Notifications
               </Typography>
               <Divider />
@@ -162,19 +157,14 @@ export function Header({
             </Menu>
 
             {/* Account dropdown */}
-            <Tooltip title="Account" placement="bottom">
+            <Tooltip title="Account" placement="right" arrow>
               <button
                 type="button"
                 aria-label="Open account menu"
                 onClick={openAccountMenu}
                 className="opacity-70 hover:opacity-100"
               >
-                <img
-                  src={userIcon}
-                  alt="profile"
-                  className="h-7 w-7 cursor-pointer"
-                  draggable={false}
-                />
+                <AccountBoxIcon className="h-7 w-7 cursor-pointer" />
               </button>
             </Tooltip>
 
@@ -182,8 +172,9 @@ export function Header({
               anchorEl={accountAnchorEl}
               open={isAccountOpen}
               onClose={closeAccountMenu}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              transformOrigin={{ vertical: "top", horizontal: "center" }}
+              disableAutoFocusItem
             >
               <MenuItem onClick={handleProfile}>
                 <ListItemIcon>

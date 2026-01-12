@@ -134,9 +134,8 @@ export function Header({
               type="button"
               aria-label={t("header.notifications")}
               onClick={openNotifications}
-              className="opacity-70 hover:opacity-100"
             >
-              <NotificationsIcon className="h-7 w-7 cursor-pointer" />
+              <NotificationsIcon className="h-7 w-7 cursor-pointer text-[var(--ubs-coal)] hover:text-black" />
             </button>
 
             <Menu
@@ -166,9 +165,8 @@ export function Header({
               type="button"
               aria-label={t("header.account")}
               onClick={openAccountMenu}
-              className="opacity-70 hover:opacity-100"
             >
-              <AccountBoxIcon className="h-7 w-7 cursor-pointer" />
+              <AccountBoxIcon className="h-7 w-7 cursor-pointer text-[var(--ubs-coal)] hover:text-black" />
             </button>
 
             <Menu

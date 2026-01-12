@@ -13,8 +13,9 @@ import { Footer } from "@/components/layout/Footer";
 
 import { NewUserModal, type NewUserForm } from "./NewUserModal";
 import { EditUserDialog } from "./EditUserDialog";
-import type { EmployeeResponse } from "@/interfaces/Employee";
-import { Button } from "@mui/material";
+import type { EmployeeResponse, UpdateEmployeeRequest } from "@/interfaces/Employee";
+import { Button, Snackbar, Alert } from "@mui/material";
+import type { AlertColor } from "@mui/material";
 import { EmployeeService } from "@/services/EmployeeService";
 
 export type EmployeeRow = EmployeeResponse;
@@ -32,6 +33,9 @@ export function Access() {
   // Edit modal
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingRow, setEditingRow] = useState<EmployeeRow | null>(null);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<AlertColor>("success");
 
   useEffect(() => {
     let cancelled = false;
@@ -94,22 +98,32 @@ export function Access() {
     []
   );
 
-  const handleSaveEdit = useCallback((updated: EmployeeRow) => {
-    setRows((prev) => {
-      const currentId = editingRow?.id;
+  const handleSaveEdit = useCallback(async (updated: EmployeeRow) => {
 
-      // Se o usuário alterou o ID, validar duplicidade
-      if (currentId != null && updated.id !== currentId) {
-        const exists = prev.some((r) => r.id === updated.id);
-        if (exists) {
-          window.alert("This Id already exists. Please choose another one.");
-          return prev;
-        }
-      }
+    const payload: UpdateEmployeeRequest = {
+      name: updated.name,
+      email: updated.email,
+      departmentName: updated.departmentName,
+      position: updated.position ?? "",
+      managerId: updated.managerId ?? "",
+      role: updated.role,
+      active: updated.active,
+    };
 
-      return prev.map((r) => (r.id === (editingRow?.id ?? updated.id) ? updated : r));
-    });
-  }, [editingRow]);
+    const result = await EmployeeService.putEmployee(String(updated.id), payload);
+
+    if (result) {
+      setSnackSeverity("success");
+      setSnackMessage("Employee updated successfully.");
+      setSnackOpen(true);
+      return true;
+    }else{
+      setSnackSeverity("error");
+      setSnackMessage("Failed to update employee.");
+      setSnackOpen(true);
+      return false;
+    }
+  }, []);
 
   const columns = useMemo<GridColDef<EmployeeRow>[]>(
     () => [
@@ -187,6 +201,23 @@ export function Access() {
           onClose={closeEdit}
           onSave={handleSaveEdit}
         />
+
+        <Snackbar
+          open={snackOpen}
+          autoHideDuration={5000}
+          onClose={(_: React.SyntheticEvent | Event, reason?: string) => {
+            if (reason === "clickaway") return;
+            setSnackOpen(false);
+          }}
+        >
+          <Alert
+            onClose={() => setSnackOpen(false)}
+            severity={snackSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackMessage}
+          </Alert>
+        </Snackbar>
 
       <Footer />
     </div>

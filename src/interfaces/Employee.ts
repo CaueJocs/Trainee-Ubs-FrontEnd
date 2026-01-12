@@ -21,3 +21,13 @@ export interface EmployeeRequest {
     role: Role;
     active: boolean;
 }
+
+export interface UpdateEmployeeRequest {
+    name: string;
+    email: string;
+    departmentName: string;
+    position: string;
+    managerId: string;
+    role: Role;
+    active: boolean;
+}

@@ -12,13 +12,12 @@ import type { EmployeeRow } from "./Access";
 import { MenuItem } from "@mui/material";
 import { DepartmentService } from "@/services/DepartmentService";
 import { EmployeeService } from "@/services/EmployeeService";
-import type { EmployeeRequest } from "@/interfaces/Employee";
 
 type Props = {
   open: boolean;
   user: EmployeeRow | null;
   onClose: () => void;
-  onSave: (updated: EmployeeRow) => void;
+  onSave: (updated: EmployeeRow) => Promise<boolean>;
 };
 
 
@@ -26,7 +25,6 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
   const [employee, setEmployee] = useState<EmployeeRow | null>(null);
   const [departments, setDepartments] = useState<string[]>([]);
   const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -69,27 +67,8 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
 
   const handleSave = async () => {
     if (!employee) return;
-    setSaving(true);
-
-    const payload = {
-      name: employee.name,
-      email: employee.email,
-      departmentName: employee.departmentName,
-      role: employee.role,
-      position: employee.position,
-      managerId: employee.managerId,
-      active: employee.active,
-    } as EmployeeRequest;
-
-    const updated = await EmployeeService.putEmployee(String(employee.id), payload);
-    setSaving(false);
-
-    if (updated) {
-      onSave(updated);
-      onClose();
-    } else {
-      console.error("Failed to update employee");
-    }
+    await onSave(employee);
+    onClose();
   };
 
   return (
@@ -180,9 +159,9 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
           onClick={handleSave}
           variant="contained"
           color="primary"
-          disabled={!isReady || saving}
+          disabled={!isReady}
         >
-          {saving ? "Saving..." : "Save"}
+          Save
         </Button>
 
       </DialogActions>

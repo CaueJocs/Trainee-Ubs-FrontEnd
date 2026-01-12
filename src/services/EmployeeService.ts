@@ -1,5 +1,5 @@
 import { EmployeeApi } from "@/api/EmployeeApi";
-import type { EmployeeRequest, EmployeeResponse } from "@/interfaces/Employee";
+import type { EmployeeRequest, EmployeeResponse, UpdateEmployeeRequest } from "@/interfaces/Employee";
 
 export class EmployeeService {
 
@@ -33,7 +33,7 @@ export class EmployeeService {
     }
   }
 
-  static async putEmployee(id: string, employeeData: EmployeeRequest): Promise<EmployeeResponse | null> {
+  static async putEmployee(id: string, employeeData: UpdateEmployeeRequest): Promise<EmployeeResponse | null> {
     try {
       const response = await EmployeeApi.putEmployee(id, employeeData);
       return response;

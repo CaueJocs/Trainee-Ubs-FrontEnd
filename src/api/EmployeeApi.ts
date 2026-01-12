@@ -1,5 +1,5 @@
 import { http } from "./BaseApi";
-import type { EmployeeRequest, EmployeeResponse } from "@/interfaces/Employee";
+import type { EmployeeResponse, UpdateEmployeeRequest } from "@/interfaces/Employee";
 
 export const EmployeeApi = {
 
@@ -18,7 +18,7 @@ export const EmployeeApi = {
     return response.data;
   },
 
-  putEmployee: async (id: string, employeeData: EmployeeRequest): Promise<EmployeeResponse> => {
+  putEmployee: async (id: string, employeeData: UpdateEmployeeRequest): Promise<EmployeeResponse> => {
     const response = await http.put<EmployeeResponse>(`/employees/${id}`, employeeData);
     return response.data;
   }

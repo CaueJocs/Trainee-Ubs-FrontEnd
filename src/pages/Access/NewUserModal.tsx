@@ -68,7 +68,15 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
   }, []);
 
   const isReady = useMemo(
-    () => Boolean(form.name?.trim() && form.email?.trim() && form.password?.trim() && form.departmentName),
+    () => Boolean(
+      form.name?.trim() && 
+      form.email?.trim() && 
+      form.password?.trim() && 
+      form.departmentName?.trim() &&
+      form.managerId?.trim() &&
+      form.role &&
+      form.position?.trim()
+    ),
     [form]
   );
 
@@ -157,6 +165,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             value={form.managerId}
             onChange={setField("managerId")}
             size="small"
+            required
           >
             {managers.length > 0 ? (
               managers.map((manager) => (
@@ -175,6 +184,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             value={form.role}
             onChange={setField("role")}
             size="small"
+            required
           >
             <MenuItem value={Role.EMPLOYEE}>Employee</MenuItem>
             <MenuItem value={Role.MANAGER}>Manager</MenuItem>
@@ -188,6 +198,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             onChange={setField("position")}
             size="small"
             sx={{ gridColumn: "1 / -1" }}
+            required
           />
         </Box>
       </DialogContent>

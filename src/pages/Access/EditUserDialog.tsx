@@ -58,7 +58,14 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
   }, []);
 
   const isReady = useMemo(
-    () => Boolean(employee?.name?.trim() && employee?.email?.trim()),
+    () => Boolean(
+      employee?.name?.trim() && 
+      employee?.email?.trim() && 
+      employee?.departmentName?.trim() &&
+      employee?.managerId?.trim() &&
+      employee?.role &&
+      employee?.position?.trim()
+    ),
     [employee]
   );
 
@@ -100,6 +107,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             value={employee?.name ?? ""}
             onChange={setField("name")}
             size="small"
+            required
           />
 
           <TextField
@@ -116,6 +124,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             value={employee?.managerId ?? ""}
             onChange={setField("managerId")}
             size="small"
+            required
           >
             {managers.length > 0 ? (
               managers.map((manager) => (
@@ -134,6 +143,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             value={employee?.departmentName ?? ""}
             onChange={setField("departmentName")}
             size="small"
+            required
           >
             {departments.length > 0
               ? departments.map((departmentName) => (
@@ -152,6 +162,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             onChange={setField("position")}
             size="small"
             sx={{ gridColumn: "1 / -1" }}
+            required
           />
 
         </Box>

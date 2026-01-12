@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 
 import Dialog from "@mui/material/Dialog";
@@ -57,25 +57,14 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
     };
   }, []);
 
-  const isReady = useMemo(
-    () => Boolean(
-      employee?.name?.trim() && 
-      employee?.email?.trim() && 
-      employee?.departmentName?.trim() &&
-      employee?.managerId?.trim() &&
-      employee?.role &&
-      employee?.position?.trim()
-    ),
-    [employee]
-  );
-
   const setField =
     (key: keyof EmployeeRow) => (e: ChangeEvent<HTMLInputElement>) => {
       if (!employee) return;
       setEmployee({ ...employee, [key]: e.target.value });
     };
 
-  const handleSave = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!employee || submitting) return;
     setSubmitting(true);
     try {
@@ -95,6 +84,9 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
 
       <DialogContent>
         <Box
+          component="form"
+          id="edit-user-form"
+          onSubmit={handleSubmit}
           sx={{
             mt: 1,
             display: "grid",
@@ -108,6 +100,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             onChange={setField("name")}
             size="small"
             required
+            inputProps={{ minLength: 2 }}
           />
 
           <TextField
@@ -115,6 +108,7 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             value={employee?.email ?? ""}
             onChange={setField("email")}
             size="small"
+            type="email"
             required
           />
   
@@ -173,14 +167,16 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
           onClick={onClose} 
           variant="contained"
           color="secondary"
+          type="button"
         >
           Cancel
         </Button>
         <Button
-          onClick={handleSave}
+          type="submit"
+          form="edit-user-form"
           variant="contained"
           color="primary"
-          disabled={!isReady || submitting}
+          disabled={submitting}
         >
           {submitting ? "Saving..." : "Save"}
         </Button>

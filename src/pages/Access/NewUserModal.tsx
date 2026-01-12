@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 
 import Dialog from "@mui/material/Dialog";
@@ -8,11 +8,12 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import { MenuItem } from "@mui/material";
+import { MenuItem, Tooltip } from "@mui/material";
 import { DepartmentService } from "@/services/DepartmentService";
 import { EmployeeService } from "@/services/EmployeeService";
 import type { EmployeeRequest } from "@/interfaces/Employee";
 import { Role } from "@/enums/Role";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 export type NewUserForm = EmployeeRequest;
 
@@ -67,25 +68,13 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
     };
   }, []);
 
-  const isReady = useMemo(
-    () => Boolean(
-      form.name?.trim() && 
-      form.email?.trim() && 
-      form.password?.trim() && 
-      form.departmentName?.trim() &&
-      form.managerId?.trim() &&
-      form.role &&
-      form.position?.trim()
-    ),
-    [form]
-  );
-
   const setField =
     (key: keyof NewUserForm) => (e: ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const handleSave = async (mode: "save" | "saveAndCreate") => {
-    if (submitting || !isReady) return;
+  const handleSubmit = async (e: React.FormEvent, mode: "save" | "saveAndCreate") => {
+    e.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     try {
       const success = await onSave(mode, form);
@@ -108,6 +97,9 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
 
       <DialogContent>
         <Box
+          component="form"
+          id="new-user-form"
+          onSubmit={(e) => handleSubmit(e, "save")}
           sx={{
             mt: 1,
             display: "grid",
@@ -128,6 +120,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             value={form.email}
             onChange={setField("email")}
             size="small"
+            type="email"
             required
           />
 
@@ -138,6 +131,14 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             size="small"
             type="password"
             required
+            slotProps={{
+              htmlInput: {
+                minLength: 8,
+                maxLength: 64,
+                pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
+                title: "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+              }
+            }}
           />
 
           <TextField
@@ -204,27 +205,37 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} variant="contained" color="secondary" disabled={submitting}>
+        <Button onClick={onClose} variant="contained" color="secondary" disabled={submitting} type="button">
           Cancel
         </Button>
 
         <Button
-          onClick={() => handleSave("save")}
+          type="submit"
+          form="new-user-form"
           variant="contained"
           color="primary"
-          disabled={!isReady || submitting}
+          disabled={submitting}
         >
           {submitting ? "Saving..." : "Save"}
         </Button>
 
-        <Button
-          onClick={() => handleSave("saveAndCreate")}
-          variant="contained"
-          color="primary"
-          disabled={!isReady || submitting}
-        >
-          {submitting ? "Saving..." : "Save and create"}
-        </Button>
+        <Tooltip title="Save the current employee and create a new one" placement="top" arrow>
+          <Button
+            onClick={(e) => {
+              const form = document.getElementById("new-user-form") as HTMLFormElement;
+              if (form?.reportValidity()) {
+                handleSubmit(e as unknown as React.FormEvent, "saveAndCreate");
+              }
+            }}
+            variant="contained"
+            color="primary"
+            disabled={submitting}
+            type="button"
+            endIcon={<HelpOutlineIcon />}
+          >
+            {submitting ? "Saving..." : "Save and create"}
+          </Button>
+        </Tooltip>
       </DialogActions>
     </Dialog>
   );

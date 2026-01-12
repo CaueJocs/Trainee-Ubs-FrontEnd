@@ -1,12 +1,8 @@
-import { Globe, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { Button, Menu, MenuItem } from "@mui/material";
+import LanguageIcon from "@mui/icons-material/Language";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useI18n } from "@/i18n/I18nContext";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const LANGUAGES = [
   { value: "de", label: "Deutsch" },
@@ -21,66 +17,103 @@ type LangValue = (typeof LANGUAGES)[number]["value"];
 
 export function LanguageDropdown() {
   const { lang, setLang } = useI18n();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
-  const current =
-    LANGUAGES.find((l) => l.value === (lang as LangValue))?.label ?? "English";
+  const currentLanguage =
+    LANGUAGES.find((l) => l.value === (lang as LangValue))?.label;
+
+  const openDropdown = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const closeDropdown = () => {
+    setAnchorEl(null);
+  };
+
+  const changeLanguage = (value: LangValue) => {
+    setLang(value);
+    closeDropdown();
+  };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="
-            h-9 rounded-[3px]
-            bg-neutral-800 text-white
-            px-3
-            flex items-center gap-2
-            text-sm font-semibold
-            shadow-sm
-            hover:bg-neutral-900
-            focus:outline-none focus:ring-0
-          "
-        >
-          <Globe className="h-4 w-4 opacity-90" />
-          <span>{current}</span>
-          <ChevronDown className="h-4 w-4 opacity-90" />
-        </button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent
-        align="end"
-        side="bottom"
-        sideOffset={10}
-        className="
-          w-[380px]
-          rounded-[3px]
-          bg-white
-          p-2
-          shadow-[0_10px_30px_rgba(0,0,0,0.18)]
-          border border-black/10
-        "
+    <>
+      <Button
+        onClick={openDropdown}
+        startIcon={<LanguageIcon sx={{ fontSize: 18, opacity: 0.9 }} />}
+        endIcon={<KeyboardArrowDownIcon sx={{ fontSize: 18, opacity: 0.9 }} />}
+        sx={{
+          height: 36,
+          borderRadius: '3px',
+          bgcolor: 'var(--ubs-coal)',
+          color: 'white',
+          px: 1.5,
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          textTransform: 'none',
+          boxShadow: 1,
+          '&:hover': {
+            bgcolor: 'black',
+          },
+        }}
+      >
+        {currentLanguage}
+      </Button>
+      
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={closeDropdown}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '3px',
+              mt: 1.25,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
+              border: '1px solid rgba(0,0,0,0.1)',
+            },
+          },
+        }}
       >
         {LANGUAGES.map((item) => {
-          const selected = item.value === lang;
+          const selectedLanguage: boolean = item.value === lang;
 
           return (
-            <DropdownMenuItem
+            <MenuItem
               key={item.value}
-              onSelect={() => setLang(item.value)}
-              className={`
-                cursor-pointer
-                px-6 py-4
-                text-[18px] leading-none
-                rounded-[2px]
-                focus:bg-neutral-200
-                ${selected ? "bg-neutral-200" : "hover:bg-neutral-100"}
-              `}
+              onClick={() => changeLanguage(item.value)}
+              selected={selectedLanguage}
+              sx={{
+                px: 3,
+                py: 2,
+                fontSize: '18px',
+                borderRadius: '2px',
+                mx: 1,
+                my: 0.25,
+                '&.Mui-selected': {
+                  bgcolor: 'var(--ubs-silver)',
+                  '&:hover': {
+                    bgcolor: 'var(--ubs-steel)',
+                  },
+                },
+                '&:hover': {
+                  bgcolor: 'var(--ubs-chrome)',
+                },
+              }}
             >
               {item.label}
-            </DropdownMenuItem>
+            </MenuItem>
           );
         })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </Menu>
+    </>
   );
 }

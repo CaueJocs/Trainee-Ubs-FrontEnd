@@ -16,6 +16,7 @@ import { MyApprovals } from "./pages/MyApprovals";
 import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
 
 import { ProtectedRoutes } from "./pages/Auth/ProtectedRoutes";
+import { Access } from "./pages/Access/Access";
 import { MainLayout } from "@/components/layout/MainLayout";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
               <Route path="/my-expenses" element={<MyExpenses />} />
               <Route path="/my-approvals" element={<MyApprovals />} />
               <Route path="/budget" element={<BudgetConfigurator />} />
+              <Route path="/access" element={<Access />} />
             </Route>
             {/* </Route> */}
           </Routes>

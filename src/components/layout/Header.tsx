@@ -10,6 +10,9 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import type { AlertColor } from "@mui/material";
 
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -17,6 +20,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 import { LanguageDropdown } from "@/components/layout/LanguageDropdown";
 import { AlertsList } from "@/components/layout/AlertsList";
+import { UserProfileDialog } from "@/components/ui/Modal/Access/UserProfileDialog";
+import { ResetPasswordDialog, type ResetPasswordForm } from "@/components/ui/Modal/Access/ResetPasswordDialog";
 import { useI18n } from "@/i18n/I18nContext";
 import { AuthService } from "@/services/AuthService";
 import { AlertsService } from "@/services/AlertsService";
@@ -28,35 +33,47 @@ type HeaderVariant = "default" | "login";
 
 type HeaderProps = {
   variant?: HeaderVariant;
-
-  // dropdown (novo padrão)
-  onOpenProfile?: () => void;
-  onOpenResetPassword?: () => void;
   onSignOut?: () => void;
 };
 
 export function Header({
   variant = "default",
-  onOpenProfile,
-  onOpenResetPassword,
   onSignOut,
 }: HeaderProps) {
   const { t } = useI18n();
 
   // navbar permissions
   const user = AuthService.getUser();
-  const canAccess = (roles: Role[]) => !!user && roles.includes(user.role as Role);
+  const canAccess = useCallback((roles: Role[]) => !!user && roles.includes(user.role as Role), [user]);
 
   // Alerts state
   const [alerts, setAlerts] = useState<AlertResponse[] | null>(null);
 
-  // Load alerts on mount for FINANCE users
+  // Modal states
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isResetOpen, setIsResetOpen] = useState(false);
+
+  // Snackbar state
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<AlertColor>("success");
+
+  // Load alerts on mount for FINANCE users and refresh every 15 minutes
   useEffect(() => {
-    if (canAccess([Role.FINANCE])) {
-      AlertsService.getUnresolvedAlerts().then((data) => {
-        setAlerts(data);
-      });
-    }
+    const fetchAlerts = () => {
+      if (canAccess([Role.FINANCE])) {
+        AlertsService.getUnresolvedAlerts().then((data) => {
+          setAlerts(data);
+        });
+      }
+    };
+
+    fetchAlerts();
+
+    const interval = setInterval(fetchAlerts, 900000);
+
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Notifications menu
@@ -75,14 +92,32 @@ export function Header({
     setAccountAnchorEl(e.currentTarget), []);
   const closeAccountMenu = useCallback(() => setAccountAnchorEl(null), []);
 
-  const handleProfile = () => {
-    closeAccountMenu();
-    onOpenProfile?.();
+  const showSnackbar = (message: string, severity: AlertColor) => {
+    setSnackMessage(message);
+    setSnackSeverity(severity);
+    setSnackOpen(true);
   };
 
-  const handleResetPassword = () => {
+  const handleProfile = () => {
     closeAccountMenu();
-    onOpenResetPassword?.();
+    setIsProfileOpen(true);
+  };
+
+  const handleResetPasswordClick = () => {
+    closeAccountMenu();
+    setIsResetOpen(true);
+  };
+
+  const handleResetPassword = async (values: ResetPasswordForm): Promise<boolean> => {
+    const success = await AuthService.changePassword(values.currentPassword, values.newPassword);
+
+    if (success) {
+      showSnackbar(t("resetPassword.success"), "success");
+      return true;
+    } else {
+      showSnackbar(t("resetPassword.error"), "error");
+      return false;
+    }
   };
 
   const handleSignOut = useCallback(() => {
@@ -122,6 +157,7 @@ export function Header({
   }
 
   return (
+    <>
     <header className="border-t bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-col px-4 sm:px-6">
         {/* Linha 1: logo + ícones */}
@@ -190,7 +226,7 @@ export function Header({
                 {t("header.profile")}
               </MenuItem>
 
-              <MenuItem onClick={handleResetPassword}>
+              <MenuItem onClick={handleResetPasswordClick}>
                 <ListItemIcon>
                   <SecurityIcon fontSize="small" />
                 </ListItemIcon>
@@ -258,5 +294,37 @@ export function Header({
 
       <div className="h-px bg-black/15" />
     </header>
+
+    {/* Modals */}
+    <UserProfileDialog
+      open={isProfileOpen}
+      onClose={() => setIsProfileOpen(false)}
+      onShowSnackbar={showSnackbar}
+    />
+
+    <ResetPasswordDialog
+      open={isResetOpen}
+      onClose={() => setIsResetOpen(false)}
+      onSave={handleResetPassword}
+    />
+
+    {/* Snackbar */}
+    <Snackbar
+      open={snackOpen}
+      autoHideDuration={5000}
+      onClose={(_: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === "clickaway") return;
+        setSnackOpen(false);
+      }}
+    >
+      <Alert
+        onClose={() => setSnackOpen(false)}
+        severity={snackSeverity}
+        sx={{ width: "100%" }}
+      >
+        {snackMessage}
+      </Alert>
+    </Snackbar>
+    </>
   );
 }

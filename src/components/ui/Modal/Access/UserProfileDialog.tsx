@@ -8,7 +8,7 @@ import type { AlertColor } from "@mui/material";
 
 import { useState } from "react";
 
-import { ResetPasswordDialog } from "./ResetPasswordDialog";
+import { ResetPasswordDialog, type ResetPasswordForm } from "./ResetPasswordDialog";
 import { AuthService } from "@/services/AuthService";
 
 
@@ -27,15 +27,15 @@ export function UserProfileDialog({ open, onClose, onShowSnackbar }: Props) {
     setResetPasswordOpen(true);
   }
 
-  function handleSavePassword() {
-    // TODO: Implementar chamada à API para resetar senha
-    // Por enquanto, simular sucesso
-    const success = true;
+  async function handleSavePassword(values: ResetPasswordForm): Promise<boolean> {
+    const success = await AuthService.changePassword(values.currentPassword, values.newPassword);
 
     if (success) {
       onShowSnackbar("Password reset successfully", "success");
+      return true;
     } else {
       onShowSnackbar("Failed to reset password", "error");
+      return false;
     }
   }
   

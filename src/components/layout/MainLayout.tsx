@@ -6,7 +6,8 @@ import type { AlertColor } from "@mui/material";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { UserProfileDialog } from "@/components/ui/Modal/Access/UserProfileDialog";
-import { ResetPasswordDialog } from "@/components/ui/Modal/Access/ResetPasswordDialog";
+import { ResetPasswordDialog, type ResetPasswordForm } from "@/components/ui/Modal/Access/ResetPasswordDialog";
+import { AuthService } from "@/services/AuthService";
 
 export function MainLayout() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -19,6 +20,18 @@ export function MainLayout() {
     setSnackMessage(message);
     setSnackSeverity(severity);
     setSnackOpen(true);
+  };
+
+  const handleResetPassword = async (values: ResetPasswordForm): Promise<boolean> => {
+    const success = await AuthService.changePassword(values.currentPassword, values.newPassword);
+
+    if (success) {
+      showSnackbar("Password reset successfully", "success");
+      return true;
+    } else {
+      showSnackbar("Failed to reset password", "error");
+      return false;
+    }
   };
 
   return (
@@ -44,10 +57,7 @@ export function MainLayout() {
       <ResetPasswordDialog
         open={isResetOpen}
         onClose={() => setIsResetOpen(false)}
-        onSave={(v) => {
-          console.log(v);
-          showSnackbar("Password reset successfully", "success");
-        }}
+        onSave={handleResetPassword}
       />
 
       <Snackbar

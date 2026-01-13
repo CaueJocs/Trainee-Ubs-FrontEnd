@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { Alert } from "@mui/material";
 
 export type ResetPasswordForm = {
+  currentPassword: string;
   newPassword: string;
   confirmNewPassword: string;
 };
@@ -17,10 +18,11 @@ export type ResetPasswordForm = {
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave?: (values: ResetPasswordForm) => void;
+  onSave: (values: ResetPasswordForm) => Promise<boolean>;
 };
 
 const EMPTY: ResetPasswordForm = {
+  currentPassword: "",
   newPassword: "",
   confirmNewPassword: "",
 };
@@ -53,8 +55,10 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
     if (submitting) return;
     setSubmitting(true);
     try {
-      onSave?.(form);
-      handleClose();
+      const success = await onSave(form);
+      if (success) {
+        handleClose();
+      }
     } finally {
       setSubmitting(false);
     }
@@ -95,6 +99,20 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             flexGrow: 1,
           }}
         >
+          <TextField
+            label="Current password"
+            type="password"
+            size="medium"
+            value={form.currentPassword}
+            onChange={setField("currentPassword")}
+            required
+            autoFocus
+            slotProps={{
+              htmlInput: {
+                minLength: 8,
+              }
+            }}
+          />
 
           <TextField
             label="New password"

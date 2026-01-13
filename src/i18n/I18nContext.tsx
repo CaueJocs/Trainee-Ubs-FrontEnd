@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import { LANGUAGES, translations, type Lang } from "./translations";
 
@@ -11,16 +12,16 @@ type I18nContextValue = {
 
 const I18nContext = React.createContext<I18nContextValue | null>(null);
 
-function getNested(obj: any, path: string): any {
-  return path.split(".").reduce((acc, part) => (acc ? acc[part] : undefined), obj);
+function getNested(obj: any, path: string): string | undefined {
+  return path.split(".").reduce<any>((acc, part) => acc?.[part], obj);
 }
 
 function detectDefaultLang(): Lang {
-  const saved = localStorage.getItem("ubs-lang") as Lang | null;
-  if (saved && LANGUAGES.some((l) => l.value === saved)) return saved;
+  const savedLanguage = localStorage.getItem("ubs-lang") as Lang | null;
+  if (savedLanguage && LANGUAGES.some((l) => l.value === savedLanguage)) return savedLanguage;
 
-  const browser = (navigator.language || "en").slice(0, 2) as Lang;
-  if (LANGUAGES.some((l) => l.value === browser)) return browser;
+  const browserLanguage = (navigator.language || "en").slice(0, 2) as Lang;
+  if (LANGUAGES.some((l) => l.value === browserLanguage)) return browserLanguage;
 
   return "en";
 }
@@ -46,6 +47,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
+/* eslint-disable react-refresh/only-export-components */
 export function useI18n() {
   const ctx = React.useContext(I18nContext);
   if (!ctx) throw new Error("useI18n must be used within I18nProvider");

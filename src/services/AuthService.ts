@@ -23,6 +23,7 @@ export class AuthService {
   static logout(): void {
     localStorage.removeItem(this.JWT_KEY);
     localStorage.removeItem(this.USER_KEY);
+    window.location.reload();
   }
 
   static isAuthenticated(): boolean {

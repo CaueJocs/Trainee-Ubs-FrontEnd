@@ -237,18 +237,7 @@ export function NewExpenseModal({ onClose }: Props) {
 
           <Tooltip
             title="Save the current expense and start a new one"
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: {
-                      offset: [0, -14],
-                    },
-                  },
-                ],
-              },
-            }}
+            placement="top" arrow
           >
             <Button
               variant="contained"

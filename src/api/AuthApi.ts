@@ -8,4 +8,11 @@ export const AuthApi = {
     return response.data;
   },
 
+  changePassword: async (currentPassword: string, newPassword: string): Promise<void> => {
+    await http.post('/auth/change-password', {
+      currentPassword,
+      newPassword,
+    });
+  }
+
 };

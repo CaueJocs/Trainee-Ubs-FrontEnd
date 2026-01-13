@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useI18n } from "@/i18n/I18nContext";
+import { Alert } from "@mui/material";
 
 export type ResetPasswordForm = {
   currentPassword: string;
@@ -18,7 +18,7 @@ export type ResetPasswordForm = {
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave?: (values: ResetPasswordForm) => void; // opcional (por enquanto pode só logar)
+  onSave: (values: ResetPasswordForm) => Promise<boolean>;
 };
 
 const EMPTY: ResetPasswordForm = {
@@ -28,87 +28,145 @@ const EMPTY: ResetPasswordForm = {
 };
 
 export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
+  const { t } = useI18n();
   const [form, setForm] = useState<ResetPasswordForm>(EMPTY);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (open) setForm(EMPTY);
-  }, [open]);
+  const handleClose = () => {
+    setForm(EMPTY);
+    onClose();
+  };
 
   const setField =
     (key: keyof ResetPasswordForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const passwordsMatch = useMemo(
-    () => form.newPassword.length > 0 && form.newPassword === form.confirmNewPassword,
+    () => form.newPassword === form.confirmNewPassword,
     [form.newPassword, form.confirmNewPassword]
   );
 
-  const canSave = useMemo(() => {
-    return (
-      form.currentPassword.trim().length > 0 &&
-      form.newPassword.trim().length > 0 &&
-      form.confirmNewPassword.trim().length > 0 &&
-      passwordsMatch
-    );
-  }, [form, passwordsMatch]);
-
-  const handleSave = () => {
-    if (!canSave) return;
-    onSave?.(form);
-    onClose();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Block submission if passwords do not match
+    if (!passwordsMatch) return;
+    
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const success = await onSave(form);
+      if (success) {
+        handleClose();
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Reset password</DialogTitle>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
 
-      <DialogContent>
-        <Box sx={{ mt: 1, display: "grid", gap: 2 }}>
+      <Box sx={{
+          p: 3,
+          minHeight: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+      }}>
+        
+        <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1,
+        }}>
+
+          <LockResetIcon sx={{ fontSize: 80 }} />
+          <h1>{t("resetPassword.title")}</h1>
+        </Box>
+
+        <Box
+          component="form"
+          id="reset-password-form"
+          onSubmit={handleSubmit}
+          sx={{
+            maxWidth: 900,
+            mx: "auto",
+            width: "100%",
+            display: "grid",
+            gap: 2,
+            flexGrow: 1,
+          }}
+        >
           <TextField
-            label="Current password"
+            label={t("resetPassword.currentPassword")}
             type="password"
-            size="small"
+            size="medium"
             value={form.currentPassword}
             onChange={setField("currentPassword")}
+            required
             autoFocus
+            slotProps={{
+              htmlInput: {
+                minLength: 8,
+                maxLength: 64,
+              }
+            }}
           />
 
           <TextField
-            label="New password"
+            label={t("resetPassword.newPassword")}
             type="password"
-            size="small"
+            size="medium"
             value={form.newPassword}
             onChange={setField("newPassword")}
+            required
+            slotProps={{
+              htmlInput: {
+                minLength: 8,
+                maxLength: 64,
+                pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
+                title: t("access.passwordValidation"),
+              }
+            }}
           />
 
           <TextField
-            label="Confirm new password"
+            label={t("resetPassword.confirmPassword")}
             type="password"
-            size="small"
+            size="medium"
             value={form.confirmNewPassword}
             onChange={setField("confirmNewPassword")}
-            error={form.confirmNewPassword.length > 0 && !passwordsMatch}
-            helperText={
-              form.confirmNewPassword.length > 0 && !passwordsMatch
-                ? "Passwords do not match"
-                : " "
-            }
+            required
           />
-
-          <Typography variant="caption" sx={{ color: "rgba(0,0,0,0.55)" }}>
-            * No API yet — this will be wired later.
-          </Typography>
         </Box>
-      </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} variant="contained" color="error" disabled={!canSave}>
-          Save
-        </Button>
-      </DialogActions>
+        {form.confirmNewPassword.length > 0 && !passwordsMatch && (
+          <Alert icon={<ErrorOutlineIcon fontSize="medium" />} severity="warning" sx={{ mt: 1 }}>
+            {t("resetPassword.passwordsDoNotMatch")}
+          </Alert>
+        )}
+        
+        <Box sx={{ alignSelf: "flex-end", display: "flex", gap: 2 }}>
+          <Button 
+            sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} 
+            onClick={handleClose}
+            type="button"
+            disabled={submitting}
+          >
+            {t("resetPassword.cancel")}
+          </Button>
+          <Button 
+            sx={{ bgcolor: "var(--ubs-red)", color: "white" }} 
+            type="submit"
+            form="reset-password-form"
+            disabled={submitting}
+          >
+            {submitting ? t("resetPassword.saving") : t("resetPassword.save")}
+          </Button>
+        </Box>
+      </Box>
     </Dialog>
   );
 }

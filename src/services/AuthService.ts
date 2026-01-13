@@ -20,6 +20,16 @@ export class AuthService {
     }
   }
 
+  static async changePassword(currentPassword: string, newPassword: string): Promise<boolean> {
+    try {
+      await AuthApi.changePassword(currentPassword, newPassword);
+      return true;
+    } catch (error) {
+      console.error('Change Password Exception:', error);
+      return false;
+    }
+  }
+
   static logout(): void {
     localStorage.removeItem(this.JWT_KEY);
     localStorage.removeItem(this.USER_KEY);

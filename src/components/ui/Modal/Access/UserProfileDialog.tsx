@@ -8,23 +8,18 @@ import { Button } from "@mui/material";
 import { useState } from "react";
 
 import { ResetPasswordDialog } from "./ResetPasswordDialog";
+import { AuthService } from "@/services/AuthService";
 
-
-export type UserProfile = {
-  name: string;
-  email: string;
-  manager: string;
-  area: string;
-};
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  profile: UserProfile;
 };
 
-export function UserProfileDialog({ open, onClose, profile }: Props) {
+export function UserProfileDialog({ open, onClose }: Props) {
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  
+  const user = AuthService.getUser();
   
   function handleResetPassword() {
     setResetPasswordOpen(true);
@@ -68,41 +63,43 @@ export function UserProfileDialog({ open, onClose, profile }: Props) {
         >
           <TextField
             label="Name"
-            value={profile.name}
-            size="small"
-            InputProps={{ readOnly: true }}
+            value={user?.name || ""}
+            size="medium"
+            disabled
           />
           <TextField
             label="Email"
-            value={profile.email}
-            size="small"
-            InputProps={{ readOnly: true }}
+            value={user?.email || ""}
+            size="medium"
+            disabled
           />
           <TextField
-            label="Manager"
-            value={profile.manager}
-            size="small"
-            InputProps={{ readOnly: true }}
+            label="Department"
+            value={user?.departmentName || ""}
+            size="medium"
+            disabled
           />
           <TextField
-            label="Area"
-            value={profile.area}
-            size="small"
-            InputProps={{ readOnly: true }}
+            label="Role"
+            value={user?.role || ""}
+            size="medium"
+            disabled
           />
         </Box>
 
         
-        <Box sx={{ alignSelf: "flex-end" }}>
-          <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} endIcon={<LockResetIcon />} onClick={handleResetPassword}>Reset Password</Button>
+        <Box sx={{ alignSelf: "flex-end", display: "flex", gap: 2 }}>
+          <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} onClick={onClose}>Cancel</Button>
+          <Button sx={{ bgcolor: "var(--ubs-red)", color: "white" }} endIcon={<LockResetIcon />} onClick={handleResetPassword}>Reset Password</Button>
         </Box>
       </Box>
+
       {resetPasswordOpen && (
-              <ResetPasswordDialog
-                open={resetPasswordOpen}
-                onClose={() => setResetPasswordOpen(false)}
-              />
-            )}
+        <ResetPasswordDialog
+          open={resetPasswordOpen}
+          onClose={() => setResetPasswordOpen(false)}
+        />
+      )}
                 
     </Dialog>
   );

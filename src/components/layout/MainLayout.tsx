@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -9,16 +9,6 @@ import { ResetPasswordDialog } from "@/components/ui/Modal/Access/ResetPasswordD
 export function MainLayout() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isResetOpen, setIsResetOpen] = useState(false);
-
-  const profile = useMemo(
-    () => ({
-      name: "Jose Silva",
-      email: "jose.silva@ubs.com",
-      manager: "Leandro Andrade",
-      area: "LFG",
-    }),
-    []
-  );
 
   return (
     <>
@@ -37,7 +27,6 @@ export function MainLayout() {
       <UserProfileDialog
         open={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
-        profile={profile}
       />
 
       <ResetPasswordDialog

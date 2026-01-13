@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -7,7 +7,6 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 
 export type ResetPasswordForm = {
   currentPassword: string;
@@ -30,9 +29,10 @@ const EMPTY: ResetPasswordForm = {
 export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
   const [form, setForm] = useState<ResetPasswordForm>(EMPTY);
 
-  useEffect(() => {
-    if (open) setForm(EMPTY);
-  }, [open]);
+  const handleClose = () => {
+    setForm(EMPTY);
+    onClose();
+  };
 
   const setField =
     (key: keyof ResetPasswordForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -55,11 +55,11 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
   const handleSave = () => {
     if (!canSave) return;
     onSave?.(form);
-    onClose();
+    handleClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>Reset password</DialogTitle>
 
       <DialogContent>
@@ -94,15 +94,11 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
                 : " "
             }
           />
-
-          <Typography variant="caption" sx={{ color: "rgba(0,0,0,0.55)" }}>
-            * No API yet — this will be wired later.
-          </Typography>
         </Box>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} color="inherit">
+        <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} onClick={handleClose} color="inherit">
           Cancel
         </Button>
         <Button onClick={handleSave} variant="contained" color="error" disabled={!canSave}>

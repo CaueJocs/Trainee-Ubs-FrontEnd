@@ -1,12 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 
 import ubsLogo from "@/assets/images/ubs-logo.svg";
-import userIcon from "@/assets/images/user-icon.png";
-import bellIcon from "@/assets/images/bell-icon.png";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
-import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
@@ -14,9 +13,13 @@ import Typography from "@mui/material/Typography";
 import ListItemIcon from "@mui/material/ListItemIcon";
 
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import SecurityIcon from "@mui/icons-material/Security";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 import { LanguageDropdown } from "@/components/layout/LanguageDropdown";
+import { useI18n } from "@/i18n/I18nContext";
+import { AuthService } from "@/services/AuthService";
+import { Role } from "@/enums/Role";
 
 type HeaderVariant = "default" | "login";
 
@@ -32,8 +35,15 @@ type HeaderProps = {
 export function Header({
   variant = "default",
   onOpenProfile,
+  onOpenResetPassword,
   onSignOut,
 }: HeaderProps) {
+  const { t } = useI18n();
+
+  // navbar permissions
+  const user = AuthService.getUser();
+  const canAccess = (roles: Role[]) => !!user && roles.includes(user.role as Role);
+
   // Notifications (placeholder)
   const notifications = useMemo<string[]>(() => [], []);
 
@@ -41,27 +51,33 @@ export function Header({
   const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
   const isNotifOpen = Boolean(notifAnchorEl);
 
-  const openNotifications = (e: MouseEvent<HTMLButtonElement>) =>
-    setNotifAnchorEl(e.currentTarget);
-  const closeNotifications = () => setNotifAnchorEl(null);
+  const openNotifications = useCallback((e: MouseEvent<HTMLButtonElement>) =>
+    setNotifAnchorEl(e.currentTarget), []);
+  const closeNotifications = useCallback(() => setNotifAnchorEl(null), []);
 
   // Account menu
   const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(null);
   const isAccountOpen = Boolean(accountAnchorEl);
 
-  const openAccountMenu = (e: MouseEvent<HTMLButtonElement>) =>
-    setAccountAnchorEl(e.currentTarget);
-  const closeAccountMenu = () => setAccountAnchorEl(null);
+  const openAccountMenu = useCallback((e: MouseEvent<HTMLButtonElement>) =>
+    setAccountAnchorEl(e.currentTarget), []);
+  const closeAccountMenu = useCallback(() => setAccountAnchorEl(null), []);
 
   const handleProfile = () => {
     closeAccountMenu();
     onOpenProfile?.();
   };
 
-  const handleSignOut = () => {
+  const handleResetPassword = () => {
+    closeAccountMenu();
+    onOpenResetPassword?.();
+  };
+
+  const handleSignOut = useCallback(() => {
     closeAccountMenu();
     onSignOut?.();
-  };
+    AuthService.logout();
+  }, [closeAccountMenu, onSignOut]);
 
   if (variant === "login") {
     return (
@@ -108,74 +124,71 @@ export function Header({
           </Link>
 
           <div className="flex items-center gap-4">
+
+            <div className="flex shrink-0 items-center gap-4">
+              <LanguageDropdown />
+            </div>
+
             {/* Notifications */}
-            <Tooltip title="Notifications" placement="bottom">
-              <button
-                type="button"
-                aria-label="Open notifications"
-                onClick={openNotifications}
-                className="opacity-70 hover:opacity-100"
-              >
-                <img
-                  src={bellIcon}
-                  alt="notifications"
-                  className="h-7 w-7 cursor-pointer"
-                  draggable={false}
-                />
-              </button>
-            </Tooltip>
+            <button
+              type="button"
+              aria-label={t("header.notifications")}
+              onClick={openNotifications}
+            >
+              <NotificationsIcon className="h-7 w-7 cursor-pointer text-[var(--ubs-coal)] hover:text-black" />
+            </button>
 
             <Menu
               anchorEl={notifAnchorEl}
               open={isNotifOpen}
               onClose={closeNotifications}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              transformOrigin={{ vertical: "top", horizontal: "center" }}
             >
-              <Typography sx={{ px: 2, pt: 1.5, pb: 0.5, fontWeight: 600 }}>
-                Notifications
+              <Typography sx={{ px: 2, pb: 0.5, fontWeight: 600 }}>
+                {t("header.notifications")}
               </Typography>
               <Divider />
 
               {notifications.length === 0 ? (
-                <MenuItem disabled>No notifications yet</MenuItem>
+                <MenuItem disabled>{t("header.noNotifications")}</MenuItem>
               ) : (
                 notifications.map((n, i) => <MenuItem key={i}>{n}</MenuItem>)
               )}
 
               <Divider />
-              <MenuItem onClick={closeNotifications}>View all</MenuItem>
+              <MenuItem onClick={closeNotifications}>{t("header.viewAll")}</MenuItem>
             </Menu>
 
             {/* Account dropdown */}
-            <Tooltip title="Account" placement="bottom">
-              <button
-                type="button"
-                aria-label="Open account menu"
-                onClick={openAccountMenu}
-                className="opacity-70 hover:opacity-100"
-              >
-                <img
-                  src={userIcon}
-                  alt="profile"
-                  className="h-7 w-7 cursor-pointer"
-                  draggable={false}
-                />
-              </button>
-            </Tooltip>
+            <button
+              type="button"
+              aria-label={t("header.account")}
+              onClick={openAccountMenu}
+            >
+              <AccountBoxIcon className="h-7 w-7 cursor-pointer text-[var(--ubs-coal)] hover:text-black" />
+            </button>
 
             <Menu
               anchorEl={accountAnchorEl}
               open={isAccountOpen}
               onClose={closeAccountMenu}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              transformOrigin={{ vertical: "top", horizontal: "center" }}
+              disableAutoFocusItem
             >
               <MenuItem onClick={handleProfile}>
                 <ListItemIcon>
                   <AccountCircleIcon fontSize="small" />
                 </ListItemIcon>
-                Profile
+                {t("header.profile")}
+              </MenuItem>
+
+              <MenuItem onClick={handleResetPassword}>
+                <ListItemIcon>
+                  <SecurityIcon fontSize="small" />
+                </ListItemIcon>
+                {t("header.resetPassword")}
               </MenuItem>
 
               <Divider />
@@ -184,7 +197,7 @@ export function Header({
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
-                Sign out
+                {t("header.signOut")}
               </MenuItem>
             </Menu>
           </div>
@@ -192,13 +205,47 @@ export function Header({
 
         {/* Linha 2: menu */}
         <div className="flex h-10 items-center">
-          <nav className="flex gap-6 text-base text-black/70">
-            <Link className="cursor-pointer hover:text-black" to="/access">
-              Access
+          <nav className="flex gap-6 text-base text-[var(--ubs-coal)]">
+            {canAccess([Role.ADMIN]) && (
+              <Link className="cursor-pointer hover:text-black" to="/access">
+                {t("header.access")}
+              </Link>
+            )}
+            {canAccess([Role.ADMIN]) && (
+              <Link className="cursor-pointer hover:text-black" to="/departments">
+                {t("header.departments")}
+              </Link>
+            )}
+            {canAccess([Role.EMPLOYEE, Role.MANAGER, Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-expenses">
+              {t("header.myExpenses")}
             </Link>
-            <Link className="cursor-pointer hover:text-black" to="/expenses">
-              Expenses
+            )}
+            {canAccess([Role.EMPLOYEE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-expenses">
+              {t("header.pendingExpenses")}
             </Link>
+            )}
+            {canAccess([Role.EMPLOYEE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-expenses">
+              {t("header.approvedExpenses")}
+            </Link>
+            )}
+            {canAccess([Role.MANAGER, Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/my-approvals">
+              {t("header.approvals")}
+            </Link>
+            )}
+            {canAccess([Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/budget">
+              {t("header.budget")}
+            </Link>
+            )}
+            {canAccess([Role.FINANCE]) && (
+            <Link className="cursor-pointer hover:text-black" to="/reports">
+              {t("header.reports")}
+            </Link>
+            )}
           </nav>
         </div>
       </div>

@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
 
 import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import { DialogTitle } from "@mui/material";
 
 export type ResetPasswordForm = {
   currentPassword: string;
@@ -60,14 +59,44 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Reset password</DialogTitle>
 
-      <DialogContent>
-        <Box sx={{ mt: 1, display: "grid", gap: 2 }}>
+      <Box
+        sx={{
+          p: 3,
+          minHeight: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+        }}
+      >
+        
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <LockResetIcon sx={{ fontSize: 80 }} />
+          <h1>Reset Password</h1>
+        </Box>
+
+        
+        <Box
+          sx={{
+            maxWidth: 900,
+            mx: "auto",
+            width: "100%",
+            display: "grid",
+            gap: 2,
+            flexGrow: 1,
+          }}
+        >
           <TextField
             label="Current password"
             type="password"
-            size="small"
+            size="medium"
             value={form.currentPassword}
             onChange={setField("currentPassword")}
             autoFocus
@@ -76,7 +105,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
           <TextField
             label="New password"
             type="password"
-            size="small"
+            size="medium"
             value={form.newPassword}
             onChange={setField("newPassword")}
           />
@@ -84,7 +113,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
           <TextField
             label="Confirm new password"
             type="password"
-            size="small"
+            size="medium"
             value={form.confirmNewPassword}
             onChange={setField("confirmNewPassword")}
             error={form.confirmNewPassword.length > 0 && !passwordsMatch}
@@ -95,16 +124,17 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             }
           />
         </Box>
-      </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} variant="contained" color="error" disabled={!canSave}>
-          Save
-        </Button>
-      </DialogActions>
+        
+        <Box sx={{ alignSelf: "flex-end", display: "flex", gap: 2 }}>
+          <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button sx={{ bgcolor: "var(--ubs-red)", color: "white" }} onClick={handleSave} disabled={!canSave}>
+            Save
+          </Button>
+        </Box>
+      </Box>
     </Dialog>
   );
 }

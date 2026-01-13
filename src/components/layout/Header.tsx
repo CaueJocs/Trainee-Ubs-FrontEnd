@@ -130,6 +130,7 @@ export function Header({
             </div>
 
             {/* Notifications */}
+            {canAccess([Role.FINANCE]) && (
             <button
               type="button"
               aria-label={t("header.notifications")}
@@ -137,6 +138,7 @@ export function Header({
             >
               <NotificationsIcon className="h-7 w-7 cursor-pointer text-[var(--ubs-coal)] hover:text-black" />
             </button>
+            )}
 
             <Menu
               anchorEl={notifAnchorEl}

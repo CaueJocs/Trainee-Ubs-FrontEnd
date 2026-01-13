@@ -110,6 +110,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             slotProps={{
               htmlInput: {
                 minLength: 8,
+                maxLength: 64,
               }
             }}
           />

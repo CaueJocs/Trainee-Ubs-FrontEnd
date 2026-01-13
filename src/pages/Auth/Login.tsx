@@ -108,10 +108,8 @@ export default function Login() {
               placeholder={t("login.passwordPlaceholder")}
               slotProps={{
                 htmlInput: {
-                  //minLength: 8,
+                  minLength: 8,
                   maxLength: 64,
-                  //pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
-                  title: t("login.passwordValidation"),
                 }
               }}
             />

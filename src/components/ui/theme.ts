@@ -12,6 +12,17 @@ export const theme = createTheme({
     secondary: {
       main: "#646464",
     },
+    warning: {
+      dark: "#FF7F17",
+      main: "#FAA100",
+      light: "#FDA970",
+    },
+    error: {
+      main: "#E60100",
+    },
+    info: {
+      main: "#193D85",
+    },
   },
   components: {
     MuiButton: {

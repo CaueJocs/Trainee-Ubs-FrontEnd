@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,7 +9,6 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
-import Typography from "@mui/material/Typography";
 import ListItemIcon from "@mui/material/ListItemIcon";
 
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -17,9 +16,13 @@ import SecurityIcon from "@mui/icons-material/Security";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 import { LanguageDropdown } from "@/components/layout/LanguageDropdown";
+import { AlertsList } from "@/components/layout/AlertsList";
 import { useI18n } from "@/i18n/I18nContext";
 import { AuthService } from "@/services/AuthService";
+import { AlertsService } from "@/services/AlertsService";
 import { Role } from "@/enums/Role";
+import type { AlertResponse } from "@/interfaces/Alerts";
+import { Badge } from "@mui/material";
 
 type HeaderVariant = "default" | "login";
 
@@ -44,8 +47,17 @@ export function Header({
   const user = AuthService.getUser();
   const canAccess = (roles: Role[]) => !!user && roles.includes(user.role as Role);
 
-  // Notifications (placeholder)
-  const notifications = useMemo<string[]>(() => [], []);
+  // Alerts state
+  const [alerts, setAlerts] = useState<AlertResponse[] | null>(null);
+
+  // Load alerts on mount for FINANCE users
+  useEffect(() => {
+    if (canAccess([Role.FINANCE])) {
+      AlertsService.getUnresolvedAlerts().then((data) => {
+        setAlerts(data);
+      });
+    }
+  }, []);
 
   // Notifications menu
   const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
@@ -136,31 +148,23 @@ export function Header({
               aria-label={t("header.notifications")}
               onClick={openNotifications}
             >
-              <NotificationsIcon className="h-7 w-7 cursor-pointer text-[var(--ubs-coal)] hover:text-black" />
+              <Badge 
+                badgeContent={alerts?.length || 0} 
+                color="error"
+                max={99}
+                variant="dot"
+              >
+                <NotificationsIcon className="h-7 w-7 cursor-pointer text-[var(--ubs-coal)] hover:text-black" />
+              </Badge>
             </button>
             )}
 
-            <Menu
+            <AlertsList
               anchorEl={notifAnchorEl}
               open={isNotifOpen}
               onClose={closeNotifications}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-              transformOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-              <Typography sx={{ px: 2, pb: 0.5, fontWeight: 600 }}>
-                {t("header.notifications")}
-              </Typography>
-              <Divider />
-
-              {notifications.length === 0 ? (
-                <MenuItem disabled>{t("header.noNotifications")}</MenuItem>
-              ) : (
-                notifications.map((n, i) => <MenuItem key={i}>{n}</MenuItem>)
-              )}
-
-              <Divider />
-              <MenuItem onClick={closeNotifications}>{t("header.viewAll")}</MenuItem>
-            </Menu>
+              alerts={alerts}
+            />
 
             {/* Account dropdown */}
             <button

@@ -8,4 +8,8 @@ export const AlertsApi = {
     return response.data;
   },
 
+  resolveAlert: async (id: string): Promise<void> => {
+    await http.post(`/alerts/${id}/resolve`);
+  }
+
 };

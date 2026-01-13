@@ -8,8 +8,10 @@ import { Footer } from "@/components/layout/Footer";
 import { UserProfileDialog } from "@/components/ui/Modal/Access/UserProfileDialog";
 import { ResetPasswordDialog, type ResetPasswordForm } from "@/components/ui/Modal/Access/ResetPasswordDialog";
 import { AuthService } from "@/services/AuthService";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function MainLayout() {
+  const { t } = useI18n();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
@@ -26,10 +28,10 @@ export function MainLayout() {
     const success = await AuthService.changePassword(values.currentPassword, values.newPassword);
 
     if (success) {
-      showSnackbar("Password reset successfully", "success");
+      showSnackbar(t("resetPassword.success"), "success");
       return true;
     } else {
-      showSnackbar("Failed to reset password", "error");
+      showSnackbar(t("resetPassword.error"), "error");
       return false;
     }
   };

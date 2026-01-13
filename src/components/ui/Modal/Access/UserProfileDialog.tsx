@@ -10,6 +10,7 @@ import { useState } from "react";
 
 import { ResetPasswordDialog, type ResetPasswordForm } from "./ResetPasswordDialog";
 import { AuthService } from "@/services/AuthService";
+import { useI18n } from "@/i18n/I18nContext";
 
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function UserProfileDialog({ open, onClose, onShowSnackbar }: Props) {
+  const { t } = useI18n();
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   
   const user = AuthService.getUser();
@@ -31,10 +33,10 @@ export function UserProfileDialog({ open, onClose, onShowSnackbar }: Props) {
     const success = await AuthService.changePassword(values.currentPassword, values.newPassword);
 
     if (success) {
-      onShowSnackbar("Password reset successfully", "success");
+      onShowSnackbar(t("resetPassword.success"), "success");
       return true;
     } else {
-      onShowSnackbar("Failed to reset password", "error");
+      onShowSnackbar(t("resetPassword.error"), "error");
       return false;
     }
   }
@@ -60,7 +62,7 @@ export function UserProfileDialog({ open, onClose, onShowSnackbar }: Props) {
           }}
         >
           <AccountCircleIcon sx={{ fontSize: 80 }} />
-          <h1>Profile</h1>
+          <h1>{t("profile.title")}</h1>
         </Box>
 
         
@@ -76,25 +78,25 @@ export function UserProfileDialog({ open, onClose, onShowSnackbar }: Props) {
           }}
         >
           <TextField
-            label="Name"
+            label={t("profile.name")}
             value={user?.name || ""}
             size="medium"
             disabled
           />
           <TextField
-            label="Email"
+            label={t("profile.email")}
             value={user?.email || ""}
             size="medium"
             disabled
           />
           <TextField
-            label="Department"
+            label={t("profile.department")}
             value={user?.departmentName || ""}
             size="medium"
             disabled
           />
           <TextField
-            label="Role"
+            label={t("profile.role")}
             value={user?.role || ""}
             size="medium"
             disabled
@@ -103,8 +105,8 @@ export function UserProfileDialog({ open, onClose, onShowSnackbar }: Props) {
 
         
         <Box sx={{ alignSelf: "flex-end", display: "flex", gap: 2 }}>
-          <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} onClick={onClose}>Cancel</Button>
-          <Button sx={{ bgcolor: "var(--ubs-red)", color: "white" }} endIcon={<LockResetIcon />} onClick={handleResetPassword}>Reset Password</Button>
+          <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} onClick={onClose}>{t("profile.cancel")}</Button>
+          <Button sx={{ bgcolor: "var(--ubs-red)", color: "white" }} endIcon={<LockResetIcon />} onClick={handleResetPassword}>{t("profile.resetPasswordButton")}</Button>
         </Box>
       </Box>
 

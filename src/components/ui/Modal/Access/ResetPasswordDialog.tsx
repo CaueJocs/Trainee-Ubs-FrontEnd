@@ -83,7 +83,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
         }}>
 
           <LockResetIcon sx={{ fontSize: 80 }} />
-          <h1>Reset Password</h1>
+          <h1>{t("resetPassword.title")}</h1>
         </Box>
 
         <Box
@@ -100,7 +100,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
           }}
         >
           <TextField
-            label="Current password"
+            label={t("resetPassword.currentPassword")}
             type="password"
             size="medium"
             value={form.currentPassword}
@@ -116,7 +116,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
           />
 
           <TextField
-            label="New password"
+            label={t("resetPassword.newPassword")}
             type="password"
             size="medium"
             value={form.newPassword}
@@ -133,7 +133,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
           />
 
           <TextField
-            label="Confirm new password"
+            label={t("resetPassword.confirmPassword")}
             type="password"
             size="medium"
             value={form.confirmNewPassword}
@@ -144,7 +144,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
 
         {form.confirmNewPassword.length > 0 && !passwordsMatch && (
           <Alert icon={<ErrorOutlineIcon fontSize="medium" />} severity="warning" sx={{ mt: 1 }}>
-            The passwords do not match.
+            {t("resetPassword.passwordsDoNotMatch")}
           </Alert>
         )}
         
@@ -155,7 +155,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             type="button"
             disabled={submitting}
           >
-            Cancel
+            {t("resetPassword.cancel")}
           </Button>
           <Button 
             sx={{ bgcolor: "var(--ubs-red)", color: "white" }} 
@@ -163,7 +163,7 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             form="reset-password-form"
             disabled={submitting}
           >
-            {submitting ? "Saving..." : "Save"}
+            {submitting ? t("resetPassword.saving") : t("resetPassword.save")}
           </Button>
         </Box>
       </Box>

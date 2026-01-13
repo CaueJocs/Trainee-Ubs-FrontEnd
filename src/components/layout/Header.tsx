@@ -14,7 +14,6 @@ import Typography from "@mui/material/Typography";
 import ListItemIcon from "@mui/material/ListItemIcon";
 
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import SecurityIcon from "@mui/icons-material/Security";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 import { LanguageDropdown } from "@/components/layout/LanguageDropdown";
@@ -33,7 +32,6 @@ type HeaderProps = {
 export function Header({
   variant = "default",
   onOpenProfile,
-  onOpenResetPassword,
   onSignOut,
 }: HeaderProps) {
   // Notifications (placeholder)
@@ -58,11 +56,6 @@ export function Header({
   const handleProfile = () => {
     closeAccountMenu();
     onOpenProfile?.();
-  };
-
-  const handleResetPassword = () => {
-    closeAccountMenu();
-    onOpenResetPassword?.();
   };
 
   const handleSignOut = () => {
@@ -183,13 +176,6 @@ export function Header({
                   <AccountCircleIcon fontSize="small" />
                 </ListItemIcon>
                 Profile
-              </MenuItem>
-
-              <MenuItem onClick={handleResetPassword}>
-                <ListItemIcon>
-                  <SecurityIcon fontSize="small" />
-                </ListItemIcon>
-                Reset password
               </MenuItem>
 
               <Divider />

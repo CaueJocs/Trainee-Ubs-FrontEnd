@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import { Button } from "@mui/material";
+import type { AlertColor } from "@mui/material";
 
 import { useState } from "react";
 
@@ -14,15 +15,28 @@ import { AuthService } from "@/services/AuthService";
 type Props = {
   open: boolean;
   onClose: () => void;
+  onShowSnackbar: (message: string, severity: AlertColor) => void;
 };
 
-export function UserProfileDialog({ open, onClose }: Props) {
+export function UserProfileDialog({ open, onClose, onShowSnackbar }: Props) {
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   
   const user = AuthService.getUser();
   
   function handleResetPassword() {
     setResetPasswordOpen(true);
+  }
+
+  function handleSavePassword() {
+    // TODO: Implementar chamada à API para resetar senha
+    // Por enquanto, simular sucesso
+    const success = true;
+
+    if (success) {
+      onShowSnackbar("Password reset successfully", "success");
+    } else {
+      onShowSnackbar("Failed to reset password", "error");
+    }
   }
   
   return (
@@ -98,6 +112,7 @@ export function UserProfileDialog({ open, onClose }: Props) {
         <ResetPasswordDialog
           open={resetPasswordOpen}
           onClose={() => setResetPasswordOpen(false)}
+          onSave={handleSavePassword}
         />
       )}
                 

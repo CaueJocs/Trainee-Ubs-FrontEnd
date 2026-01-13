@@ -9,10 +9,10 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import type { EmployeeRow } from "./Access";
 import { MenuItem } from "@mui/material";
 import { DepartmentService } from "@/services/DepartmentService";
 import { EmployeeService } from "@/services/EmployeeService";
+import type { EmployeeRow } from "@/pages/Access/Access";
 
 type Props = {
   open: boolean;

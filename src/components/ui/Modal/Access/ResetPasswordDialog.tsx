@@ -5,10 +5,11 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import LockResetIcon from "@mui/icons-material/LockReset";
-import { DialogTitle } from "@mui/material";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useI18n } from "@/i18n/I18nContext";
+import { Alert } from "@mui/material";
 
 export type ResetPasswordForm = {
-  currentPassword: string;
   newPassword: string;
   confirmNewPassword: string;
 };
@@ -16,17 +17,18 @@ export type ResetPasswordForm = {
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave?: (values: ResetPasswordForm) => void; // opcional (por enquanto pode só logar)
+  onSave?: (values: ResetPasswordForm) => void;
 };
 
 const EMPTY: ResetPasswordForm = {
-  currentPassword: "",
   newPassword: "",
   confirmNewPassword: "",
 };
 
 export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
+  const { t } = useI18n();
   const [form, setForm] = useState<ResetPasswordForm>(EMPTY);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleClose = () => {
     setForm(EMPTY);
@@ -38,52 +40,52 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const passwordsMatch = useMemo(
-    () => form.newPassword.length > 0 && form.newPassword === form.confirmNewPassword,
+    () => form.newPassword === form.confirmNewPassword,
     [form.newPassword, form.confirmNewPassword]
   );
 
-  const canSave = useMemo(() => {
-    return (
-      form.currentPassword.trim().length > 0 &&
-      form.newPassword.trim().length > 0 &&
-      form.confirmNewPassword.trim().length > 0 &&
-      passwordsMatch
-    );
-  }, [form, passwordsMatch]);
-
-  const handleSave = () => {
-    if (!canSave) return;
-    onSave?.(form);
-    handleClose();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Block submission if passwords do not match
+    if (!passwordsMatch) return;
+    
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      onSave?.(form);
+      handleClose();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
 
-      <Box
-        sx={{
+      <Box sx={{
           p: 3,
           minHeight: 400,
           display: "flex",
           flexDirection: "column",
           gap: 3,
-        }}
-      >
+      }}>
         
-        <Box
-          sx={{
+        <Box sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             gap: 1,
-          }}
-        >
+        }}>
+
           <LockResetIcon sx={{ fontSize: 80 }} />
           <h1>Reset Password</h1>
         </Box>
 
-        
         <Box
+          component="form"
+          id="reset-password-form"
+          onSubmit={handleSubmit}
           sx={{
             maxWidth: 900,
             mx: "auto",
@@ -93,14 +95,6 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             flexGrow: 1,
           }}
         >
-          <TextField
-            label="Current password"
-            type="password"
-            size="medium"
-            value={form.currentPassword}
-            onChange={setField("currentPassword")}
-            autoFocus
-          />
 
           <TextField
             label="New password"
@@ -108,6 +102,15 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             size="medium"
             value={form.newPassword}
             onChange={setField("newPassword")}
+            required
+            slotProps={{
+              htmlInput: {
+                minLength: 8,
+                maxLength: 64,
+                pattern: "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).*$",
+                title: t("access.passwordValidation"),
+              }
+            }}
           />
 
           <TextField
@@ -116,22 +119,32 @@ export function ResetPasswordDialog({ open, onClose, onSave }: Props) {
             size="medium"
             value={form.confirmNewPassword}
             onChange={setField("confirmNewPassword")}
-            error={form.confirmNewPassword.length > 0 && !passwordsMatch}
-            helperText={
-              form.confirmNewPassword.length > 0 && !passwordsMatch
-                ? "Passwords do not match"
-                : " "
-            }
+            required
           />
         </Box>
 
+        {form.confirmNewPassword.length > 0 && !passwordsMatch && (
+          <Alert icon={<ErrorOutlineIcon fontSize="medium" />} severity="warning" sx={{ mt: 1 }}>
+            The passwords do not match.
+          </Alert>
+        )}
         
         <Box sx={{ alignSelf: "flex-end", display: "flex", gap: 2 }}>
-          <Button sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} onClick={handleClose}>
+          <Button 
+            sx={{ bgcolor: "var(--ubs-charcoal)", color: "white" }} 
+            onClick={handleClose}
+            type="button"
+            disabled={submitting}
+          >
             Cancel
           </Button>
-          <Button sx={{ bgcolor: "var(--ubs-red)", color: "white" }} onClick={handleSave} disabled={!canSave}>
-            Save
+          <Button 
+            sx={{ bgcolor: "var(--ubs-red)", color: "white" }} 
+            type="submit"
+            form="reset-password-form"
+            disabled={submitting}
+          >
+            {submitting ? "Saving..." : "Save"}
           </Button>
         </Box>
       </Box>

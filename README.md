@@ -59,22 +59,22 @@ npm run lint — ESLint
 
 As credenciais abaixo estão validadas. Cada usuário possui permissões/roles específicas.
 
-daniel.contente@ubsbb.com
- — Daniel123#
- 
-vinicius.dezotti@ubsbb.com
+vinicius.dezotti@ubsbb.com  (Admin)
  — Vinicius123#
+ 
+daniel.contente@ubsbb.com  (Manager)
+ — Daniel123#
 
-kenzo.miyashita@ubs.com
- — Kenzo123#
-
-caue.jacomini@ubs.com
- — Caue123#
-
-nicolas.costa@ubs.com
+ nicolas.costa@ubs.com  (Manager)
  — Nicolas123#
 
-yuri.martins@ubs.com
+kenzo.miyashita@ubs.com  (Employee)
+ — Kenzo123#
+
+caue.jacomini@ubs.com  (Employee)
+ — Caue123#
+
+yuri.martins@ubs.com  (Finance)
  — Yuri123#
 
 ### Rotas do sistema

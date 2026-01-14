@@ -106,12 +106,6 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               fullWidth
               placeholder={t("login.passwordPlaceholder")}
-              slotProps={{
-                htmlInput: {
-                  minLength: 8,
-                  maxLength: 64,
-                }
-              }}
             />
 
             {error && (

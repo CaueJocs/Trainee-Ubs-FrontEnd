@@ -1,10 +1,10 @@
-import type { ExpenseResponse } from '@/components/layout/PendingApprovalsTable';
+import type { ExpenseDetailResponse, ExpenseResponse } from '@/interfaces/Expense';
 
 
 export type ModalPayload =
   | {
       type: 'Expense'
-      data: ExpenseResponse
+      data: ExpenseResponse | ExpenseDetailResponse
     }
   | {
       type: 'NewExpense'

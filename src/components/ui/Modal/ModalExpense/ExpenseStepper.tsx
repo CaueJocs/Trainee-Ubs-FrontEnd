@@ -10,7 +10,7 @@ import Step from '@mui/material/Step';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import type { ExpenseResponse } from '@/components/layout/PendingApprovalsTable';
+import type { ExpenseDetailResponse, ExpenseResponse } from '@/interfaces/Expense';
 
 //This function determines coloring for each 'status' of the stepper
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
@@ -75,7 +75,7 @@ const ColorlibStepIconRoot = styled('div')<{
 }));
 
  // Function to create a custom Step Icon component based on expense status
-function createColorlibStepIcon(expense: ExpenseResponse) {
+function createColorlibStepIcon(expense: ExpenseResponse | ExpenseDetailResponse) {
   return function ColorlibStepIcon(props: StepIconProps) {
     const { active, completed, className, icon } = props;
 
@@ -86,8 +86,8 @@ function createColorlibStepIcon(expense: ExpenseResponse) {
     // If rejected and managerApprovalDate exists: second and third icons are clear
     if (
       expense.status === 'REJECTED' &&
-      expense.managerApprovalDate &&
-      !expense.financeApprovalDate
+      expense.managerDecision &&
+      !expense.financeDecision
     ) {
       if (stepIndex === 2 || stepIndex === 3) {
         IconComponent = <ClearIcon />;
@@ -98,7 +98,7 @@ function createColorlibStepIcon(expense: ExpenseResponse) {
     // Else if rejected and financeApprovalDate exists: only third icon is clear
     else if (
       expense.status === 'REJECTED' &&
-      expense.financeApprovalDate
+      expense.financeDecision
     ) {
       if (stepIndex === 3) {
         IconComponent = <ClearIcon />;
@@ -133,7 +133,7 @@ function createColorlibStepIcon(expense: ExpenseResponse) {
 }
 
 // Function to determine the current step based on expense status
-function getSteps(expense: ExpenseResponse) {
+function getSteps(expense: ExpenseResponse | ExpenseDetailResponse) {
   switch (expense.status) {
     case 'PENDING':
         return 0;
@@ -142,7 +142,7 @@ function getSteps(expense: ExpenseResponse) {
     case 'APPROVED_BY_FINANCE':
         return 2;
     case 'REJECTED':
-        if (expense.managerApproval && !expense.financeApproval) {
+        if (expense.managerDecision && !expense.financeDecision) {
             return 1;
         }
         return 2;
@@ -150,32 +150,32 @@ function getSteps(expense: ExpenseResponse) {
 }
 
 // 'getText' functions determine customized message for each step based on expense status
-function getManagerStepText(expense: ExpenseResponse): string {
-  if (expense.status === 'REJECTED' && expense.managerApprovalDate && !expense.financeApprovalDate) {
+function getManagerStepText(expense: ExpenseResponse | ExpenseDetailResponse): string {
+  if (expense.status === 'REJECTED' && expense.managerDecision && !expense.financeDecision) {
     return `Rejected on ${new Date(
-      expense.managerApprovalDate
+      expense. managerDecision.decisionDate
     ).toLocaleDateString()}`;
   }
 
-  if (expense.managerApprovalDate) {
+  if (expense.managerDecision) {
     return `Approved on ${new Date(
-      expense.managerApprovalDate
+      expense.managerDecision.decisionDate
     ).toLocaleDateString()}`;
   }
 
   return 'Pending Manager Approval';
 }
 
-function getFinanceStepText(expense: ExpenseResponse): string {
-  if (expense.status === 'REJECTED' && expense.financeApprovalDate) {
+function getFinanceStepText(expense: ExpenseResponse | ExpenseDetailResponse): string {
+  if (expense.status === 'REJECTED' && expense.financeDecision) {
     return `Rejected on ${new Date(
-      expense.financeApprovalDate
+      expense.financeDecision.decisionDate
     ).toLocaleDateString()}`;
   }
 
-  if (expense.financeApprovalDate) {
+  if (expense.financeDecision) {
     return `Approved on ${new Date(
-      expense.financeApprovalDate
+      expense.financeDecision.decisionDate
     ).toLocaleDateString()}`;
   }
 
@@ -183,7 +183,7 @@ function getFinanceStepText(expense: ExpenseResponse): string {
 }
 
 
-function getStepText(expense: ExpenseResponse): string[] {
+function getStepText(expense: ExpenseResponse | ExpenseDetailResponse): string[] {
   return [
     `Created on ${new Date(expense.createdAt).toLocaleDateString()}`,
 
@@ -193,7 +193,7 @@ function getStepText(expense: ExpenseResponse): string[] {
   ];
 }
 
-export default function CustomizedSteppers({ expense }: { expense: ExpenseResponse }) {
+export default function CustomizedSteppers({ expense }: { expense: ExpenseResponse | ExpenseDetailResponse }) {
   const currentStep = getSteps(expense);
   const stepText = getStepText(expense);
   return (

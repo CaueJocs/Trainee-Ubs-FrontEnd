@@ -2,6 +2,8 @@ import { Button, Dialog } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import type { ModalPayload } from "./types";
 import CustomizedSteppers from "./ExpenseStepper";
+import { AuthService } from "@/services/AuthService";
+import type { FinanceDecisionInfoBase, ManagerDecisionInfoBase } from "@/interfaces/Expense";
 
 // Format a Date to an unambiguous, global local-time string: YYYY-MM-DD HH:mm:ss
 function formatDateTime(d: Date) {
@@ -43,7 +45,7 @@ export function ExpenseModal({ payload, onClose }: Props) {
     <Dialog open onClose={onClose} maxWidth="lg" fullWidth>
       <div>
         <h1 className="text-2xl font-light tracking-tight p-5">
-          {payload.data.employeeName}&apos;s Expense
+          {AuthService.getUser()?.name}&apos;s Expense
         </h1>
 
         {/*Stepper component being used with existing Expense data*/}
@@ -101,7 +103,7 @@ export function ExpenseModal({ payload, onClose }: Props) {
                 );
               }
 
-              let displayValue: string | number = raw ?? "";
+              let displayValue: boolean | string | number | ManagerDecisionInfoBase | FinanceDecisionInfoBase = raw ?? "";
 
               // Format date-like fields to an unambiguous global format with time
               if (

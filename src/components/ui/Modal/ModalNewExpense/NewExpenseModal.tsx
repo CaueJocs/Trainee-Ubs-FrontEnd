@@ -6,6 +6,7 @@ import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
 import { CurrencyCode } from "@/enums/CurrencyCode";
+import type { ExpenseRequest } from "@/interfaces/Expense";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
@@ -23,9 +24,10 @@ interface FormData {
 
 interface Props {
   onClose: () => void;
+  onSave?: (expenseData: ExpenseRequest) => Promise<boolean>;
 }
 
-export function NewExpenseModal({ onClose }: Props) {
+export function NewExpenseModal({ onClose, onSave }: Props) {
   // Initial form state
   // Currently, employeeName and departmentName are hardcoded, but in the future they should be fetched from the logged-in user's data
   const [form, setForm] = useState<FormData>({
@@ -45,15 +47,17 @@ export function NewExpenseModal({ onClose }: Props) {
   const [errors, setErrors] = useState<
     Partial<Record<keyof FormData, boolean>>
   >({});
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
   function update<K extends keyof FormData>(key: K, value: FormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  //File upload handler, it currently doesn't upload files, only the name of the file
+  //File upload handler
   function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (file) {
+      setReceiptFile(file);
       update("receiptUrl", file.name);
     }
   }
@@ -66,6 +70,7 @@ export function NewExpenseModal({ onClose }: Props) {
     if (!form.currency) newErrors.currency = true;
     if (!form.amount || form.amount <= 0) newErrors.amount = true;
     if (!date) newErrors.date = true;
+    if (!receiptFile) newErrors.receiptUrl = true;
 
     setErrors(newErrors);
 
@@ -73,27 +78,71 @@ export function NewExpenseModal({ onClose }: Props) {
     return true;
   }
 
-  function handleSubmit() {
-    // Validate form before submitting. Waiting on endpoints to actually do something with the data
+  async function handleSubmit() {
     if (!validateForm()) return;
-    console.log(form);
-    onClose();
+    
+    if (onSave && receiptFile) {
+      const expenseData: ExpenseRequest = {
+        description: form.description,
+        amount: form.amount,
+        currency: form.currency as CurrencyCode,
+        category: form.type as ExpenseCategory,
+        expenseDate: form.date,
+        receiptImage: receiptFile,
+      };
+      
+      const success = await onSave(expenseData);
+      if (success) {
+        onClose();
+      }
+    } else {
+      console.log(form);
+      onClose();
+    }
   }
 
-  function handleSaveAndCreate() {
-    // Validate form before submitting -> 'Send data to back-end' -> reset form for new entry
+  async function handleSaveAndCreate() {
     if (!validateForm()) return;
-    console.log(form);
-    setForm({
-      employeeName: "Joao Silva",
-      departmentName: "Marketing",
-      type: "",
-      date: "",
-      currency: "",
-      amount: 0,
-      receiptUrl: "",
-      description: "",
-    });
+    
+    if (onSave && receiptFile) {
+      const expenseData: ExpenseRequest = {
+        description: form.description,
+        amount: form.amount,
+        currency: form.currency as CurrencyCode,
+        category: form.type as ExpenseCategory,
+        expenseDate: form.date,
+        receiptImage: receiptFile,
+      };
+      
+      const success = await onSave(expenseData);
+      if (success) {
+        // Reset form for new entry
+        setForm({
+          employeeName: "Joao Silva",
+          departmentName: "Marketing",
+          type: "",
+          date: "",
+          currency: "",
+          amount: 0,
+          receiptUrl: "",
+          description: "",
+        });
+        setDate(null);
+        setReceiptFile(null);
+      }
+    } else {
+      console.log(form);
+      setForm({
+        employeeName: "Joao Silva",
+        departmentName: "Marketing",
+        type: "",
+        date: "",
+        currency: "",
+        amount: 0,
+        receiptUrl: "",
+        description: "",
+      });
+    }
   }
   function handleCancel() {
     onClose();

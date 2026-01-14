@@ -1,12 +1,76 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/i18n/I18nContext";
 import { NewExpenseModal } from "@/components/ui/Modal/ModalNewExpense/NewExpenseModal";
 import { ExpenseTable } from "@/components/layout/ExpenseTable";
-import Button from "@mui/material/Button";
+import { ExpenseModal } from "@/components/ui/Modal/ModalExpense/ExpenseModal";
+import type { ExpenseResponse } from "@/interfaces/Expense";
+import { Button, Snackbar, Alert } from "@mui/material";
+import type { AlertColor } from "@mui/material";
+import { ExpenseService } from "@/services/ExpenseService";
+import type { ExpenseRequest } from "@/interfaces/Expense";
+
+const INITIAL_ROWS: ExpenseResponse[] = [];
 
 export function MyExpenses() {
   const { t } = useI18n();
-  const [openNewExpense, setOpenNewExpense] = useState(false);
+  const [rows, setRows] = useState<ExpenseResponse[]>(INITIAL_ROWS);
+
+  // Modal states
+  const [isNewExpenseOpen, setIsNewExpenseOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<ExpenseResponse | null>(null);
+
+  // Snackbar state
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<AlertColor>("success");
+
+  const openNewExpense = useCallback(() => setIsNewExpenseOpen(true), []);
+  const closeNewExpense = useCallback(() => setIsNewExpenseOpen(false), []);
+
+  const openDetail = useCallback((expense: ExpenseResponse) => {
+    setSelectedExpense(expense);
+    setIsDetailOpen(true);
+  }, []);
+
+  const closeDetail = useCallback(() => {
+    setIsDetailOpen(false);
+    setSelectedExpense(null);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    ExpenseService.getMyExpenses().then((list) => {
+      if (cancelled) return;
+      setRows(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const showSnackbar = (message: string, severity: AlertColor) => {
+    setSnackMessage(message);
+    setSnackSeverity(severity);
+    setSnackOpen(true);
+  };
+
+  const handleCreateExpense = useCallback(
+    async (expenseData: ExpenseRequest) => {
+      const result = await ExpenseService.create(expenseData);
+
+      if (result) {
+        setRows((prev) => [...prev, result]);
+        showSnackbar(t("myExpenses.expenseCreated"), "success");
+        closeNewExpense();
+        return true;
+      } else {
+        showSnackbar(t("myExpenses.expenseCreateFailed"), "error");
+        return false;
+      }
+    },
+    [closeNewExpense, t]
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -18,18 +82,46 @@ export function MyExpenses() {
           <Button
             variant="contained"
             sx={{ bgcolor: "var(--ubs-red)", ml: 2 }}
-            onClick={() => setOpenNewExpense(true)}
+            onClick={openNewExpense}
           >
             {t("myExpenses.newExpense")}
           </Button>
-          <div className="pl-5 pr-5">
-            <ExpenseTable />
-          </div>
+          <section className="p-2 sm:p-4">
+            <ExpenseTable rows={rows} onRowClick={openDetail} />
+          </section>
         </div>
-        {openNewExpense && (
-          <NewExpenseModal onClose={() => setOpenNewExpense(false)} />
-        )}
       </main>
+
+      {isNewExpenseOpen && (
+        <NewExpenseModal
+          onClose={closeNewExpense}
+          onSave={handleCreateExpense}
+        />
+      )}
+
+      {isDetailOpen && selectedExpense && (
+        <ExpenseModal
+          payload={{ type: "Expense", data: selectedExpense }}
+          onClose={closeDetail}
+        />
+      )}
+
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={5000}
+        onClose={(_: React.SyntheticEvent | Event, reason?: string) => {
+          if (reason === "clickaway") return;
+          setSnackOpen(false);
+        }}
+      >
+        <Alert
+          onClose={() => setSnackOpen(false)}
+          severity={snackSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

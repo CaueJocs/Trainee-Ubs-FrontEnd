@@ -53,4 +53,14 @@ export class DepartmentService {
     }
   }
 
+  static async getDepartment(name: string): Promise<DepartmentDetailedResponse | null> {
+    try {
+      const response = await DepartmentApi.getDepartment(name);
+      return response;
+    } catch (error) {
+      console.error('Get Department Exception:', error);
+      return null;
+    }
+  }
+
 }

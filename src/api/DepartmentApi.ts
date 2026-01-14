@@ -8,6 +8,11 @@ export const DepartmentApi = {
     return response.data;
   },
 
+  getDepartment: async (name: string): Promise<DepartmentDetailedResponse> => {
+    const response = await http.get<DepartmentDetailedResponse>(`/departments/${name}`);
+    return response.data;
+  },
+
   renameDepartment: async (currentName: string, newName: string): Promise<void> => {
     await http.patch(`/departments/${currentName}/name`, { 
       newName: newName 

@@ -13,18 +13,15 @@ import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useState } from "react";
-
-interface ModalPayload {
-  areaName: string;
-  areaBudget: number;
-}
+import type { DepartmentDetailedResponse } from "@/interfaces/Department";
 
 interface Props {
   open: boolean;
-  payload: ModalPayload;
+  department: DepartmentDetailedResponse;
   onClose: () => void;
+  onSaved?: (success: boolean) => void;
 }
 
 type RowError = {
@@ -61,10 +58,10 @@ const getAvailableBudgetTypeOptions = (rows: any[], rowId: number) => {
   return ["Monthly", "Daily"].filter((type) => !used.includes(type));
 };
 
-export function BudgetModal({ open, payload, onClose }: Props) {
+export function BudgetModal({ open, department, onClose, onSaved }: Props) {
   const [, forceRender] = useState(0);
-  const [newMonthlyBudget, setNewMonthlyBudget] = useState(payload.areaBudget);
-  const [rowErrors, setRowErrors] = useState<Record<number, RowError>>({});
+  const [newMonthlyBudget, setNewMonthlyBudget] = useState(department.monthlyBudget);
+  const [rowErrors, setRowErrors] = useState<Record<string, RowError>>({});
 
   const apiRef = useGridApiRef();
 
@@ -137,7 +134,7 @@ export function BudgetModal({ open, payload, onClose }: Props) {
     if (!selectedIds.length) return;
 
     setRows((prev) => prev.filter((row) => !selectedIds.includes(row.id)));
-    apiRef.current.setRowSelectionModel([]);
+    apiRef.current.setRowSelectionModel([] as unknown as GridRowSelectionModel);
   };
 
   //Updates row data and validates it
@@ -172,22 +169,24 @@ export function BudgetModal({ open, payload, onClose }: Props) {
     });
 
     setRowErrors(errors);
-    if (hasError) return;
-
-    if (newMonthlyBudget !== payload.areaBudget) {
-      console.log(`Updated monthly budget to: ${newMonthlyBudget}`);
-      console.log(newRows);
-    } else {
-      console.log("No changes to monthly budget.");
-      console.log(newRows);
+    if (hasError) {
+      if (onSaved) onSaved(false);
+      return;
     }
+
+    // Aqui você faria a chamada para atualizar o backend
+    // Exemplo:
+    // const success = await DepartmentService.updateDepartment(department.name, { ... });
+    // if (onSaved) onSaved(success);
+    // Por enquanto, simula sucesso:
+    if (onSaved) onSaved(true);
 
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <h1 className="text-2xl font-light tracking-tight p-5">
-        {payload.areaName}&apos;s Budget
+        {department.name}&apos;s Budget
       </h1>
 
       <div className="bg-[var(--light-gray-bg)] m-4 p-4">

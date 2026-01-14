@@ -2,8 +2,9 @@ import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 import { DepartmentService } from "@/services/DepartmentService";
-import type { DepartmentResponse } from "@/interfaces/Department";
+import type { DepartmentDetailedResponse, DepartmentResponse } from "@/interfaces/Department";
 import { BudgetModal } from "./BugdetModal";
+import { Alert, Snackbar } from "@mui/material";
 
 const columns: GridColDef<DepartmentResponse>[] = [
   { field: "name", headerName: "Area", flex: 1 },
@@ -19,9 +20,11 @@ const columns: GridColDef<DepartmentResponse>[] = [
 
 export default function BudgdetTable() {
   const [rows, setRows] = useState<DepartmentResponse[]>([]);
-  const [selectedArea, setSelectedArea] = useState<DepartmentResponse | null>(
-    null
-  );
+  const [selectedArea, setSelectedArea] = useState<DepartmentResponse | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<DepartmentDetailedResponse | null>(null);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
 
   useEffect(() => {
     let cancelled = false;
@@ -34,8 +37,10 @@ export default function BudgdetTable() {
     };
   }, []);
 
-  function handleOpenModal(area: DepartmentResponse) {
+  async function handleOpenModal(area: DepartmentResponse) {
     setSelectedArea(area);
+    const detailedDepartment = await DepartmentService.getDepartment(area.name);
+    setSelectedDepartment(detailedDepartment);
   }
 
   return (
@@ -56,16 +61,38 @@ export default function BudgdetTable() {
         onRowClick={(params) => handleOpenModal(params.row)}
       />
 
-      {selectedArea && (
-        <BudgetModal
-          open
-          payload={{
-            areaName: selectedArea.name,
-            areaBudget: selectedArea.monthlyBudget,
+        {selectedArea && selectedDepartment && (
+          <BudgetModal
+            open
+            department={selectedDepartment}
+            onClose={() => {
+              setSelectedArea(null);
+              setSelectedDepartment(null);
+            }}
+            onSaved={(success: boolean) => {
+              setSnackSeverity(success ? "success" : "error");
+              setSnackMessage(success ? "Orçamento salvo com sucesso!" : "Falha ao salvar orçamento.");
+              setSnackOpen(true);
+            }}
+          />
+        )}
+
+        <Snackbar
+          open={snackOpen}
+          autoHideDuration={5000}
+          onClose={(_: React.SyntheticEvent | Event, reason?: string) => {
+            if (reason === "clickaway") return;
+            setSnackOpen(false);
           }}
-          onClose={() => setSelectedArea(null)}
-        />
-      )}
+        >
+          <Alert
+            onClose={() => setSnackOpen(false)}
+            severity={snackSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackMessage}
+          </Alert>
+        </Snackbar>
     </div>
   );
 }

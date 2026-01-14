@@ -33,4 +33,14 @@ export class DepartmentService {
     }
   }
 
+  static async deleteDepartment(name: string): Promise<boolean> {
+    try {
+      await DepartmentApi.deleteDepartment(name);
+      return true;
+    } catch (error) {
+      console.error('Delete Department Exception:', error);
+      return false;
+    }
+  }
+
 }

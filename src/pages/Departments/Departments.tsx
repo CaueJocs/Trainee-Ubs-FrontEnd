@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import { Button, Snackbar, Alert } from "@mui/material";
+import { Button, Snackbar, Alert, IconButton } from "@mui/material";
 import type { AlertColor } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import { CreateDepartmentModal } from "./CreateDepartmentModal";
 import { RenameDepartmentModal } from "./RenameDepartmentModal";
@@ -92,12 +93,51 @@ export function Departments() {
     [closeRename, t]
   );
 
+  const handleDeleteDepartment = useCallback(
+    async (departmentName: string) => {
+      const success = await DepartmentService.deleteDepartment(departmentName);
+
+      if (success) {
+        setRows((prev) => prev.filter((r) => r.name !== departmentName));
+        setSnackSeverity("success");
+        setSnackMessage(t("departments.deleted"));
+        setSnackOpen(true);
+      } else {
+        setSnackSeverity("error");
+        setSnackMessage(t("departments.deleteFailed"));
+        setSnackOpen(true);
+      }
+    },
+    [t]
+  );
+
   const columns = useMemo<GridColDef<DepartmentRow>[]>(
     () => [
-      { field: "name", headerName: t("departments.name"), flex: 1, minWidth: 150 },
-      { field: "currency", headerName: t("departments.currency"), flex: 0, minWidth: 100 },
+      { field: "name", headerName: t("departments.name"), flex: 1, minWidth: 100 },
+      { field: "currency", headerName: t("departments.currency"), flex: 0, minWidth: 75, align: "center", headerAlign: "center" },
+      {
+        field: "actions",
+        headerName: t("departments.actions"),
+        flex: 0,
+        minWidth: 75,
+        sortable: false,
+        align: "center",
+        headerAlign: "center",
+        renderCell: (params) => (
+          <IconButton
+            onClick={(event) => {
+              event.stopPropagation();
+              handleDeleteDepartment(params.row.name);
+            }}
+            color="error"
+            size="small"
+          >
+            <DeleteIcon color="secondary" />
+          </IconButton>
+        ),
+      },
     ],
-    [t]
+    [handleDeleteDepartment, t]
   );
 
   return (

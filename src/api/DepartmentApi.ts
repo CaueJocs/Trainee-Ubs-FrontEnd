@@ -20,6 +20,10 @@ export const DepartmentApi = {
       currency,
     });
     return response.data;
+  },
+
+  deleteDepartment: async (name: string): Promise<void> => {
+    await http.delete(`/departments/${name}`);
   }
 
 };

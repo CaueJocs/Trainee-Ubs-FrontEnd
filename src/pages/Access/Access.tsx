@@ -157,7 +157,9 @@ export function Access() {
         field: "active",
         headerName: t("access.active"),
         flex: 0,
-        minWidth: 100,
+        minWidth: 75,
+        align: "center",
+        headerAlign: "center",
         renderCell: (params) => (
           <Switch
             checked={Boolean(params.value)}

@@ -1,5 +1,5 @@
 import { DepartmentApi } from "@/api/DepartmentApi";
-import type { DepartmentResponse } from "@/interfaces/Department";
+import type { DepartmentDetailedResponse, DepartmentResponse, UpdateDepartmentRequest } from "@/interfaces/Department";
 
 export class DepartmentService {
 
@@ -40,6 +40,26 @@ export class DepartmentService {
     } catch (error) {
       console.error('Delete Department Exception:', error);
       return false;
+    }
+  }
+
+  static async updateDepartment(name: string, data: UpdateDepartmentRequest): Promise<DepartmentDetailedResponse | null> {
+    try {
+      const response = await DepartmentApi.updateDepartment(name, data);
+      return response;
+    } catch (error) {
+      console.error('Update Department Exception:', error);
+      return null;
+    }
+  }
+
+  static async getDepartment(name: string): Promise<DepartmentDetailedResponse | null> {
+    try {
+      const response = await DepartmentApi.getDepartment(name);
+      return response;
+    } catch (error) {
+      console.error('Get Department Exception:', error);
+      return null;
     }
   }
 

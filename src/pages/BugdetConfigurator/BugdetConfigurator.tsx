@@ -2,15 +2,15 @@ import BudgdetTable from "./BudgdetTable";
 
 export function BudgetConfigurator() {
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 flex-col items-center p-4">
-        <div className="bg-[var(--light-gray-bg)] w-100vh w-full pb-5">
+        <div className="bg-[var(--light-gray-bg)] w-full h-auto">
           <h1 className="text-2xl font-light tracking-tight pt-5 pl-5 pb-3">
-            Bugdet Configurator{" "}
+            Bugdet Configurator
           </h1>
-          <div className="flex flex-1 items-center justify-center p-5">
+          <section className="flex flex-1 items-center justify-center p-2 sm:p-4">
             <BudgdetTable />
-          </div>
+          </section>
         </div>
       </main>
     </div>

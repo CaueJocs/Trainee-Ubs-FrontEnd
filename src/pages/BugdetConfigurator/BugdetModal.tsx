@@ -8,89 +8,89 @@ import {
   IconButton,
   Badge,
   Tooltip,
+  DialogActions,
 } from "@mui/material";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useState } from "react";
-
-interface ModalPayload {
-  areaName: string;
-  areaBudget: number;
-}
+import { DepartmentService } from "@/services/DepartmentService";
+import type { DepartmentDetailedResponse, UpdateDepartmentRequest } from "@/interfaces/Department";
+import { SpendingType } from "@/enums/SpendingType";
 
 interface Props {
   open: boolean;
-  payload: ModalPayload;
+  department: DepartmentDetailedResponse;
   onClose: () => void;
+  onSaved?: (success: boolean) => void;
 }
 
 type RowError = {
-  expenseTypeName?: boolean;
-  budgetType?: boolean;
-  budgetValue?: boolean;
+  category?: boolean;
+  type?: boolean;
+  budget?: boolean;
 };
 
 // Function that updated Expense Type options to allow max 2 of each type
 const getAvailableExpenseTypeOptions = (rows: any[], rowId: number) => {
   const usage = rows.reduce<Record<string, number>>((acc, row) => {
-    if (!row.expenseTypeName) return acc;
-    acc[row.expenseTypeName] = (acc[row.expenseTypeName] || 0) + 1;
+    if (!row.category) return acc;
+    acc[row.category] = (acc[row.category] || 0) + 1;
     return acc;
   }, {});
 
   return Object.values(ExpenseCategory).filter((type) => {
     const count = usage[type] || 0;
     const currentRow = rows.find((r) => r.id === rowId);
-    if (currentRow?.expenseTypeName === type) return true;
+    if (currentRow?.category === type) return true;
     return count < 2;
   });
 };
 
 // Function that updates Budget Type options to allow only one of each type per Expense Type
-const getAvailableBudgetTypeOptions = (rows: any[], rowId: number) => {
+const getAvailabletypeOptions = (rows: any[], rowId: number) => {
   const row = rows.find((r) => r.id === rowId);
-  if (!row?.expenseTypeName) return ["Monthly", "Daily"];
+  if (!row?.category) return Object.values(SpendingType);
 
   const used = rows
-    .filter((r) => r.expenseTypeName === row.expenseTypeName && r.id !== rowId)
-    .map((r) => r.budgetType);
+    .filter((r) => r.category === row.category && r.id !== rowId)
+    .map((r) => r.type);
 
-  return ["Monthly", "Daily"].filter((type) => !used.includes(type));
+  return Object.values(SpendingType).filter((type) => !used.includes(type));
 };
 
-export function BudgetModal({ open, payload, onClose }: Props) {
+export function BudgetModal({ open, department, onClose, onSaved }: Props) {
   const [, forceRender] = useState(0);
-  const [newMonthlyBudget, setNewMonthlyBudget] = useState(payload.areaBudget);
-  const [rowErrors, setRowErrors] = useState<Record<number, RowError>>({});
+  const [newMonthlyBudget, setNewMonthlyBudget] = useState(department.monthlyBudget);
+  const [rowErrors, setRowErrors] = useState<Record<string, RowError>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const apiRef = useGridApiRef();
 
-  //Hardcoded initial rows for demonstration purposes
-  const [rows, setRows] = useState<any[]>([
-    {
-      id: 1,
-      expenseTypeName: "MEAL",
-      budgetType: "Monthly",
-      budgetValue: 123123,
+  const [rows, setRows] = useState<any[]>(
+    (department.spendingSettings || []).map((spendingSetting, idx) => ({
+      id: idx + 1,
+      category: spendingSetting.category,
+      type: spendingSetting.type,
+      budget: spendingSetting.budget,
       isNew: false,
-    },
-  ]);
+    }))
+  );
 
   const newRows = rows.filter((row) => row.isNew);
 
   //Sets errors if the user doesn't fill the row correctly
   const validateRow = (row: any): RowError => ({
-    expenseTypeName: !row.expenseTypeName,
-    budgetType: !row.budgetType,
-    budgetValue: isNaN(row.budgetValue) || row.budgetValue <= 0,
+    category: !row.category,
+    type: !row.type,
+    budget: isNaN(row.budget) || row.budget <= 0,
   });
 
   const columns: GridColDef[] = [
     {
-      field: "expenseTypeName",
+      field: "category",
       headerName: "Name",
       flex: 1,
       editable: true,
@@ -99,19 +99,20 @@ export function BudgetModal({ open, payload, onClose }: Props) {
         getAvailableExpenseTypeOptions(rows, params.id as number),
     },
     {
-      field: "budgetType",
+      field: "type",
       headerName: "Budget type",
       flex: 1,
       editable: true,
       type: "singleSelect",
       valueOptions: (params) =>
-        getAvailableBudgetTypeOptions(rows, params.id as number),
+        getAvailabletypeOptions(rows, params.id as number),
     },
     {
-      field: "budgetValue",
+      field: "budget",
       headerName: "Budget Value",
       flex: 1,
       editable: true,
+      type: "number"
     },
   ];
 
@@ -121,9 +122,9 @@ export function BudgetModal({ open, payload, onClose }: Props) {
       ...prev,
       {
         id: Math.max(...prev.map((r) => r.id)) + 1,
-        expenseTypeName: "",
-        budgetType: "",
-        budgetValue: 0,
+        category: "",
+        type: "",
+        budget: 0,
         isNew: true,
       },
     ]);
@@ -137,7 +138,7 @@ export function BudgetModal({ open, payload, onClose }: Props) {
     if (!selectedIds.length) return;
 
     setRows((prev) => prev.filter((row) => !selectedIds.includes(row.id)));
-    apiRef.current.setRowSelectionModel([]);
+    apiRef.current.setRowSelectionModel([] as unknown as GridRowSelectionModel);
   };
 
   //Updates row data and validates it
@@ -159,7 +160,10 @@ export function BudgetModal({ open, payload, onClose }: Props) {
     return newRow;
   };
 
-  const handleSave = () => {
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     const errors: Record<number, RowError> = {};
     let hasError = false;
 
@@ -172,112 +176,126 @@ export function BudgetModal({ open, payload, onClose }: Props) {
     });
 
     setRowErrors(errors);
-    if (hasError) return;
-
-    if (newMonthlyBudget !== payload.areaBudget) {
-      console.log(`Updated monthly budget to: ${newMonthlyBudget}`);
-      console.log(newRows);
-    } else {
-      console.log("No changes to monthly budget.");
-      console.log(newRows);
+    if (hasError) {
+      setSubmitting(false);
+      if (onSaved) onSaved(false);
+      return;
     }
 
+    // Monta o payload para updateDepartment
+    const updatePayload: UpdateDepartmentRequest = {
+      monthlyBudget: newMonthlyBudget,
+      currency: department.currency,
+      spendingSettings: rows.map((row: any) => ({
+        category: row.category,
+        type: row.type,
+        budget: row.budget,
+      })),
+    };
+
+    const result = await DepartmentService.updateDepartment(department.name, updatePayload);
+    setSubmitting(false);
+    if (onSaved) onSaved(!!result);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <h1 className="text-2xl font-light tracking-tight p-5">
-        {payload.areaName}&apos;s Budget
+        {department.name}&apos;s Budget
       </h1>
 
-      <div className="bg-[var(--light-gray-bg)] m-4 p-4">
-        <div className="pl-2 pt-5 pb-5">
-          {/* TextField to update the area's monthly budget */}
-          <TextField
-            label="Monthly Budget"
-            value={newMonthlyBudget}
-            onChange={(e) => setNewMonthlyBudget(Number(e.target.value))}
-          />
-        </div>
+      <form onSubmit={handleSave}>
+        <div className="bg-[var(--light-gray-bg)] m-4 p-4">
+          <div className="pl-2 pt-5 pb-5">
+            {/* TextField to update the area's monthly budget */}
+            <TextField
+              label="Monthly Budget"
+              type="number"
+              value={newMonthlyBudget}
+              onChange={(e) => setNewMonthlyBudget(Number(e.target.value))}
+              required
+              slotProps={{
+                htmlInput: {
+                  min: 0,
+                }
+              }}
+            />
+          </div>
 
-        <div className="pl-2 pr-2 pb-2 flex justify-between">
-          <h1>Expense Type budget</h1>
+          <div className="pl-2 pr-2 pb-2 flex justify-between">
+            <h1>Expense Type budget</h1>
 
-          <div className="flex gap-2">
-            <Badge
-              badgeContent={apiRef.current?.getSelectedRows().size || 0}
-              color="primary"
-            >
-              <Tooltip title="Delete selected rows">
+            <div className="flex gap-2">
+              <Badge
+                badgeContent={apiRef.current?.getSelectedRows().size || 0}
+                color="error"
+                max={99}
+                variant="dot"
+              >
+                <Tooltip title="Delete selected rows" arrow placement="top">
+                  <IconButton
+                    sx={{
+                      bgcolor: "var(--ubs-charcoal)",
+                      color: "#fff",
+                      borderRadius: 1,
+                    }}
+                    onClick={handleDeleteRow}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </Badge>
+
+              <Tooltip title="Add new row" arrow placement="top">
                 <IconButton
                   sx={{
-                    bgcolor: "var(--ubs-gray)",
+                    bgcolor: "var(--ubs-red)",
                     color: "#fff",
                     borderRadius: 1,
                   }}
-                  onClick={handleDeleteRow}
+                  onClick={handleAddRow}
                 >
-                  <DeleteIcon />
+                  <AddIcon />
                 </IconButton>
               </Tooltip>
-            </Badge>
-
-            <Tooltip title="Add new row">
-              <IconButton
-                sx={{
-                  bgcolor: "var(--ubs-red)",
-                  color: "#fff",
-                  borderRadius: 1,
-                }}
-                onClick={handleAddRow}
-              >
-                <AddIcon />
-              </IconButton>
-            </Tooltip>
+            </div>
           </div>
+
+          <DataGrid
+            apiRef={apiRef}
+            rows={rows}
+            columns={columns}
+            checkboxSelection
+            autoHeight
+            disableRowSelectionOnClick
+            processRowUpdate={handleProcessRowUpdate}
+            onRowSelectionModelChange={() => forceRender((n) => n + 1)}
+            getRowClassName={(params) =>
+              rowErrors[params.id] ? "bg-red-100" : ""
+            }
+          />
+
+          {Object.keys(rowErrors).length > 0 && (
+            <div className="text-red-600 text-sm mt-2">
+              Please input valid data in the highlighted rows.
+            </div>
+          )}
         </div>
 
-        <DataGrid
-          apiRef={apiRef}
-          rows={rows}
-          columns={columns}
-          checkboxSelection
-          autoHeight
-          disableRowSelectionOnClick
-          processRowUpdate={handleProcessRowUpdate}
-          onRowSelectionModelChange={() => forceRender((n) => n + 1)}
-          getRowClassName={(params) =>
-            rowErrors[params.id] ? "bg-red-100" : ""
-          }
-        />
-
-        {Object.keys(rowErrors).length > 0 && (
-          <div className="text-red-600 text-sm mt-2">
-            Please input valid data in the highlighted rows.
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-end gap-2 p-4">
-        <Button sx={{ bgcolor: "var(--ubs-gray)" }} onClick={onClose}>
-          Cancel
-        </Button>
-
-        <Button
-          sx={{
-            bgcolor: "var(--ubs-red)",
-            color: "#fff",
-            "&.Mui-disabled": {
-              bgcolor: "var(--ubs-gray)",
-              color: "#aaa",
-            },
-          }}
-          onClick={handleSave}
-          disabled={newRows.length === 0 || Object.keys(rowErrors).length > 0}
-        >
-          Save
-        </Button>
-      </div>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button sx={{ bgcolor: "var(--ubs-charcoal)" }} onClick={onClose} type="button">
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={Object.keys(rowErrors).length > 0 || submitting}
+          >
+            {submitting ? "Salvando" : "Salvar"}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

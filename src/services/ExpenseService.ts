@@ -1,5 +1,7 @@
 import { ExpenseApi } from "@/api/ExpenseApi";
 import type { ExpenseRequest, ExpenseResponse, ExpenseDetailResponse } from "@/interfaces/Expense";
+import { AuthService } from "./AuthService";
+import { Role } from "@/enums/Role";
 
 export class ExpenseService {
 
@@ -83,8 +85,15 @@ export class ExpenseService {
 
   static async approve(id: string): Promise<boolean> {
     try {
-      await ExpenseApi.approve(id);
-      return true;
+        const role = AuthService.getUser()?.role
+        if (role === Role.MANAGER) {
+            await ExpenseApi.approveManager(id);
+            return true;
+        } else if (role === Role.FINANCE) {
+            await ExpenseApi.approveFinance(id);
+            return true;
+        }
+        return false;
     } catch (error) {
       console.error('Approve Expense Exception:', error);
       return false;
@@ -93,8 +102,15 @@ export class ExpenseService {
 
   static async deny(id: string): Promise<boolean> {
     try {
-      await ExpenseApi.deny(id);
-      return true;
+        const role = AuthService.getUser()?.role
+        if (role === Role.MANAGER) {
+            await ExpenseApi.denyManager(id);
+            return true;
+        } else if (role === Role.FINANCE) {
+            await ExpenseApi.denyFinance(id);
+            return true;
+        }
+        return false;
     } catch (error) {
       console.error('Deny Expense Exception:', error);
       return false;

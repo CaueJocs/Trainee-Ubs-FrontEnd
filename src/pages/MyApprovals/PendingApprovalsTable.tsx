@@ -44,22 +44,15 @@ export function PendingApprovalsTable({ onRowClick }: PendingApprovalsTableProps
   const columns: GridColDef<ExpenseResponse>[] = useMemo(
     () => [
       {
-        field: "employeeName",
-        headerName: t("expenseModal.employeeName"),
-        minWidth: 150,
-        flex: 1,
-        valueGetter: (_value, expense) => expense.employeeId || "",
-      },
-      {
         field: "departmentName",
         headerName: t("expenseModal.department"),
-        minWidth: 120,
+        minWidth: 100,
         flex: 1,
       },
       {
         field: "category",
         headerName: t("myExpenses.category"),
-        minWidth: 120,
+        minWidth: 100,
         flex: 1,
       },
       {

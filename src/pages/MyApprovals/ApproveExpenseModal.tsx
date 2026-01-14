@@ -121,16 +121,8 @@ export function ApproveExpenseModal({ expense, onClose, onApprove, onDeny }: Pro
         <DialogActions sx={{ px: 3, pb: 2 }}>
           {/* //Action buttons */}
           <Button
-            onClick={onClose}
-            variant="contained"
-            color="secondary"
-            type="button"
-          >
-            {t("access.cancel")}
-          </Button>
-          <Button
               variant="contained"
-              color="primary"
+              color="warning"
               type="button"
               endIcon={<ReceiptIcon />}
               onClick={() => window.open(expense.receiptUrl, "_blank")}

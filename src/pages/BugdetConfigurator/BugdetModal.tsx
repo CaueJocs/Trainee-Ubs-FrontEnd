@@ -8,6 +8,7 @@ import {
   IconButton,
   Badge,
   Tooltip,
+  DialogActions,
 } from "@mui/material";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
@@ -17,6 +18,7 @@ import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useState } from "react";
 import { DepartmentService } from "@/services/DepartmentService";
 import type { DepartmentDetailedResponse, UpdateDepartmentRequest } from "@/interfaces/Department";
+import { SpendingType } from "@/enums/SpendingType";
 
 interface Props {
   open: boolean;
@@ -50,13 +52,13 @@ const getAvailableExpenseTypeOptions = (rows: any[], rowId: number) => {
 // Function that updates Budget Type options to allow only one of each type per Expense Type
 const getAvailabletypeOptions = (rows: any[], rowId: number) => {
   const row = rows.find((r) => r.id === rowId);
-  if (!row?.category) return ["Monthly", "Daily"];
+  if (!row?.category) return Object.values(SpendingType);
 
   const used = rows
     .filter((r) => r.category === row.category && r.id !== rowId)
     .map((r) => r.type);
 
-  return ["Monthly", "Daily"].filter((type) => !used.includes(type));
+  return Object.values(SpendingType).filter((type) => !used.includes(type));
 };
 
 export function BudgetModal({ open, department, onClose, onSaved }: Props) {
@@ -110,6 +112,7 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
       headerName: "Budget Value",
       flex: 1,
       editable: true,
+      type: "number"
     },
   ];
 
@@ -196,82 +199,91 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <h1 className="text-2xl font-light tracking-tight p-5">
         {department.name}&apos;s Budget
       </h1>
 
-      <div className="bg-[var(--light-gray-bg)] m-4 p-4">
-        <div className="pl-2 pt-5 pb-5">
-          {/* TextField to update the area's monthly budget */}
-          <TextField
-            label="Monthly Budget"
-            value={newMonthlyBudget}
-            onChange={(e) => setNewMonthlyBudget(Number(e.target.value))}
-          />
-        </div>
+      <form onSubmit={handleSave}>
+        <div className="bg-[var(--light-gray-bg)] m-4 p-4">
+          <div className="pl-2 pt-5 pb-5">
+            {/* TextField to update the area's monthly budget */}
+            <TextField
+              label="Monthly Budget"
+              type="number"
+              value={newMonthlyBudget}
+              onChange={(e) => setNewMonthlyBudget(Number(e.target.value))}
+              required
+              slotProps={{
+                htmlInput: {
+                  min: 0,
+                }
+              }}
+            />
+          </div>
 
-        <div className="pl-2 pr-2 pb-2 flex justify-between">
-          <h1>Expense Type budget</h1>
+          <div className="pl-2 pr-2 pb-2 flex justify-between">
+            <h1>Expense Type budget</h1>
 
-          <div className="flex gap-2">
-            <Badge
-              badgeContent={apiRef.current?.getSelectedRows().size || 0}
-              color="primary"
-            >
-              <Tooltip title="Delete selected rows">
+            <div className="flex gap-2">
+              <Badge
+                badgeContent={apiRef.current?.getSelectedRows().size || 0}
+                color="error"
+                max={99}
+                variant="dot"
+              >
+                <Tooltip title="Delete selected rows" arrow placement="top">
+                  <IconButton
+                    sx={{
+                      bgcolor: "var(--ubs-charcoal)",
+                      color: "#fff",
+                      borderRadius: 1,
+                    }}
+                    onClick={handleDeleteRow}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </Badge>
+
+              <Tooltip title="Add new row" arrow placement="top">
                 <IconButton
                   sx={{
-                    bgcolor: "var(--ubs-gray)",
+                    bgcolor: "var(--ubs-red)",
                     color: "#fff",
                     borderRadius: 1,
                   }}
-                  onClick={handleDeleteRow}
+                  onClick={handleAddRow}
                 >
-                  <DeleteIcon />
+                  <AddIcon />
                 </IconButton>
               </Tooltip>
-            </Badge>
-
-            <Tooltip title="Add new row">
-              <IconButton
-                sx={{
-                  bgcolor: "var(--ubs-red)",
-                  color: "#fff",
-                  borderRadius: 1,
-                }}
-                onClick={handleAddRow}
-              >
-                <AddIcon />
-              </IconButton>
-            </Tooltip>
+            </div>
           </div>
+
+          <DataGrid
+            apiRef={apiRef}
+            rows={rows}
+            columns={columns}
+            checkboxSelection
+            autoHeight
+            disableRowSelectionOnClick
+            processRowUpdate={handleProcessRowUpdate}
+            onRowSelectionModelChange={() => forceRender((n) => n + 1)}
+            getRowClassName={(params) =>
+              rowErrors[params.id] ? "bg-red-100" : ""
+            }
+          />
+
+          {Object.keys(rowErrors).length > 0 && (
+            <div className="text-red-600 text-sm mt-2">
+              Please input valid data in the highlighted rows.
+            </div>
+          )}
         </div>
 
-        <DataGrid
-          apiRef={apiRef}
-          rows={rows}
-          columns={columns}
-          checkboxSelection
-          autoHeight
-          disableRowSelectionOnClick
-          processRowUpdate={handleProcessRowUpdate}
-          onRowSelectionModelChange={() => forceRender((n) => n + 1)}
-          getRowClassName={(params) =>
-            rowErrors[params.id] ? "bg-red-100" : ""
-          }
-        />
-
-        {Object.keys(rowErrors).length > 0 && (
-          <div className="text-red-600 text-sm mt-2">
-            Please input valid data in the highlighted rows.
-          </div>
-        )}
-      </div>
-
-      <form onSubmit={handleSave}>
-        <div className="flex justify-end gap-2 p-4">
-          <Button sx={{ bgcolor: "var(--ubs-gray)" }} onClick={onClose} type="button">
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button sx={{ bgcolor: "var(--ubs-charcoal)" }} onClick={onClose} type="button">
             Cancelar
           </Button>
           <Button
@@ -282,7 +294,7 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
           >
             {submitting ? "Salvando" : "Salvar"}
           </Button>
-        </div>
+        </DialogActions>
       </form>
     </Dialog>
   );

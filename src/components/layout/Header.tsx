@@ -23,6 +23,7 @@ import { AlertsList } from "@/components/layout/AlertsList";
 import { UserProfileDialog } from "@/components/ui/Modal/Access/UserProfileDialog";
 import { ResetPasswordDialog, type ResetPasswordForm } from "@/components/ui/Modal/Access/ResetPasswordDialog";
 import { useI18n } from "@/i18n/I18nContext";
+import { useAuth } from "@/pages/Auth/useAuth";
 import { AuthService } from "@/services/AuthService";
 import { AlertsService } from "@/services/AlertsService";
 import { Role } from "@/enums/Role";
@@ -43,8 +44,7 @@ export function Header({
   const { t } = useI18n();
 
   // navbar permissions
-  const user = AuthService.getUser();
-  const canAccess = useCallback((roles: Role[]) => !!user && roles.includes(user.role as Role), [user]);
+  const { canAccess } = useAuth();
 
   // Alerts state
   const [alerts, setAlerts] = useState<AlertResponse[] | null>(null);

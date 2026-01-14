@@ -1,6 +1,6 @@
 import expenseManagerLogo from "@/assets/images/ubs-expense-manager-logo.png";
 
-import { PendingApprovalsTable } from "@/components/layout/PendingApprovalsTable";
+import { PendingApprovalsTable } from "@/pages/MyApprovals/PendingApprovalsTable";
 
 export function Home() {
   return (

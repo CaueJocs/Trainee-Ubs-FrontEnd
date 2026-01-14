@@ -65,16 +65,15 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
 
   const apiRef = useGridApiRef();
 
-  //Hardcoded initial rows for demonstration purposes
-  const [rows, setRows] = useState<any[]>([
-    {
-      id: 1,
-      expenseTypeName: "MEAL",
-      budgetType: "Monthly",
-      budgetValue: 123123,
+  const [rows, setRows] = useState<any[]>(
+    (department.spendingSettings || []).map((spendingSetting, idx) => ({
+      id: idx + 1,
+      expenseTypeName: spendingSetting.category,
+      budgetType: spendingSetting.type,
+      budgetValue: spendingSetting.budget,
       isNew: false,
-    },
-  ]);
+    }))
+  );
 
   const newRows = rows.filter((row) => row.isNew);
 

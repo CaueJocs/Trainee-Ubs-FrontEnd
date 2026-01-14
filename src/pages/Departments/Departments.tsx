@@ -48,29 +48,46 @@ export function Departments() {
 
   const handleCreate = useCallback(
     async (payload: { departmentName: string; currency: string }) => {
-      // TODO: Integrate with backend when API is ready
-      setRows((prev) => [
-        ...prev,
-        { name: payload.departmentName, currency: payload.currency },
-      ]);
-      setSnackSeverity("success");
-      setSnackMessage(t("departments.created"));
-      setSnackOpen(true);
-      closeCreate();
+      const result = await DepartmentService.createDepartment(
+        payload.departmentName,
+        payload.currency
+      );
+
+      if (result) {
+        setRows((prev) => [...prev, result]);
+        setSnackSeverity("success");
+        setSnackMessage(t("departments.created"));
+        setSnackOpen(true);
+        closeCreate();
+      } else {
+        setSnackSeverity("error");
+        setSnackMessage(t("departments.createFailed"));
+        setSnackOpen(true);
+      }
     },
     [closeCreate, t]
   );
 
   const handleRename = useCallback(
     async (updated: { name: string; departmentName: string }) => {
-      // TODO: Integrate with backend when API is ready
-      setRows((prev) =>
-        prev.map((r) => (r.name === updated.name ? { ...r, name: updated.departmentName } : r))
+      const success = await DepartmentService.renameDepartment(
+        updated.name,
+        updated.departmentName
       );
-      setSnackSeverity("success");
-      setSnackMessage(t("departments.updated"));
-      setSnackOpen(true);
-      closeRename();
+
+      if (success) {
+        setRows((prev) =>
+          prev.map((r) => (r.name === updated.name ? { ...r, name: updated.departmentName } : r))
+        );
+        setSnackSeverity("success");
+        setSnackMessage(t("departments.updated"));
+        setSnackOpen(true);
+        closeRename();
+      } else {
+        setSnackSeverity("error");
+        setSnackMessage(t("departments.updateFailed"));
+        setSnackOpen(true);
+      }
     },
     [closeRename, t]
   );
@@ -78,7 +95,7 @@ export function Departments() {
   const columns = useMemo<GridColDef<DepartmentRow>[]>(
     () => [
       { field: "name", headerName: t("departments.name"), flex: 1, minWidth: 150 },
-      { field: "currency", headerName: t("departments.currency"), flex: 1, minWidth: 150 },
+      { field: "currency", headerName: t("departments.currency"), flex: 0, minWidth: 100 },
     ],
     [t]
   );

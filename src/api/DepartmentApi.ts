@@ -9,7 +9,7 @@ export const DepartmentApi = {
   },
 
   renameDepartment: async (currentName: string, newName: string): Promise<void> => {
-    await http.put(`/departments/${currentName}/name`, { 
+    await http.patch(`/departments/${currentName}/name`, { 
       newName: newName 
     });
   },

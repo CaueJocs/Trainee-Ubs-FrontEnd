@@ -23,11 +23,11 @@ export function MyExpenseTable({ rows, onRowClick }: MyExpenseTableProps) {
         minWidth: 200,
         flex: 1,
       },
-      { field: "category", headerName: t("myExpenses.category"), minWidth: 160, flex: 1 },
+      { field: "category", headerName: t("myExpenses.category"), minWidth: 100, flex: 1 },
       {
         field: "date",
         headerName: t("myExpenses.date"),
-        minWidth: 160,
+        minWidth: 100,
         flex: 1,
         valueGetter: (_value, expense) => {
           const d = new Date(expense.date);
@@ -38,14 +38,14 @@ export function MyExpenseTable({ rows, onRowClick }: MyExpenseTableProps) {
       {
         field: "amount",
         headerName: t("myExpenses.amount"),
-        minWidth: 160,
+        minWidth: 110,
         flex: 1,
         valueGetter: (_value, expense) => {
 
           return `${expense.currency} ${expense.amount.toFixed(2)}`;
         },
       },
-      { field: "status", headerName: t("myExpenses.status"), minWidth: 160, flex: 1 },
+      { field: "status", headerName: t("myExpenses.status"), minWidth: 100, flex: 1 },
     ],
     [t, formatDate]
   );

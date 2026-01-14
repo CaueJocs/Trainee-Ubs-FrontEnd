@@ -1,14 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Dialog, Autocomplete, Button, Tooltip } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers";
-import { Dayjs } from "dayjs";
+import { Dialog, Button, Tooltip, DialogTitle, DialogContent, DialogActions, MenuItem, Box, Autocomplete } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import { useState } from "react";
+import { useState, useRef, useEffect, startTransition, useMemo } from "react";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
 import { CurrencyCode } from "@/enums/CurrencyCode";
 import type { ExpenseRequest } from "@/interfaces/Expense";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { useI18n } from "@/i18n/I18nContext";
+import { ExpenseService } from "@/services/ExpenseService";
 
 // All the data that we'll have on the form
 interface FormData {
@@ -17,228 +16,183 @@ interface FormData {
   type: ExpenseCategory | "";
   date: string;
   currency: CurrencyCode | "";
-  amount: number;
+  amount: string;
   receiptUrl?: string;
   description: string;
 }
 
 interface Props {
+  open: boolean;
   onClose: () => void;
-  onSave?: (expenseData: ExpenseRequest) => Promise<boolean>;
+  onSave: (mode: "save" | "saveAndCreate", success: boolean) => void;
 }
 
-export function NewExpenseModal({ onClose, onSave }: Props) {
-  // Initial form state
-  // Currently, employeeName and departmentName are hardcoded, but in the future they should be fetched from the logged-in user's data
-  const [form, setForm] = useState<FormData>({
-    employeeName: "Joao Silva",
-    departmentName: "Marketing",
-    type: "",
-    date: "",
-    currency: "",
-    amount: 0,
-    receiptUrl: "",
-    description: "",
-  });
+const EMPTY_FORM: FormData = {
+  employeeName: "Joao Silva",
+  departmentName: "Marketing",
+  type: "",
+  date: "",
+  currency: "",
+  amount: "",
+  receiptUrl: "",
+  description: "",
+};
 
-  //Used for the datePicker
-  const [date, setDate] = useState<Dayjs | null>(null);
-  //Used to verify if there were any unfilled required fields
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof FormData, boolean>>
-  >({});
+export function NewExpenseModal({ open, onClose, onSave }: Props) {
+  const { t } = useI18n();
+  const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function update<K extends keyof FormData>(key: K, value: FormData[K]) {
+  useEffect(() => {
+    if (open) {
+      startTransition(() => {
+        setForm(EMPTY_FORM);
+        setReceiptFile(null);
+      });
+    }
+  }, [open]);
+
+  const currencyOptions = useMemo(() => Object.values(CurrencyCode), []);
+
+  function setField<K extends keyof FormData>(key: K, value: FormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  //File upload handler
   function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (file) {
       setReceiptFile(file);
-      update("receiptUrl", file.name);
+      setField("receiptUrl", file.name);
     }
   }
 
-  //Function to validate form fields. used on click handlers of submit buttons
-  function validateForm(): boolean {
-    const newErrors: typeof errors = {};
-
-    if (!form.type) newErrors.type = true;
-    if (!form.currency) newErrors.currency = true;
-    if (!form.amount || form.amount <= 0) newErrors.amount = true;
-    if (!date) newErrors.date = true;
-    if (!receiptFile) newErrors.receiptUrl = true;
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) return false;
-    return true;
-  }
-
-  async function handleSubmit() {
-    if (!validateForm()) return;
-    
-    if (onSave && receiptFile) {
+  const handleSubmit = async (e: React.FormEvent, mode: "save" | "saveAndCreate") => {
+    e.preventDefault();
+    if (submitting || !receiptFile) return;
+    setSubmitting(true);
+    try {
+      const expenseDateTime = new Date(form.date).toISOString();
+      
       const expenseData: ExpenseRequest = {
         description: form.description,
-        amount: form.amount,
+        amount: Number(form.amount),
         currency: form.currency as CurrencyCode,
         category: form.type as ExpenseCategory,
-        expenseDate: form.date,
+        expenseDate: expenseDateTime,
         receiptImage: receiptFile,
       };
       
-      const success = await onSave(expenseData);
-      if (success) {
-        onClose();
+      const result = await ExpenseService.create(expenseData);
+      if (result) {
+        if (mode === "save") {
+          onClose();
+        } else {
+          setForm(EMPTY_FORM);
+          setReceiptFile(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+        onSave(mode, true);
+      } else {
+        onSave(mode, false);
       }
-    } else {
-      console.log(form);
-      onClose();
+    } finally {
+      setSubmitting(false);
     }
-  }
-
-  async function handleSaveAndCreate() {
-    if (!validateForm()) return;
-    
-    if (onSave && receiptFile) {
-      const expenseData: ExpenseRequest = {
-        description: form.description,
-        amount: form.amount,
-        currency: form.currency as CurrencyCode,
-        category: form.type as ExpenseCategory,
-        expenseDate: form.date,
-        receiptImage: receiptFile,
-      };
-      
-      const success = await onSave(expenseData);
-      if (success) {
-        // Reset form for new entry
-        setForm({
-          employeeName: "Joao Silva",
-          departmentName: "Marketing",
-          type: "",
-          date: "",
-          currency: "",
-          amount: 0,
-          receiptUrl: "",
-          description: "",
-        });
-        setDate(null);
-        setReceiptFile(null);
-      }
-    } else {
-      console.log(form);
-      setForm({
-        employeeName: "Joao Silva",
-        departmentName: "Marketing",
-        type: "",
-        date: "",
-        currency: "",
-        amount: 0,
-        receiptUrl: "",
-        description: "",
-      });
-    }
-  }
-  function handleCancel() {
-    onClose();
-  }
-  //Employee name and departament hardcoded. Made some special arrangements for certain fields (like upload and currency/amount)
+  };
+  
   return (
-    <Dialog open onClose={onClose} maxWidth="lg" fullWidth>
-      <h1 className="text-2xl font-light tracking-tight p-5">New Expense</h1>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>{t("myExpenses.newExpense")}</DialogTitle>
 
-      <div className="flex flex-col gap-6 px-5 pb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <TextField disabled label="Employee Name" value={form.employeeName} />
+      <DialogContent>
+        <Box
+          component="form"
+          id="new-expense-form"
+          onSubmit={(e) => handleSubmit(e, "save")}
+          sx={{
+            mt: 1,
+            display: "grid",
+            gap: 2,
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+          }}
+        >
 
-          <TextField disabled label="Department" value={form.departmentName} />
+          <TextField
+            select
+            label={t("myExpenses.category")}
+            value={form.type}
+            onChange={(e) => setField("type", e.target.value as ExpenseCategory)}
+            size="small"
+            required
+          >
+            {Object.values(ExpenseCategory).map((cat) => (
+              <MenuItem key={cat} value={cat}>
+                {cat}
+              </MenuItem>
+            ))}
+          </TextField>
 
-          <Autocomplete
-            options={Object.values(ExpenseCategory)}
-            value={form.type || null}
-            onChange={(_, value) => update("type", value || "")}
-            renderInput={(params) => (
-              <TextField
-                required
-                {...params}
-                label="Category"
-                error={!!errors.type}
-                helperText={errors.type ? "Required field" : ""}
-              />
-            )}
-          />
-
-          <DateTimePicker
-            label="Expense date"
-            value={date}
-            onChange={(newValue) => {
-              setDate(newValue);
-              update("date", newValue ? newValue.toISOString() : "");
-            }}
+          <TextField
+            label={t("myExpenses.date")}
+            type="datetime-local"
+            value={form.date}
+            onChange={(e) => setField("date", e.target.value)}
+            size="small"
+            required
             slotProps={{
-              textField: {
-                required: true,
-                fullWidth: true,
-                error: !!errors.date,
-                helperText: errors.date ? "Required field" : "",
+              inputLabel: {
+                shrink: true,
               },
             }}
           />
 
-          <div className="flex gap-1">
-            <Autocomplete
-              className="w-32"
-              options={Object.values(CurrencyCode)}
-              value={form.currency || null}
-              onChange={(_, value) => update("currency", value || "")}
-              renderInput={(params) => (
-                <TextField
-                  required
-                  {...params}
-                  label="Currency"
-                  error={!!errors.currency}
-                  helperText={errors.currency ? "Required field" : ""}
-                />
-              )}
-            />
+          <Autocomplete
+            options={currencyOptions}
+            value={form.currency || null}
+            onChange={(_, value) => setField("currency", value || "")}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={t("myExpenses.currency")}
+                size="small"
+                required
+              />
+            )}
+          />
 
-            <TextField
-              required
-              className="flex-1"
-              label="Amount"
-              error={!!errors.amount}
-              helperText={errors.amount ? "Required field" : ""}
-              type="number"
-              value={form.amount === 0 ? "" : form.amount}
-              onChange={(e) =>
-                update(
-                  "amount",
-                  e.target.value === "" ? 0 : Number(e.target.value)
-                )
-              }
-            />
-          </div>
+          <TextField
+            label={t("myExpenses.amount")}
+            type="number"
+            value={form.amount}
+            onChange={(e) => setField("amount", e.target.value)}
+            size="small"
+            required
+          />
 
-          <div className="flex gap-1">
+          <TextField
+            label={t("expenseModal.description")}
+            value={form.description}
+            onChange={(e) => setField("description", e.target.value)}
+            size="small"
+            multiline
+            minRows={1}
+            maxRows={4}
+            sx={{ gridColumn: "1 / -1" }}
+          />
+
+          <Box sx={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 1 }}>
             <TextField
-              required
+              label={t("myExpenses.upload")}
+              value={form.receiptUrl || ""}
               disabled
-              className="flex-1"
-              label="Receipt image"
-              error={!!errors.amount}
-              helperText={errors.amount ? "Required field" : ""}
-              value={form.receiptUrl}
-              onChange={(e) => update("receiptUrl", e.target.value)}
+              size="small"
+              sx={{ flex: 1 }}
+              required
             />
             <input
-              ref={(el) => {
-                if (el) (window as any).__fileInputRef = el;
-              }}
+              ref={fileInputRef}
               type="file"
               accept=".png,.jpg,.jpeg,image/png,image/jpeg"
               style={{ display: "none" }}
@@ -248,57 +202,54 @@ export function NewExpenseModal({ onClose, onSave }: Props) {
               variant="contained"
               sx={{ bgcolor: "var(--ubs-charcoal)" }}
               startIcon={<CloudUploadIcon />}
-              onClick={() => {
-                const input = (window as any)
-                  .__fileInputRef as HTMLInputElement;
-                input?.click();
-              }}
+              onClick={() => fileInputRef.current?.click()}
+              type="button"
             >
-              Upload
+              {t("myExpenses.upload")}
             </Button>
-          </div>
+          </Box>
+        </Box>
+      </DialogContent>
 
-          <TextField
-            label="Description"
-            className="md:col-span-3"
-            multiline
-            minRows={1}
-            maxRows={4}
-            value={form.description}
-            onChange={(e) => update("description", e.target.value)}
-          />
-        </div>
-        <div className="flex justify-end gap-4 p-5">
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "var(--ubs-charcoal)" }}
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "var(--ubs-red)" }}
-            onClick={handleSubmit}
-          >
-            Save
-          </Button>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button
+          onClick={onClose}
+          variant="contained"
+          color="secondary"
+          disabled={submitting}
+          type="button"
+        >
+          {t("access.cancel")}
+        </Button>
 
-          <Tooltip
-            title="Save the current expense and start a new one"
-            placement="top" arrow
+        <Button
+          type="submit"
+          form="new-expense-form"
+          variant="contained"
+          color="primary"
+          disabled={submitting}
+        >
+          {submitting ? t("access.saving") : t("access.save")}
+        </Button>
+
+        <Tooltip title={t("myExpenses.saveAndCreateTooltip")} placement="top" arrow>
+          <Button
+            onClick={(e) => {
+              const formEl = document.getElementById("new-expense-form") as HTMLFormElement;
+              if (formEl?.reportValidity()) {
+                handleSubmit(e as unknown as React.FormEvent, "saveAndCreate");
+              }
+            }}
+            variant="contained"
+            color="primary"
+            disabled={submitting}
+            type="button"
+            endIcon={<HelpOutlineIcon />}
           >
-            <Button
-              variant="contained"
-              sx={{ bgcolor: "var(--ubs-red)" }}
-              onClick={handleSaveAndCreate}
-              endIcon={<HelpOutlineIcon />}
-            >
-              Save and Create
-            </Button>
-          </Tooltip>
-        </div>
-      </div>
+            {submitting ? t("access.saving") : t("access.saveAndCreate")}
+          </Button>
+        </Tooltip>
+      </DialogActions>
     </Dialog>
   );
 }

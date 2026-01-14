@@ -7,7 +7,6 @@ import type { ExpenseResponse } from "@/interfaces/Expense";
 import { Button, Snackbar, Alert } from "@mui/material";
 import type { AlertColor } from "@mui/material";
 import { ExpenseService } from "@/services/ExpenseService";
-import type { ExpenseRequest } from "@/interfaces/Expense";
 
 const INITIAL_ROWS: ExpenseResponse[] = [];
 
@@ -49,27 +48,27 @@ export function MyExpenses() {
     };
   }, []);
 
-  const showSnackbar = (message: string, severity: AlertColor) => {
+  const showSnackbar = useCallback((message: string, severity: AlertColor) => {
     setSnackMessage(message);
     setSnackSeverity(severity);
     setSnackOpen(true);
-  };
+  }, []);
 
-  const handleCreateExpense = useCallback(
-    async (expenseData: ExpenseRequest) => {
-      const result = await ExpenseService.create(expenseData);
-
-      if (result) {
-        setRows((prev) => [...prev, result]);
+  const handleSaveExpense = useCallback(
+    async (mode: "save" | "saveAndCreate", success: boolean) => {
+      if (success) {
+        const expenses = await ExpenseService.getMyExpenses();
+        setRows(expenses);
         showSnackbar(t("myExpenses.expenseCreated"), "success");
-        closeNewExpense();
-        return true;
+        
+        if (mode === "save") {
+          closeNewExpense();
+        }
       } else {
         showSnackbar(t("myExpenses.expenseCreateFailed"), "error");
-        return false;
       }
     },
-    [closeNewExpense, t]
+    [closeNewExpense, showSnackbar, t]
   );
 
   return (
@@ -94,8 +93,9 @@ export function MyExpenses() {
 
       {isNewExpenseOpen && (
         <NewExpenseModal
+          open={isNewExpenseOpen}
           onClose={closeNewExpense}
-          onSave={handleCreateExpense}
+          onSave={handleSaveExpense}
         />
       )}
 

@@ -106,6 +106,9 @@ export const translations = {
       status: "Status",
       expenseCreated: "Expense created successfully.",
       expenseCreateFailed: "Failed to create expense.",
+      upload: "Upload receipt",
+      saveAndCreateTooltip: "Save the current expense and start a new one",
+      currency: "Currency",
       statusLabels: {
         PENDING: "Pending",
         APPROVED_BY_MANAGER: "Approved by Manager",
@@ -254,6 +257,9 @@ export const translations = {
       status: "Status",
       expenseCreated: "Despesa criada com sucesso.",
       expenseCreateFailed: "Falha ao criar despesa.",
+      upload: "Enviar comprovante",
+      saveAndCreateTooltip: "Salvar a despesa atual e criar uma nova",
+      currency: "Moeda",
       statusLabels: {
         PENDING: "Pendente",
         APPROVED_BY_MANAGER: "Aprovado pelo Gerente",
@@ -402,6 +408,9 @@ export const translations = {
       status: "Status",
       expenseCreated: "Ausgabe erfolgreich erstellt.",
       expenseCreateFailed: "Ausgabe konnte nicht erstellt werden.",
+      upload: "Beleg hochladen",
+      saveAndCreateTooltip: "Speichern Sie die aktuelle Ausgabe und erstellen Sie eine neue",
+      currency: "Währung",
       statusLabels: {
         PENDING: "Ausstehend",
         APPROVED_BY_MANAGER: "Vom Manager genehmigt",
@@ -550,6 +559,9 @@ export const translations = {
       status: "Statut",
       expenseCreated: "Dépense créée avec succès.",
       expenseCreateFailed: "Échec de la création de la dépense.",
+      upload: "Téléverser le reçu",
+      saveAndCreateTooltip: "Enregistrez la dépense actuelle et créez-en une nouvelle",
+      currency: "Devise",
       statusLabels: {
         PENDING: "En attente",
         APPROVED_BY_MANAGER: "Approuvé par le responsable",
@@ -697,6 +709,9 @@ export const translations = {
       status: "Stato",
       expenseCreated: "Spesa creata con successo.",
       expenseCreateFailed: "Impossibile creare la spesa.",
+      upload: "Carica ricevuta",
+      saveAndCreateTooltip: "Salva la spesa corrente e creane una nuova",
+      currency: "Valuta",
       statusLabels: {
         PENDING: "In attesa",
         APPROVED_BY_MANAGER: "Approvato dal manager",
@@ -844,6 +859,9 @@ export const translations = {
       status: "Estado",
       expenseCreated: "Gasto creado exitosamente.",
       expenseCreateFailed: "Error al crear el gasto.",
+      upload: "Subir recibo",
+      saveAndCreateTooltip: "Guarda el gasto actual y crea uno nuevo",
+      currency: "Moneda",
       statusLabels: {
         PENDING: "Pendiente",
         APPROVED_BY_MANAGER: "Aprobado por el gerente",

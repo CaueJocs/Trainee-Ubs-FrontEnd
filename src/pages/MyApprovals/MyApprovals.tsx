@@ -1,4 +1,4 @@
-import { MyExpenseTable } from "@/pages/MyExpenses/MyExpenseTable";
+import { PendingApprovalsTable } from "./PendingApprovalsTable";
 
 export function MyApprovals() {
   return (
@@ -10,7 +10,7 @@ export function MyApprovals() {
           </h1>
 
           <div className="pl-5 pr-5">
-            <MyExpenseTable />
+            <PendingApprovalsTable />
           </div>
         </div>
       </main>

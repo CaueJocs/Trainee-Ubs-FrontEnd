@@ -12,7 +12,7 @@ import { theme } from "./components/ui/theme";
 import Login from "./pages/Auth/Login";
 import { Home } from "./pages/Home";
 import { MyExpenses } from "./pages/MyExpenses/MyExpenses";
-import { MyApprovals } from "./pages/MyApprovals";
+import { MyApprovals } from "./pages/MyApprovals/MyApprovals";
 import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
 import { Access } from "./pages/Access/Access";
 import { Departments } from "./pages/Departments/Departments";

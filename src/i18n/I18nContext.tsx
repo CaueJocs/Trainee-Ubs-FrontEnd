@@ -46,14 +46,18 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const formatDate = React.useCallback(
     (date: string | Date, options?: Intl.DateTimeFormatOptions) => {
       const d = typeof date === 'string' ? new Date(date) : date;
-      const defaultOptions: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-      };
-      return d.toLocaleString(lang, { ...defaultOptions, ...options });
+      
+      if(options == null){
+          options = {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+        };
+      }
+      
+      return d.toLocaleString(lang, options);
     },
     [lang]
   );

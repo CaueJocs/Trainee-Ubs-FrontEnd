@@ -149,6 +149,13 @@ export const translations = {
       approve: "Approve",
       deny: "Deny",
     },
+    expenseStepper: {
+      createdOn: "Created on",
+      approvedOn: "Approved on",
+      rejectedOn: "Rejected on",
+      pendingManagerApproval: "Pending Manager Approval",
+      pendingFinanceApproval: "Pending Finance Team Approval",
+    },
   },
 
   pt: {
@@ -289,6 +296,13 @@ export const translations = {
       description: "Descrição",
       approve: "Aprovar",
       deny: "Recusar",
+    },
+    expenseStepper: {
+      createdOn: "Criado em",
+      approvedOn: "Aprovado em",
+      rejectedOn: "Rejeitado em",
+      pendingManagerApproval: "Aguardando Aprovação do Gerente",
+      pendingFinanceApproval: "Aguardando Aprovação do Financeiro",
     },
   },
 
@@ -431,6 +445,13 @@ export const translations = {
       approve: "Genehmigen",
       deny: "Ablehnen",
     },
+    expenseStepper: {
+      createdOn: "Erstellt am",
+      approvedOn: "Genehmigt am",
+      rejectedOn: "Abgelehnt am",
+      pendingManagerApproval: "Wartet auf Genehmigung des Managers",
+      pendingFinanceApproval: "Wartet auf Genehmigung der Finanzabteilung",
+    },
   },
 
   fr: {
@@ -572,6 +593,13 @@ export const translations = {
       approve: "Approuver",
       deny: "Refuser",
     },
+    expenseStepper: {
+      createdOn: "Créé le",
+      approvedOn: "Approuvé le",
+      rejectedOn: "Refusé le",
+      pendingManagerApproval: "En attente d'approbation du manager",
+      pendingFinanceApproval: "En attente d'approbation de l'équipe financière",
+    },
   },
 
   it: {
@@ -710,6 +738,13 @@ export const translations = {
       description: "Descrizione",
       approve: "Approva",
       deny: "Rifiuta",
+    },
+    expenseStepper: {
+      createdOn: "Creato il",
+      approvedOn: "Approvato il",
+      rejectedOn: "Rifiutato il",
+      pendingManagerApproval: "In attesa di approvazione del manager",
+      pendingFinanceApproval: "In attesa di approvazione del team finanziario",
     },
   },
 
@@ -851,6 +886,13 @@ export const translations = {
       description: "Descripción",
       approve: "Aprobar",
       deny: "Rechazar",
+    },
+    expenseStepper: {
+      createdOn: "Creado el",
+      approvedOn: "Aprobado el",
+      rejectedOn: "Rechazado el",
+      pendingManagerApproval: "Pendiente de aprobación del gerente",
+      pendingFinanceApproval: "Pendiente de aprobación del equipo financiero",
     },
   },
 } as const;

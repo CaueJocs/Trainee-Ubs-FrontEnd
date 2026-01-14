@@ -5,28 +5,27 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import Check from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
-import Stack from '@mui/material/Stack';
 import Step from '@mui/material/Step';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import type { ExpenseDetailResponse, ExpenseResponse } from '@/interfaces/Expense';
+import { ExpenseStatus } from '@/enums/ExpenseStatus';
+import { useI18n } from '@/i18n/I18nContext';
 
-//This function determines coloring for each 'status' of the stepper
+// Styled connector for stepper lines
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 22,
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundColor: '#E60100'
-        ,
+      backgroundColor: "var(--ubs-red)",
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundColor:
-        '#E60100',
+      backgroundColor: "var(--ubs-red)",
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
@@ -40,86 +39,76 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
+// Styled step icon root
 const ColorlibStepIconRoot = styled('div')<{
   ownerState: { completed?: boolean; active?: boolean };
 }>(({ theme }) => ({
-  backgroundColor: '#ccc',
+  backgroundColor: 'var(--ubs-steel)',
   zIndex: 1,
-  color: '#fff',
+  color: 'white',
   width: 50,
   height: 50,
   display: 'flex',
   borderRadius: '50%',
   justifyContent: 'center',
   alignItems: 'center',
-  ...theme.applyStyles('dark', {
-    backgroundColor: theme.palette.grey[700],
-  }),
+  ...theme.applyStyles('dark', {}),
   variants: [
     {
       props: ({ ownerState }) => ownerState.active,
       style: {
-        backgroundColor:
-          '#E60100',
-        boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
+        backgroundColor: "var(--ubs-red)",
+        boxShadow: '0 4px 10px 0 var(--ubs-steel)',
       },
     },
     {
       props: ({ ownerState }) => ownerState.completed,
       style: {
-        backgroundColor:
-          '#E60100',
+        backgroundColor: "var(--ubs-red)",
       },
     },
   ],
 }));
 
- // Function to create a custom Step Icon component based on expense status
+// Determine which icon to show for each step
+function getStepIcon(stepIndex: number, expense: ExpenseResponse | ExpenseDetailResponse): React.ReactElement {
+  const isRejectedByManager = expense.status === ExpenseStatus.REJECTED && 
+                               expense.managerDecision && 
+                               !expense.financeDecision;
+  
+  const isRejectedByFinance = expense.status === ExpenseStatus.REJECTED && 
+                              expense.financeDecision;
+
+  // Step 1: Creation (always check)
+  if (stepIndex === 1) {
+    return <Check />;
+  }
+
+  // Step 2: Manager approval
+  if (stepIndex === 2) {
+    if (isRejectedByManager) {
+      return <ClearIcon />;
+    }
+    return <AccountBoxIcon />;
+  }
+
+  // Step 3: Finance approval
+  if (stepIndex === 3) {
+    if (isRejectedByManager || isRejectedByFinance) {
+      return <ClearIcon />;
+    }
+    return <AttachMoneyIcon />;
+  }
+
+  return <Check />;
+}
+
+// Create custom step icon component
 function createColorlibStepIcon(expense: ExpenseResponse | ExpenseDetailResponse) {
   return function ColorlibStepIcon(props: StepIconProps) {
     const { active, completed, className, icon } = props;
-
     const stepIndex = Number(icon);
-
-    let IconComponent: React.ReactElement;
-
-    // If rejected and managerApprovalDate exists: second and third icons are clear
-    if (
-      expense.status === 'REJECTED' &&
-      expense.managerDecision &&
-      !expense.financeDecision
-    ) {
-      if (stepIndex === 2 || stepIndex === 3) {
-        IconComponent = <ClearIcon />;
-      } else {
-        IconComponent = <Check />;
-      }
-    }
-    // Else if rejected and financeApprovalDate exists: only third icon is clear
-    else if (
-      expense.status === 'REJECTED' &&
-      expense.financeDecision
-    ) {
-      if (stepIndex === 3) {
-        IconComponent = <ClearIcon />;
-      } else {
-        const icons: Record<number, React.ReactElement> = {
-          1: <Check />,
-          2: <AccountBoxIcon />,
-        };
-        IconComponent = icons[stepIndex];
-      }
-    }
-    // Normal case: all icons as default
-    else {
-      const icons: Record<number, React.ReactElement> = {
-        1: <Check />,
-        2: <AccountBoxIcon />,
-        3: <AttachMoneyIcon />,
-      };
-
-      IconComponent = icons[stepIndex];
-    }
+    const IconComponent = getStepIcon(stepIndex, expense);
 
     return (
       <ColorlibStepIconRoot
@@ -132,79 +121,77 @@ function createColorlibStepIcon(expense: ExpenseResponse | ExpenseDetailResponse
   };
 }
 
-// Function to determine the current step based on expense status
-function getSteps(expense: ExpenseResponse | ExpenseDetailResponse) {
+// Determine the current active step based on expense status
+function getCurrentStep(expense: ExpenseResponse | ExpenseDetailResponse): number {
   switch (expense.status) {
-    case 'PENDING':
-        return 0;
-    case 'APPROVED_BY_MANAGER':
+    case ExpenseStatus.PENDING:
+      return 0;
+    case ExpenseStatus.APPROVED_BY_MANAGER:
+      return 1;
+    case ExpenseStatus.APPROVED_BY_FINANCE:
+      return 2;
+    case ExpenseStatus.REJECTED:
+      // Rejected by manager: stop at step 1
+      if (expense.managerDecision && !expense.financeDecision) {
         return 1;
-    case 'APPROVED_BY_FINANCE':
-        return 2;
-    case 'REJECTED':
-        if (expense.managerDecision && !expense.financeDecision) {
-            return 1;
-        }
-        return 2;
+      }
+      // Rejected by finance: stop at step 2
+      return 2;
+    default:
+      return 0;
   }
 }
 
-// 'getText' functions determine customized message for each step based on expense status
-function getManagerStepText(expense: ExpenseResponse | ExpenseDetailResponse): string {
-  if (expense.status === 'REJECTED' && expense.managerDecision && !expense.financeDecision) {
-    return `Rejected on ${new Date(
-      expense. managerDecision.decisionDate
-    ).toLocaleDateString()}`;
+// Get step labels with formatted dates and translations
+function getStepLabels(
+  expense: ExpenseResponse | ExpenseDetailResponse,
+  t: (key: string) => string,
+  formatDate: (date: string | Date, options?: Intl.DateTimeFormatOptions) => string
+): string[] {
+  const dateType: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  const createdLabel = `${t('expenseStepper.createdOn')} ${formatDate(new Date(expense.createdAt), dateType)}`;
+
+  let managerLabel: string;
+  if (expense.status === ExpenseStatus.REJECTED && expense.managerDecision && !expense.financeDecision) {
+    managerLabel = `${t('expenseStepper.rejectedOn')} ${formatDate(new Date(expense.managerDecision.decisionDate), dateType)}`;
+  } else if (expense.managerDecision) {
+    managerLabel = `${t('expenseStepper.approvedOn')} ${formatDate(new Date(expense.managerDecision.decisionDate), dateType)}`;
+  } else {
+    managerLabel = t('expenseStepper.pendingManagerApproval');
   }
 
-  if (expense.managerDecision) {
-    return `Approved on ${new Date(
-      expense.managerDecision.decisionDate
-    ).toLocaleDateString()}`;
+  let financeLabel: string;
+  if (expense.status === ExpenseStatus.REJECTED && expense.financeDecision) {
+    financeLabel = `${t('expenseStepper.rejectedOn')} ${formatDate(new Date(expense.financeDecision.decisionDate), dateType)}`;
+  } else if (expense.financeDecision) {
+    financeLabel = `${t('expenseStepper.approvedOn')} ${formatDate(new Date(expense.financeDecision.decisionDate), dateType)}`;
+  } else {
+    financeLabel = t('expenseStepper.pendingFinanceApproval');
   }
 
-  return 'Pending Manager Approval';
+  return [createdLabel, managerLabel, financeLabel];
 }
 
-function getFinanceStepText(expense: ExpenseResponse | ExpenseDetailResponse): string {
-  if (expense.status === 'REJECTED' && expense.financeDecision) {
-    return `Rejected on ${new Date(
-      expense.financeDecision.decisionDate
-    ).toLocaleDateString()}`;
-  }
+export default function CustomizedSteppers({ 
+  expense 
+}: { 
+  expense: ExpenseResponse | ExpenseDetailResponse 
+}) {
+  const { t, formatDate } = useI18n();
+  const currentStep = getCurrentStep(expense);
+  const stepLabels = getStepLabels(expense, t, formatDate);
 
-  if (expense.financeDecision) {
-    return `Approved on ${new Date(
-      expense.financeDecision.decisionDate
-    ).toLocaleDateString()}`;
-  }
-
-  return 'Pending Finance Approval';
-}
-
-
-function getStepText(expense: ExpenseResponse | ExpenseDetailResponse): string[] {
-  return [
-    `Created on ${new Date(expense.createdAt).toLocaleDateString()}`,
-
-    getManagerStepText(expense),
-
-    getFinanceStepText(expense),
-  ];
-}
-
-export default function CustomizedSteppers({ expense }: { expense: ExpenseResponse | ExpenseDetailResponse }) {
-  const currentStep = getSteps(expense);
-  const stepText = getStepText(expense);
   return (
-    <Stack sx={{ width: '100%' }} spacing={4}>
+    <div>
       <Stepper alternativeLabel activeStep={currentStep} connector={<ColorlibConnector />}>
-        {stepText.map((label) => (
+        {stepLabels.map((label) => (
           <Step key={label}>
-            <StepLabel StepIconComponent={createColorlibStepIcon(expense)}>{label}</StepLabel>
+            <StepLabel slots={{ stepIcon: createColorlibStepIcon(expense) }}>
+              {label}
+            </StepLabel>
           </Step>
         ))}
       </Stepper>
-    </Stack>
+    </div>
   );
 }

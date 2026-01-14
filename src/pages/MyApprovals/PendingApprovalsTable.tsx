@@ -7,7 +7,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Card from "@mui/material/Card";
 import type { ExpenseResponse } from "@/interfaces/Expense";
-import { ApproveExpenseModal } from "../ui/Modal/ModalExpense/ApproveExpenseModal";
+import { ApproveExpenseModal } from "../../components/ui/Modal/ModalExpense/ApproveExpenseModal";
 
 export function PendingApprovalsTable() {
   const mockPendingApprovals: ExpenseResponse[] = [];
@@ -90,10 +90,7 @@ export function PendingApprovalsTable() {
 
       {selectedExpense && (
         <ApproveExpenseModal
-          payload={{
-            type: "ApproveExpense",
-            data: selectedExpense,
-          }}
+          payload={selectedExpense}
           onClose={handleCloseModal}
         />
       )}

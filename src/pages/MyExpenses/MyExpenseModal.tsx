@@ -21,10 +21,13 @@ export function MyExpenseModal({ expense, onClose }: Props) {
           {AuthService.getUser()?.name ?? ""}&apos;s {t("expenseModal.title")}
         </h1>
 
-        <CustomizedSteppers expense={expense} />
+        <div className="mb-4">
+          <CustomizedSteppers expense={expense} />
+        </div>
+
         <div className="h-px bg-black/15" />
-        <div className="flex flex-col gap-6 px-5 pb-6 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-6 px-5 pb-6 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
             <TextField
               label={t("expenseModal.employeeName")}

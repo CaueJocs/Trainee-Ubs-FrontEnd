@@ -1,6 +1,6 @@
 import { Dialog, Button, DialogActions } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import CustomizedSteppers from "../../components/ui/ExpenseStepper";
+import CustomizedSteppers from "../../components/ui/Modal/Expense/ExpenseStepper";
 import { AuthService } from "@/services/AuthService";
 import type { ExpenseResponse } from "@/interfaces/Expense";
 import { useI18n } from "@/i18n/I18nContext";
@@ -77,19 +77,27 @@ export function MyExpenseModal({ expense, onClose }: Props) {
           </div>
         </div>
 
-        {expense.receiptUrl && (
-          <DialogActions sx={{ px: 3, pb: 2 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="button"
-              endIcon={<ReceiptIcon />}
-              onClick={() => window.open(expense.receiptUrl, "_blank")}
-            >
-              {t("expenseModal.viewReceipt")}
-            </Button>
-          </DialogActions>
-        )}
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={onClose}
+            variant="contained"
+            color="secondary"
+            type="button"
+          >
+            {t("access.cancel")}
+          </Button>
+          {expense.receiptUrl && (
+          <Button
+            variant="contained"
+            color="primary"
+            type="button"
+            endIcon={<ReceiptIcon />}
+            onClick={() => window.open(expense.receiptUrl, "_blank")}
+          >
+            {t("expenseModal.viewReceipt")}
+          </Button>
+          )}
+        </DialogActions>
       </div>
     </Dialog>
   );

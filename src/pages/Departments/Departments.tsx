@@ -1,145 +1,183 @@
-import { useCallback, useMemo, useState } from "react";
-
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-
-import AddIcon from "@mui/icons-material/Add";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
+import { Button, Snackbar, Alert, IconButton } from "@mui/material";
+import type { AlertColor } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import { CreateDepartmentModal } from "./CreateDepartmentModal";
 import { RenameDepartmentModal } from "./RenameDepartmentModal";
+import { useI18n } from "@/i18n/I18nContext";
+import { DepartmentService } from "@/services/DepartmentService";
 
 export type DepartmentRow = {
-  id: number;
-  departmentName: string;
-  currency: string; // ISO 4217 (ex: BRL, EUR)
+  name: string;
+  currency: string;
 };
 
-const paginationModel = { page: 0, pageSize: 5 };
-
-// tenta pegar "todas" as moedas suportadas pelo ambiente
-function getAllCurrencies(): string[] {
-  const supportedValuesOf = (Intl as any)?.supportedValuesOf as
-    | ((key: string) => string[])
-    | undefined;
-
-  if (supportedValuesOf) {
-    // normalmente retorna uma lista bem grande (ISO 4217 suportadas)
-    return supportedValuesOf("currency");
-  }
-
-  // fallback curto (se browser/TS não suportar supportedValuesOf)
-  return ["USD", "EUR", "BRL", "CHF", "GBP", "JPY", "CAD", "AUD"];
-}
+const INITIAL_ROWS: DepartmentRow[] = [];
 
 export function Departments() {
-  const [rows, setRows] = useState<DepartmentRow[]>([
-    { id: 1, departmentName: "Sales", currency: "BRL" },
-    { id: 2, departmentName: "Customer Support", currency: "BRL" },
-    { id: 3, departmentName: "Finance", currency: "CHF" },
-    { id: 4, departmentName: "Marketing", currency: "EUR" },
-    { id: 5, departmentName: "Human Resources", currency: "EUR" },
-  ]);
-
-  const currencies = useMemo(() => getAllCurrencies(), []);
+  const { t } = useI18n();
+  const [rows, setRows] = useState<DepartmentRow[]>(INITIAL_ROWS);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selected, setSelected] = useState<DepartmentRow | null>(null);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<AlertColor>("success");
+
+  useEffect(() => {
+    let cancelled = false;
+    DepartmentService.getDepartments().then((list) => {
+      if (cancelled) return;
+      setRows(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const openCreate = useCallback(() => setIsCreateOpen(true), []);
   const closeCreate = useCallback(() => setIsCreateOpen(false), []);
 
-  const openRename = useCallback((row: DepartmentRow) => setSelected(row), []);
+  const openRename = useCallback((params: { row: DepartmentRow }) => {
+    setSelected(params.row);
+  }, []);
   const closeRename = useCallback(() => setSelected(null), []);
 
-  const handleCreate = useCallback((payload: { departmentName: string; currency: string }) => {
-    setRows((prev) => {
-      const nextId = prev.length ? Math.max(...prev.map((r) => r.id)) + 1 : 1;
-      return [
-        ...prev,
-        { id: nextId, departmentName: payload.departmentName, currency: payload.currency },
-      ];
-    });
-    closeCreate();
-  }, [closeCreate]);
+  const handleCreate = useCallback(
+    async (payload: { departmentName: string; currency: string }) => {
+      const result = await DepartmentService.createDepartment(
+        payload.departmentName,
+        payload.currency
+      );
 
-  const handleRename = useCallback((updated: { id: number; departmentName: string }) => {
-    setRows((prev) =>
-      prev.map((r) => (r.id === updated.id ? { ...r, departmentName: updated.departmentName } : r))
-    );
-    closeRename();
-  }, [closeRename]);
+      if (result) {
+        setRows((prev) => [...prev, result]);
+        setSnackSeverity("success");
+        setSnackMessage(t("departments.created"));
+        setSnackOpen(true);
+        closeCreate();
+      } else {
+        setSnackSeverity("error");
+        setSnackMessage(t("departments.createFailed"));
+        setSnackOpen(true);
+      }
+    },
+    [closeCreate, t]
+  );
 
-  const columns = useMemo<GridColDef<DepartmentRow>[]>(() => {
-    return [
+  const handleRename = useCallback(
+    async (updated: { name: string; departmentName: string }) => {
+      const success = await DepartmentService.renameDepartment(
+        updated.name,
+        updated.departmentName
+      );
+
+      if (success) {
+        setRows((prev) =>
+          prev.map((r) => (r.name === updated.name ? { ...r, name: updated.departmentName } : r))
+        );
+        setSnackSeverity("success");
+        setSnackMessage(t("departments.updated"));
+        setSnackOpen(true);
+        closeRename();
+      } else {
+        setSnackSeverity("error");
+        setSnackMessage(t("departments.updateFailed"));
+        setSnackOpen(true);
+      }
+    },
+    [closeRename, t]
+  );
+
+  const handleDeleteDepartment = useCallback(
+    async (departmentName: string) => {
+      const success = await DepartmentService.deleteDepartment(departmentName);
+
+      if (success) {
+        setRows((prev) => prev.filter((r) => r.name !== departmentName));
+        setSnackSeverity("success");
+        setSnackMessage(t("departments.deleted"));
+        setSnackOpen(true);
+      } else {
+        setSnackSeverity("error");
+        setSnackMessage(t("departments.deleteFailed"));
+        setSnackOpen(true);
+      }
+    },
+    [t]
+  );
+
+  const columns = useMemo<GridColDef<DepartmentRow>[]>(
+    () => [
+      { field: "name", headerName: t("departments.name"), flex: 1, minWidth: 100 },
+      { field: "currency", headerName: t("departments.currency"), flex: 0, minWidth: 75, align: "center", headerAlign: "center" },
       {
-        field: "departmentName",
-        headerName: "Department",
-        flex: 1,
-        minWidth: 220,
-      },
-      {
-        field: "currency",
-        headerName: "Currency",
-        minWidth: 220,
-        flex: 1,
-        align: "right",
-        headerAlign: "right",
-        renderHeader: () => (
-          <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 1 }}>
-            <Typography sx={{ fontWeight: 600 }}>Currency</Typography>
-
-            <Tooltip title="Create department" placement="bottom">
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation(); // evita sort ao clicar no botão
-                  openCreate();
-                }}
-                sx={{
-                  bgcolor: "error.main",
-                  color: "common.white",
-                  borderRadius: "2px",
-                  "&:hover": { bgcolor: "error.dark" },
-                }}
-              >
-                <AddIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
+        field: "actions",
+        headerName: t("departments.actions"),
+        flex: 0,
+        minWidth: 75,
+        sortable: false,
+        align: "center",
+        headerAlign: "center",
+        renderCell: (params) => (
+          <IconButton
+            onClick={(event) => {
+              event.stopPropagation();
+              handleDeleteDepartment(params.row.name);
+            }}
+            color="error"
+            size="small"
+          >
+            <DeleteIcon color="secondary" />
+          </IconButton>
         ),
       },
-    ];
-  }, [openCreate]);
+    ],
+    [handleDeleteDepartment, t]
+  );
 
   return (
-    <Box className="mx-auto w-full max-w-6xl px-4 sm:px-6" sx={{ mt: 4 }}>
-      <Typography sx={{ fontSize: 32, fontWeight: 300, mb: 2 }}>
-        Departaments
-      </Typography>
-
-      <Paper sx={{ height: 420, width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          disableRowSelectionOnClick
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
-          sx={{ border: 0 }}
-          onRowClick={(params) => openRename(params.row)}
-        />
-      </Paper>
+    <div className="flex min-h-screen flex-col">
+      <main className="flex flex-1 flex-col items-center p-4">
+        <div className="bg-[var(--light-gray-bg)] w-full h-auto">
+          <h1 className="text-2xl font-light tracking-tight pt-5 pl-5 pb-3">
+            {t("departments.title")}
+          </h1>
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "var(--ubs-red)", ml: 2 }}
+            onClick={openCreate}
+          >
+            {t("departments.newDepartment")}
+          </Button>
+          <section className="p-2 sm:p-4">
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              getRowId={(row) => row.name}
+              onRowClick={openRename}
+              pageSizeOptions={[10, 25, 50]}
+              initialState={{
+                pagination: { paginationModel: { page: 0, pageSize: 10 } },
+                sorting: {
+                  sortModel: [{ field: "name", sort: "asc" }],
+                },
+              }}
+              autoHeight={false}
+              sx={{ mt: 2, overflow: "auto", height: "60vh" }}
+            />
+          </section>
+        </div>
+      </main>
 
       <CreateDepartmentModal
         open={isCreateOpen}
         onClose={closeCreate}
         onSave={handleCreate}
-        currencies={currencies}
       />
 
       <RenameDepartmentModal
@@ -148,6 +186,23 @@ export function Departments() {
         onClose={closeRename}
         onSave={handleRename}
       />
-    </Box>
+
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={5000}
+        onClose={(_: React.SyntheticEvent | Event, reason?: string) => {
+          if (reason === "clickaway") return;
+          setSnackOpen(false);
+        }}
+      >
+        <Alert
+          onClose={() => setSnackOpen(false)}
+          severity={snackSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
+    </div>
   );
 }

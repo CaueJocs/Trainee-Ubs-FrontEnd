@@ -1,5 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
+import type { ChangeEvent } from "react";
 
+import { useI18n } from "@/i18n/I18nContext";
+import { CurrencyCode } from "@/enums/CurrencyCode";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -7,76 +10,99 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
+import Autocomplete from "@mui/material/Autocomplete";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onSave: (payload: { departmentName: string; currency: string }) => void;
-  currencies: string[];
 };
 
-export function CreateDepartmentModal({ open, onClose, onSave, currencies }: Props) {
+export function CreateDepartmentModal({ open, onClose, onSave }: Props) {
+  const { t } = useI18n();
   const [departmentName, setDepartmentName] = useState("");
-  const [currency, setCurrency] = useState("");
+  const [currency, setCurrency] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setDepartmentName("");
-      setCurrency("");
+      startTransition(() => {
+        setDepartmentName("");
+        setCurrency(null);
+      });
     }
   }, [open]);
 
-  const currencyOptions = useMemo(() => currencies.slice().sort(), [currencies]);
+  const currencyOptions = useMemo(() => Object.values(CurrencyCode), []);
 
-  const canSave = Boolean(departmentName.trim()) && Boolean(currency);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting || !currency) return;
+    setSubmitting(true);
+    try {
+      await onSave({ departmentName: departmentName.trim(), currency });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Create department</DialogTitle>
+      <DialogTitle>{t("departments.newDepartment")}</DialogTitle>
 
       <DialogContent>
-        <Box sx={{ mt: 1, display: "grid", gap: 2 }}>
+        <Box
+          component="form"
+          id="create-department-form"
+          onSubmit={handleSubmit}
+          sx={{
+            mt: 1,
+            display: "grid",
+            gap: 2,
+          }}
+        >
           <TextField
-            label="Department"
+            label={t("departments.name")}
             value={departmentName}
-            onChange={(e) => setDepartmentName(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setDepartmentName(e.target.value)}
             size="small"
-            autoFocus
+            required
           />
 
-          <FormControl size="small">
-            <InputLabel id="currency-label">Currency</InputLabel>
-            <Select
-              labelId="currency-label"
-              label="Currency"
-              value={currency}
-              onChange={(e) => setCurrency(String(e.target.value))}
-            >
-              {currencyOptions.map((c) => (
-                <MenuItem key={c} value={c}>
-                  {c}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            options={currencyOptions}
+            value={currency}
+            onChange={(_, value) => setCurrency(value)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={t("departments.currency")}
+                size="small"
+                required
+              />
+            )}
+          />
         </Box>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} color="inherit">
-          Cancel
+        <Button
+          onClick={onClose}
+          variant="contained"
+          color="secondary"
+          disabled={submitting}
+          type="button"
+        >
+          {t("departments.cancel")}
         </Button>
         <Button
-          onClick={() => onSave({ departmentName: departmentName.trim(), currency })}
+          type="submit"
+          form="create-department-form"
           variant="contained"
-          color="error"
-          disabled={!canSave}
+          color="primary"
+          disabled={submitting}
         >
-          Save
+          {submitting ? t("departments.saving") : t("departments.save")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -4,28 +4,28 @@ import type { EmployeeRequest, EmployeeResponse, UpdateEmployeeRequest } from "@
 export const EmployeeApi = {
 
     getAllEmployees: async (): Promise<EmployeeResponse[]> => {
-    const response = await http.get<EmployeeResponse[]>('/employees');
-    return response.data;
+        const response = await http.get<EmployeeResponse[]>('/employees');
+        return response.data;
     },
 
     getEmployee: async (id: string): Promise<EmployeeResponse> => {
-    const response = await http.get<EmployeeResponse>(`/employees/${id}`);
-    return response.data;
+        const response = await http.get<EmployeeResponse>(`/employees/${id}`);
+        return response.data;
     },
 
     getAllManagers: async (): Promise<EmployeeResponse[]> => {
-    const response = await http.get<EmployeeResponse[]>('/employees/managers');
-    return response.data;
+        const response = await http.get<EmployeeResponse[]>('/employees/managers');
+        return response.data;
     },
 
     putEmployee: async (id: string, employeeData: UpdateEmployeeRequest): Promise<EmployeeResponse> => {
-    const response = await http.put<EmployeeResponse>(`/employees/${id}`, employeeData);
-    return response.data;
+        const response = await http.put<EmployeeResponse>(`/employees/${id}`, employeeData);
+        return response.data;
     },
 
     createEmployee: async (employeeData: EmployeeRequest): Promise<EmployeeResponse> => {
-    const response = await http.post<EmployeeResponse>('/employees', employeeData);
-    return response.data;
+        const response = await http.post<EmployeeResponse>('/employees', employeeData);
+        return response.data;
     },
 
     activateEmployee: async (id: string): Promise<void> => {

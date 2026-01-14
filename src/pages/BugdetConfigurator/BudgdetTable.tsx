@@ -69,9 +69,19 @@ export default function BudgdetTable() {
               setSelectedArea(null);
               setSelectedDepartment(null);
             }}
-            onSaved={(success: boolean) => {
-              setSnackSeverity(success ? "success" : "error");
-              setSnackMessage(success ? "Orçamento salvo com sucesso!" : "Falha ao salvar orçamento.");
+            onSaved={async (success: boolean) => {
+              if (success) {
+                // Atualiza a lista de departamentos após salvar
+                const list = await DepartmentService.getDepartments();
+                setRows(list);
+                setSnackSeverity("success");
+                setSnackMessage("Orçamento salvo com sucesso!");
+                setSelectedArea(null);
+                setSelectedDepartment(null);
+              } else {
+                setSnackSeverity("error");
+                setSnackMessage("Falha ao salvar orçamento.");
+              }
               setSnackOpen(true);
             }}
           />

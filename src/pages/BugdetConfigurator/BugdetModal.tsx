@@ -15,7 +15,8 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useState } from "react";
-import type { DepartmentDetailedResponse } from "@/interfaces/Department";
+import { DepartmentService } from "@/services/DepartmentService";
+import type { DepartmentDetailedResponse, UpdateDepartmentRequest } from "@/interfaces/Department";
 
 interface Props {
   open: boolean;
@@ -25,35 +26,35 @@ interface Props {
 }
 
 type RowError = {
-  expenseTypeName?: boolean;
-  budgetType?: boolean;
-  budgetValue?: boolean;
+  category?: boolean;
+  type?: boolean;
+  budget?: boolean;
 };
 
 // Function that updated Expense Type options to allow max 2 of each type
 const getAvailableExpenseTypeOptions = (rows: any[], rowId: number) => {
   const usage = rows.reduce<Record<string, number>>((acc, row) => {
-    if (!row.expenseTypeName) return acc;
-    acc[row.expenseTypeName] = (acc[row.expenseTypeName] || 0) + 1;
+    if (!row.category) return acc;
+    acc[row.category] = (acc[row.category] || 0) + 1;
     return acc;
   }, {});
 
   return Object.values(ExpenseCategory).filter((type) => {
     const count = usage[type] || 0;
     const currentRow = rows.find((r) => r.id === rowId);
-    if (currentRow?.expenseTypeName === type) return true;
+    if (currentRow?.category === type) return true;
     return count < 2;
   });
 };
 
 // Function that updates Budget Type options to allow only one of each type per Expense Type
-const getAvailableBudgetTypeOptions = (rows: any[], rowId: number) => {
+const getAvailabletypeOptions = (rows: any[], rowId: number) => {
   const row = rows.find((r) => r.id === rowId);
-  if (!row?.expenseTypeName) return ["Monthly", "Daily"];
+  if (!row?.category) return ["Monthly", "Daily"];
 
   const used = rows
-    .filter((r) => r.expenseTypeName === row.expenseTypeName && r.id !== rowId)
-    .map((r) => r.budgetType);
+    .filter((r) => r.category === row.category && r.id !== rowId)
+    .map((r) => r.type);
 
   return ["Monthly", "Daily"].filter((type) => !used.includes(type));
 };
@@ -62,15 +63,16 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
   const [, forceRender] = useState(0);
   const [newMonthlyBudget, setNewMonthlyBudget] = useState(department.monthlyBudget);
   const [rowErrors, setRowErrors] = useState<Record<string, RowError>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const apiRef = useGridApiRef();
 
   const [rows, setRows] = useState<any[]>(
     (department.spendingSettings || []).map((spendingSetting, idx) => ({
       id: idx + 1,
-      expenseTypeName: spendingSetting.category,
-      budgetType: spendingSetting.type,
-      budgetValue: spendingSetting.budget,
+      category: spendingSetting.category,
+      type: spendingSetting.type,
+      budget: spendingSetting.budget,
       isNew: false,
     }))
   );
@@ -79,14 +81,14 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
 
   //Sets errors if the user doesn't fill the row correctly
   const validateRow = (row: any): RowError => ({
-    expenseTypeName: !row.expenseTypeName,
-    budgetType: !row.budgetType,
-    budgetValue: isNaN(row.budgetValue) || row.budgetValue <= 0,
+    category: !row.category,
+    type: !row.type,
+    budget: isNaN(row.budget) || row.budget <= 0,
   });
 
   const columns: GridColDef[] = [
     {
-      field: "expenseTypeName",
+      field: "category",
       headerName: "Name",
       flex: 1,
       editable: true,
@@ -95,16 +97,16 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
         getAvailableExpenseTypeOptions(rows, params.id as number),
     },
     {
-      field: "budgetType",
+      field: "type",
       headerName: "Budget type",
       flex: 1,
       editable: true,
       type: "singleSelect",
       valueOptions: (params) =>
-        getAvailableBudgetTypeOptions(rows, params.id as number),
+        getAvailabletypeOptions(rows, params.id as number),
     },
     {
-      field: "budgetValue",
+      field: "budget",
       headerName: "Budget Value",
       flex: 1,
       editable: true,
@@ -117,9 +119,9 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
       ...prev,
       {
         id: Math.max(...prev.map((r) => r.id)) + 1,
-        expenseTypeName: "",
-        budgetType: "",
-        budgetValue: 0,
+        category: "",
+        type: "",
+        budget: 0,
         isNew: true,
       },
     ]);
@@ -155,7 +157,10 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
     return newRow;
   };
 
-  const handleSave = () => {
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     const errors: Record<number, RowError> = {};
     let hasError = false;
 
@@ -169,17 +174,25 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
 
     setRowErrors(errors);
     if (hasError) {
+      setSubmitting(false);
       if (onSaved) onSaved(false);
       return;
     }
 
-    // Aqui você faria a chamada para atualizar o backend
-    // Exemplo:
-    // const success = await DepartmentService.updateDepartment(department.name, { ... });
-    // if (onSaved) onSaved(success);
-    // Por enquanto, simula sucesso:
-    if (onSaved) onSaved(true);
+    // Monta o payload para updateDepartment
+    const updatePayload: UpdateDepartmentRequest = {
+      monthlyBudget: newMonthlyBudget,
+      currency: department.currency,
+      spendingSettings: rows.map((row: any) => ({
+        category: row.category,
+        type: row.type,
+        budget: row.budget,
+      })),
+    };
 
+    const result = await DepartmentService.updateDepartment(department.name, updatePayload);
+    setSubmitting(false);
+    if (onSaved) onSaved(!!result);
   };
 
   return (
@@ -256,26 +269,21 @@ export function BudgetModal({ open, department, onClose, onSaved }: Props) {
         )}
       </div>
 
-      <div className="flex justify-end gap-2 p-4">
-        <Button sx={{ bgcolor: "var(--ubs-gray)" }} onClick={onClose}>
-          Cancel
-        </Button>
-
-        <Button
-          sx={{
-            bgcolor: "var(--ubs-red)",
-            color: "#fff",
-            "&.Mui-disabled": {
-              bgcolor: "var(--ubs-gray)",
-              color: "#aaa",
-            },
-          }}
-          onClick={handleSave}
-          disabled={newRows.length === 0 || Object.keys(rowErrors).length > 0}
-        >
-          Save
-        </Button>
-      </div>
+      <form onSubmit={handleSave}>
+        <div className="flex justify-end gap-2 p-4">
+          <Button sx={{ bgcolor: "var(--ubs-gray)" }} onClick={onClose} type="button">
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={Object.keys(rowErrors).length > 0 || submitting}
+          >
+            {submitting ? "Salvando" : "Salvar"}
+          </Button>
+        </div>
+      </form>
     </Dialog>
   );
 }

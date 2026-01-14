@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
+import { useI18n } from "@/i18n/I18nContext";
 import { ExpenseModal } from "../ui/Modal/ModalExpense/ExpenseModal";
 import { CurrencyCode } from "@/enums/CurrencyCode";
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
@@ -29,6 +30,7 @@ export interface ExpenseResponse {
 }
 
 export function ExpenseTable() {
+  const { t, formatDate } = useI18n();
   const [selectedExpense, setSelectedExpense] =
     useState<ExpenseResponse | null>(null);
 
@@ -201,31 +203,25 @@ export function ExpenseTable() {
     () => [
       {
         field: "description",
-        headerName: "Description",
+        headerName: t("myExpenses.description"),
         minWidth: 200,
         flex: 1,
       },
-      { field: "category", headerName: "Category", minWidth: 160, flex: 1 },
+      { field: "category", headerName: t("myExpenses.category"), minWidth: 160, flex: 1 },
       {
         field: "date",
-        headerName: "Date",
+        headerName: t("myExpenses.date"),
         minWidth: 160,
         flex: 1,
         valueGetter: (_value, row) => {
           const d = new Date(row.date);
-          const yyyy = d.getFullYear();
-          const mm = String(d.getMonth() + 1).padStart(2, "0");
-          const dd = String(d.getDate()).padStart(2, "0");
-          const hh = String(d.getHours()).padStart(2, "0");
-          const min = String(d.getMinutes()).padStart(2, "0");
-
-          return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+          return `${formatDate(d)}`;
         },
       },
 
       {
         field: "amount",
-        headerName: "Amount",
+        headerName: t("myExpenses.amount"),
         minWidth: 160,
         flex: 1,
         valueGetter: (_value, row) => {
@@ -234,9 +230,9 @@ export function ExpenseTable() {
           return `${amount.toFixed(2)} (${currency})`;
         },
       },
-      { field: "status", headerName: "Status", minWidth: 160, flex: 1 },
+      { field: "status", headerName: t("myExpenses.status"), minWidth: 160, flex: 1 },
     ],
-    []
+    [t, formatDate]
   );
 
   function handleOpenModal(row: ExpenseResponse) {

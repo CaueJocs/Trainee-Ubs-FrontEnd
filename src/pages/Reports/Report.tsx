@@ -12,9 +12,10 @@ import { type ExpenseResponse } from "@/components/layout/PendingApprovalsTable"
 import { ExpenseTable } from "@/components/layout/ExpenseTable";
 import { ExpenseStatus } from "@/enums/ExpenseStatus";
 import { CurrencyCode } from "@/enums/CurrencyCode";
-import EmployeeReport  from "./EmployeeReport";
+import EmployeeReport from "./EmployeeReport";
 import ExpenseTypeReport from "./ExpenseTypeReport";
 import AreaBudgetReport from "./AreaBudgetReport";
+import type { Dayjs } from "dayjs";
 
 // Payload to backend
 interface employeePayload {
@@ -34,7 +35,6 @@ interface areaBudgetPayload {
   dateFrom: string;
   dateTo: string;
 }
-
 
 const budgets = [
   { area: "Marketing", budget: 15000 },
@@ -1077,12 +1077,25 @@ const mockArea: ExpenseResponse[] = [
 ];
 
 export function Report() {
-  
+  const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
+  const [dateTo, setDateTo] = useState<Dayjs | null>(null);
   const [selectedReport, setSelectedReport] = useState<string>("EMP");
   const [employees, setEmployees] = useState<string[]>([]);
   const [createReport, setCreateReport] = useState<boolean>(false);
 
-  const options = ["Marketing", "Engenharia"];
+  const employeeOptions = ["João Silva", "Caue Zanatti"];
+  const expenseTypeOptions = ["MEAL", "TRANSPORT"];
+  const areaOptions = ["Marketing", "Engenharia"];
+
+  function getOptions() {
+    if (selectedReport === "EMP") {
+      return employeeOptions;
+    } else if (selectedReport === "EXP") {
+      return expenseTypeOptions;
+    } else if (selectedReport === "ARE") {
+      return areaOptions;
+    }
+  }
 
   function handleEmployeeReport() {
     setSelectedReport("EMP");
@@ -1149,7 +1162,7 @@ export function Report() {
           <div className="flex w-full max-w-6xl  gap-4 mt-4 pl-5">
             <Autocomplete
               multiple
-              options={options}
+              options={getOptions() || []}
               value={employees}
               onChange={(_, newValue) => setEmployees(newValue)}
               disableCloseOnSelect
@@ -1164,24 +1177,98 @@ export function Report() {
                 </li>
               )}
               renderInput={(params) => (
-                <TextField {...params} label="Employee" size="small" />
+                <TextField
+                  {...params}
+                  label={
+                    selectedReport === "EMP"
+                      ? "Employee"
+                      : selectedReport === "EXP"
+                      ? "Expense Type"
+                      : "Area"
+                  }
+                  size="small"
+                />
               )}
-              sx={{ width: 260 }}
+              sx={{
+                width: 260,
+                "& .MuiAutocomplete-inputRoot": {
+                  height: 40,
+                  overflow: "auto",
+                  alignItems: "center",
+                },
+              }}
             />
 
-            <DatePicker label="Date From" />
-            <DatePicker label="Date To" />
-            <Button sx={{ bgcolor: "var(--ubs-red)" }} onClick={handleCreateReport}>Create Report</Button>
+            <DatePicker
+              label="Date From"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: 260 },
+                },
+              }}
+              value={dateFrom}
+              onChange={(newValue) => setDateFrom(newValue)}
+            />
+
+            <DatePicker
+              label="Date To"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: 260 },
+                },
+              }}
+              value={dateTo}
+              onChange={(newValue) => setDateTo(newValue)}
+            />
+
+            <Button
+              onClick={handleCreateReport}
+              sx={{
+                bgcolor: "var(--ubs-red)",
+                alignSelf: "flex-start",
+                "&.Mui-disabled": {
+                  bgcolor: "var(--ubs-charcoal)",
+                  color: "#aaa",
+                },
+              }}
+              disabled={
+                employees.length === 0 || dateFrom === null || dateTo === null
+              }
+            >
+              Create Report
+            </Button>
           </div>
-          {createReport && selectedReport === "EMP" && (
-            <EmployeeReport data={mockEmployee} employees={employees} />
-          )}
-          {createReport && selectedReport === "EXP" && (
-            <ExpenseTypeReport data={mockExpenseType} expenseTypes={employees} />
-          )}
-          {createReport && selectedReport === "ARE" && (
-            <AreaBudgetReport data={mockArea} areas={employees} budgets={budgets} />
-          )}
+
+          <div className="flex justify-center w-full pt-5">
+            {createReport &&
+              selectedReport === "EMP" &&
+              employees.length > 0 && (
+                <EmployeeReport data={mockEmployee} employees={employees} />
+              )}
+            {createReport &&
+              selectedReport === "EXP" &&
+              employees.length > 0 && (
+                <ExpenseTypeReport
+                  data={mockExpenseType}
+                  expenseTypes={employees}
+                />
+              )}
+            {createReport &&
+              selectedReport === "ARE" &&
+              employees.length > 0 && (
+                <AreaBudgetReport
+                  data={mockArea}
+                  areas={employees}
+                  budgets={budgets}
+                />
+              )}
+              
+          </div>
+          <div>
+            <ExpenseTable />
+          </div>
         </div>
       </main>
     </div>

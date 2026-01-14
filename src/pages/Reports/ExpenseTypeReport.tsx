@@ -6,6 +6,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  Cell,
 } from "recharts";
 
 import { type ExpenseResponse } from "@/components/layout/PendingApprovalsTable";
@@ -55,7 +56,11 @@ export default function ExpenseTypeReport({
       <Tooltip />
       <Legend />
 
-      <Bar dataKey="total" fill={COLORS[0]} />
+      <Bar dataKey="total">
+        {chartData.map((_, index) => (
+          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Bar>
     </BarChart>
   );
 }

@@ -28,7 +28,7 @@ function App() {
           <Routes>
             {/* //Since layout has different header/footer we separate login route */}
             <Route path="/login" element={<Login />} />
-            {/* <Route element={<ProtectedRoutes />}> */}
+            <Route element={<ProtectedRoutes />}>
               <Route element={<MainLayout />}>
                 <Route path="/" element={<Navigate to="/home" replace />} />
                 <Route path="/home" element={<Home />} />
@@ -38,7 +38,7 @@ function App() {
                 <Route path="/access" element={<Access />} />
                 <Route path="/report" element={<Report />} />
               </Route>
-            {/* </Route> */}
+            </Route>
           </Routes>
         </Router>
       </LocalizationProvider>

@@ -259,7 +259,7 @@ export function BudgetModal({ open, payload, onClose }: Props) {
       </div>
 
       <div className="flex justify-end gap-2 p-4">
-        <Button sx={{ bgcolor: "var(--ubs-gray)" }} onClick={onClose}>
+        <Button sx={{ bgcolor: "var(--ubs-charcoal)" }} onClick={onClose}>
           Cancel
         </Button>
 
@@ -268,7 +268,7 @@ export function BudgetModal({ open, payload, onClose }: Props) {
             bgcolor: "var(--ubs-red)",
             color: "#fff",
             "&.Mui-disabled": {
-              bgcolor: "var(--ubs-gray)",
+              bgcolor: "var(--ubs-charcoal)",
               color: "#aaa",
             },
           }}

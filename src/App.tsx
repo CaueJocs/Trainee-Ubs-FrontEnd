@@ -11,13 +11,14 @@ import { theme } from "./components/ui/theme";
 
 import Login from "./pages/Auth/Login";
 import { Home } from "./pages/Home";
-import { MyExpenses } from "./pages/MyExpenses";
-import { MyApprovals } from "./pages/MyApprovals";
+import { MyExpenses } from "./pages/MyExpenses/MyExpenses";
+import { MyApprovals } from "./pages/MyApprovals/MyApprovals";
 import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
 import { Report } from "./pages/Reports/Report";
+import { Access } from "./pages/Access/Access";
+import { Departments } from "./pages/Departments/Departments";
 
 import { ProtectedRoutes } from "./pages/Auth/ProtectedRoutes";
-import { Access } from "./pages/Access/Access";
 import { MainLayout } from "@/components/layout/MainLayout";
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/budget" element={<BudgetConfigurator />} />
                 <Route path="/access" element={<Access />} />
                 <Route path="/report" element={<Report />} />
+                <Route path="/departments" element={<Departments />} />
               </Route>
             </Route>
           </Routes>

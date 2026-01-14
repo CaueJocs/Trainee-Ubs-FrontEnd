@@ -1,7 +1,8 @@
 import { Button, Dialog } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import type { ModalPayload } from "./types";
 import CustomizedSteppers from "./ExpenseStepper";
+import { AuthService } from "@/services/AuthService";
+import type { ExpenseResponse, FinanceDecisionInfoBase, ManagerDecisionInfoBase } from "@/interfaces/Expense";
 
 // Format a Date to an unambiguous, global local-time string: YYYY-MM-DD HH:mm:ss
 function formatDateTime(d: Date) {
@@ -12,13 +13,13 @@ function formatDateTime(d: Date) {
 }
 // Props for the Modal component
 interface Props {
-  payload: ModalPayload;
+  expense: ExpenseResponse;
   onClose: () => void;
 }
 
 // Define what should be shown on the 'description' of each field, and the according key on ExpenseResponse
 const expenseFields = [
-  [{ label: "Employee Name", valueKey: "employeeName" }],
+  [{ label: "Employee Name", valueKey: "employee.name" }],
   [{ label: "Department", valueKey: "departmentName" }],
   [{ label: "Category", valueKey: "category" }],
   [{ label: "Date", valueKey: "date" }],
@@ -38,21 +39,21 @@ function handleDenyClick() {
   console.log("Deny button clicked");
 }
 
-export function ExpenseModal({ payload, onClose }: Props) {
+export function ExpenseModal({ expense, onClose }: Props) {
   return (
     <Dialog open onClose={onClose} maxWidth="lg" fullWidth>
       <div>
         <h1 className="text-2xl font-light tracking-tight p-5">
-          {payload.data.employeeName}&apos;s Expense
+          {AuthService.getUser()?.name}&apos;s Expense
         </h1>
 
         {/*Stepper component being used with existing Expense data*/}
-        <CustomizedSteppers expense={payload.data} />
+        <CustomizedSteppers expense={expense} />
         <div className="h-px bg-black/15" />
         <div className="flex flex-col gap-6 px-5 pb-6 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {expenseFields.flat().map(({ label, valueKey }) => {
-              const raw = payload.data[valueKey as keyof typeof payload.data];
+              const raw = expense[valueKey as keyof typeof expense];
               // Here's where all the text-fields are set, based on the ExpenseResponse data.
               //There're some special cases for certain fields bellow (Formating).
 
@@ -101,7 +102,7 @@ export function ExpenseModal({ payload, onClose }: Props) {
                 );
               }
 
-              let displayValue: string | number = raw ?? "";
+              let displayValue: boolean | string | number | ManagerDecisionInfoBase | FinanceDecisionInfoBase = raw ?? "";
 
               // Format date-like fields to an unambiguous global format with time
               if (

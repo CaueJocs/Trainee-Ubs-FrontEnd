@@ -10,7 +10,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import type { EmployeeRow } from "./Access";
-import { MenuItem } from "@mui/material";
+import { MenuItem, Autocomplete } from "@mui/material";
 import { DepartmentService } from "@/services/DepartmentService";
 import { EmployeeService } from "@/services/EmployeeService";
 
@@ -102,7 +102,6 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             onChange={setField("name")}
             size="small"
             required
-            inputProps={{ minLength: 2 }}
           />
 
           <TextField
@@ -114,24 +113,23 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             required
           />
   
-          <TextField
-            select
-            label={t("access.manager")}
-            value={employee?.managerId ?? ""}
-            onChange={setField("managerId")}
-            size="small"
-            required
-          >
-            {managers.length > 0 ? (
-              managers.map((manager) => (
-                <MenuItem key={manager.id} value={manager.id}>
-                  {manager.name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem value="">{t("access.noManagers")}</MenuItem>
+          <Autocomplete
+            options={managers}
+            getOptionLabel={(option) => option.name}
+            value={managers.find((m) => m.id === employee?.managerId) || null}
+            onChange={(_, value) => {
+              if (!employee) return;
+              setEmployee({ ...employee, managerId: value?.id || "" });
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={t("access.manager")}
+                size="small"
+                required
+              />
             )}
-          </TextField>
+          />
 
           <TextField
             select

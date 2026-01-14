@@ -9,7 +9,7 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import { MenuItem, Tooltip } from "@mui/material";
+import { MenuItem, Tooltip, Autocomplete } from "@mui/material";
 import { DepartmentService } from "@/services/DepartmentService";
 import { EmployeeService } from "@/services/EmployeeService";
 import type { EmployeeRequest } from "@/interfaces/Employee";
@@ -132,6 +132,7 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             onChange={setField("password")}
             size="small"
             type="password"
+            autoComplete="new-password"
             required
             slotProps={{
               htmlInput: {
@@ -162,24 +163,20 @@ export function NewUserModal({ open, onClose, onSave }: Props) {
             )}
           </TextField>
 
-          <TextField
-            select
-            label={t("access.manager")}
-            value={form.managerId}
-            onChange={setField("managerId")}
-            size="small"
-            required
-          >
-            {managers.length > 0 ? (
-              managers.map((manager) => (
-                <MenuItem key={manager.id} value={manager.id}>
-                  {manager.name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem value="">{t("access.noManagers")}</MenuItem>
+          <Autocomplete
+            options={managers}
+            getOptionLabel={(option) => option.name}
+            value={managers.find((m) => m.id === form.managerId) || null}
+            onChange={(_, value) => setForm((prev) => ({ ...prev, managerId: value?.id || "" }))}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={t("access.manager")}
+                size="small"
+                required
+              />
             )}
-          </TextField>
+          />
 
           <TextField
             select

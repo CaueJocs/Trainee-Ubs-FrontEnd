@@ -8,4 +8,22 @@ export const DepartmentApi = {
     return response.data;
   },
 
+  renameDepartment: async (currentName: string, newName: string): Promise<void> => {
+    await http.patch(`/departments/${currentName}/name`, { 
+      newName: newName 
+    });
+  },
+
+  createDepartment: async (name: string, currency: string): Promise<DepartmentResponse> => {
+    const response = await http.post('/departments', {
+      name,
+      currency,
+    });
+    return response.data;
+  },
+
+  deleteDepartment: async (name: string): Promise<void> => {
+    await http.delete(`/departments/${name}`);
+  }
+
 };

@@ -8,6 +8,7 @@ type I18nContextValue = {
   lang: Lang;
   setLang: (lang: Lang) => void;
   t: TFn;
+  formatDate: (date: string | Date, options?: Intl.DateTimeFormatOptions) => string;
 };
 
 const I18nContext = React.createContext<I18nContextValue | null>(null);
@@ -42,7 +43,26 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [lang]
   );
 
-  const value = React.useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
+  const formatDate = React.useCallback(
+    (date: string | Date, options?: Intl.DateTimeFormatOptions) => {
+      const d = typeof date === 'string' ? new Date(date) : date;
+      
+      if(options == null){
+          options = {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+        };
+      }
+      
+      return d.toLocaleString(lang, options);
+    },
+    [lang]
+  );
+
+  const value = React.useMemo(() => ({ lang, setLang, t, formatDate }), [lang, setLang, t, formatDate]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

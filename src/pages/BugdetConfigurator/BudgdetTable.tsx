@@ -1,112 +1,58 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import Paper from "@mui/material/Paper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { DepartmentService } from "@/services/DepartmentService";
+import type { DepartmentResponse } from "@/interfaces/Department";
 import { BudgetModal } from "./BugdetModal";
 
-interface areaBugdetResponse {
-  id : number
-  areaName: string;
-  monthlyBudget: number;
-}
-
-const columns: GridColDef[] = [
+const columns: GridColDef<DepartmentResponse>[] = [
+  { field: "name", headerName: "Area", flex: 1 },
   {
-    field: "areaName",
-    headerName: "Area",
-    flex: 1,
-  },
-  {
-    field: "monthlyBudget",
-    headerName: "Monthly Budgdet",
-    type: "number",
-    flex: 1,
-  },
+    field: "currency",
+    headerName: "Currency",
+    flex: 0,
+    minWidth: 75,
+    align: "center",
+    headerAlign: "center",
+  }
 ];
 
-const paginationModel = { page: 0, pageSize: 5 };
-
 export default function BudgdetTable() {
-  const [rows, setRows] = useState<areaBugdetResponse[]>([
-    {
-      id: 1,
-      areaName: "Marketing",
-
-      monthlyBudget: 120000,
-    },
-    {
-      id: 2,
-      areaName: "Engineering",
-
-      monthlyBudget: 300000,
-    },
-    {
-      id: 3,
-      areaName: "Sales",
-
-      monthlyBudget: 180000,
-    },
-    {
-      id: 4,
-      areaName: "Human Resources",
-
-      monthlyBudget: 60000,
-    },
-    {
-      id: 5,
-      areaName: "Finance",
-
-      monthlyBudget: 90000,
-    },
-    {
-      id: 6,
-      areaName: "Customer Support",
-
-      monthlyBudget: 75000,
-    },
-    {
-      id: 7,
-      areaName: "Product",
-
-      monthlyBudget: 150000,
-    },
-    {
-      id: 8,
-      areaName: "Operations",
-
-      monthlyBudget: 110000,
-    },
-    {
-      id: 9,
-      areaName: "Legal",
-
-      monthlyBudget: 50000,
-    },
-    {
-      id: 10,
-      areaName: "IT Infrastructure",
-
-      monthlyBudget: 130000,
-    },
-  ]);
-
-  const [selectedArea, setSelectedArea] = useState<areaBugdetResponse | null>(
+  const [rows, setRows] = useState<DepartmentResponse[]>([]);
+  const [selectedArea, setSelectedArea] = useState<DepartmentResponse | null>(
     null
   );
 
-  function handleOpenModal(area: areaBugdetResponse) {
+  useEffect(() => {
+    let cancelled = false;
+    DepartmentService.getDepartments().then((list) => {
+      if (cancelled) return;
+      setRows(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function handleOpenModal(area: DepartmentResponse) {
     setSelectedArea(area);
   }
 
   return (
-    <Paper sx={{ height: 400, width: "100%" }}>
+    <div className="w-full">
       <DataGrid
         disableRowSelectionOnClick
         rows={rows}
         columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
-        sx={{ border: 0 }}
+        getRowId={(row) => row.name}
+        initialState={{
+          pagination: { paginationModel: { page: 0, pageSize: 10 } },
+          sorting: {
+            sortModel: [{ field: "name", sort: "asc" }],
+          },
+        }}
+        pageSizeOptions={[10, 25, 50]}
+        sx={{ mt: 2, overflow: "auto", height: "60vh" }}
         onRowClick={(params) => handleOpenModal(params.row)}
       />
 
@@ -114,12 +60,12 @@ export default function BudgdetTable() {
         <BudgetModal
           open
           payload={{
-            areaName: selectedArea.areaName,
+            areaName: selectedArea.name,
             areaBudget: selectedArea.monthlyBudget,
           }}
           onClose={() => setSelectedArea(null)}
         />
       )}
-    </Paper>
+    </div>
   );
 }

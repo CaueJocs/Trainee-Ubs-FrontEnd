@@ -151,6 +151,7 @@ export const translations = {
       description: "Description",
       approve: "Approve",
       deny: "Deny",
+      viewReceipt: "View Receipt",
     },
     expenseStepper: {
       createdOn: "Created on",
@@ -302,6 +303,7 @@ export const translations = {
       description: "Descrição",
       approve: "Aprovar",
       deny: "Recusar",
+      viewReceipt: "Ver Nota Fiscal",
     },
     expenseStepper: {
       createdOn: "Criado em",
@@ -453,6 +455,7 @@ export const translations = {
       description: "Beschreibung",
       approve: "Genehmigen",
       deny: "Ablehnen",
+      viewReceipt: "Beleg ansehen",
     },
     expenseStepper: {
       createdOn: "Erstellt am",
@@ -604,6 +607,7 @@ export const translations = {
       description: "Description",
       approve: "Approuver",
       deny: "Refuser",
+      viewReceipt: "Voir le reçu",
     },
     expenseStepper: {
       createdOn: "Créé le",
@@ -753,6 +757,7 @@ export const translations = {
       description: "Descrizione",
       approve: "Approva",
       deny: "Rifiuta",
+      viewReceipt: "Visualizza ricevuta",
     },
     expenseStepper: {
       createdOn: "Creato il",
@@ -904,6 +909,7 @@ export const translations = {
       description: "Descripción",
       approve: "Aprobar",
       deny: "Rechazar",
+      viewReceipt: "Ver recibo",
     },
     expenseStepper: {
       createdOn: "Creado el",

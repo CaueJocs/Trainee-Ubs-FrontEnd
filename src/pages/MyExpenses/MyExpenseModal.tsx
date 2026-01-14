@@ -1,9 +1,10 @@
-import { Dialog } from "@mui/material";
+import { Dialog, Button, DialogActions } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import CustomizedSteppers from "../../components/ui/ExpenseStepper";
 import { AuthService } from "@/services/AuthService";
 import type { ExpenseResponse } from "@/interfaces/Expense";
 import { useI18n } from "@/i18n/I18nContext";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 
 interface Props {
   expense: ExpenseResponse;
@@ -75,6 +76,20 @@ export function MyExpenseModal({ expense, onClose }: Props) {
             />
           </div>
         </div>
+
+        {expense.receiptUrl && (
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              type="button"
+              endIcon={<ReceiptIcon />}
+              onClick={() => window.open(expense.receiptUrl, "_blank")}
+            >
+              {t("expenseModal.viewReceipt")}
+            </Button>
+          </DialogActions>
+        )}
       </div>
     </Dialog>
   );

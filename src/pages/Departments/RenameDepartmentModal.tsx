@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
 
+import { useI18n } from "@/i18n/I18nContext";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -14,52 +16,70 @@ type Props = {
   open: boolean;
   department: DepartmentRow | null;
   onClose: () => void;
-  onSave: (payload: { id: number; departmentName: string }) => void;
+  onSave: (payload: { name: string; departmentName: string }) => Promise<void>;
 };
 
 export function RenameDepartmentModal({ open, department, onClose, onSave }: Props) {
+  const { t } = useI18n();
   const [name, setName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (open && department) setName(department.departmentName);
+    if (open && department) {
+      startTransition(() => setName(department.name));
+    }
   }, [open, department]);
 
-  const canSave = useMemo(() => Boolean(department) && Boolean(name.trim()), [department, name]);
-
-  const handleSave = () => {
-    if (!department) return;
-    onSave({ id: department.id, departmentName: name.trim() });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!department || submitting) return;
+    setSubmitting(true);
+    try {
+      await onSave({ name: department.name, departmentName: name.trim() });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Rename department</DialogTitle>
+      <DialogTitle>{t("departments.renameDepartment")}</DialogTitle>
 
       <DialogContent>
-        <Box sx={{ mt: 1, display: "grid", gap: 2 }}>
+        <Box
+          component="form"
+          id="rename-department-form"
+          onSubmit={handleSubmit}
+          sx={{ mt: 1, display: "grid", gap: 2 }}
+        >
           <TextField
-            label="Department"
+            label={t("departments.name")}
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
             size="small"
-            autoFocus
-          />
-
-          <TextField
-            label="Currency"
-            value={department?.currency ?? ""}
-            size="small"
-            disabled
+            required
           />
         </Box>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} color="inherit">
-          Cancel
+        <Button
+          onClick={onClose}
+          variant="contained"
+          color="secondary"
+          disabled={submitting}
+          type="button"
+        >
+          {t("departments.cancel")}
         </Button>
-        <Button onClick={handleSave} variant="contained" color="error" disabled={!canSave}>
-          Save
+        <Button
+          type="submit"
+          form="rename-department-form"
+          variant="contained"
+          color="primary"
+          disabled={submitting}
+        >
+          {submitting ? t("departments.saving") : t("departments.save")}
         </Button>
       </DialogActions>
     </Dialog>

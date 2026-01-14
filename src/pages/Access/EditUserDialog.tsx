@@ -102,7 +102,6 @@ export function EditUserDialog({ open, user, onClose, onSave }: Props) {
             onChange={setField("name")}
             size="small"
             required
-            inputProps={{ minLength: 2 }}
           />
 
           <TextField

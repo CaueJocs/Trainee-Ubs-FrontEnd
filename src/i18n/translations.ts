@@ -137,6 +137,18 @@ export const translations = {
     footer: {
       copyright: "© UBS 1998 – 2026. All rights reserved.",
     },
+    expenseModal: {
+      title: "Expense",
+      employeeName: "Employee Name",
+      department: "Department",
+      category: "Category",
+      date: "Date",
+      currency: "Currency",
+      amount: "Amount",
+      description: "Description",
+      approve: "Approve",
+      deny: "Deny",
+    },
   },
 
   pt: {
@@ -265,6 +277,18 @@ export const translations = {
     },
     footer: {
       copyright: "© UBS 1998 – 2026. Todos os direitos reservados.",
+    },
+    expenseModal: {
+      title: "Despesa",
+      employeeName: "Nome do Funcionário",
+      department: "Departamento",
+      category: "Categoria",
+      date: "Data",
+      currency: "Moeda",
+      amount: "Valor",
+      description: "Descrição",
+      approve: "Aprovar",
+      deny: "Recusar",
     },
   },
 
@@ -395,6 +419,18 @@ export const translations = {
     footer: {
       copyright: "© UBS 1998 – 2026. Alle Rechte vorbehalten.",
     },
+    expenseModal: {
+      title: "Ausgabe",
+      employeeName: "Name des Mitarbeiters",
+      department: "Abteilung",
+      category: "Kategorie",
+      date: "Datum",
+      currency: "Währung",
+      amount: "Betrag",
+      description: "Beschreibung",
+      approve: "Genehmigen",
+      deny: "Ablehnen",
+    },
   },
 
   fr: {
@@ -524,6 +560,18 @@ export const translations = {
     footer: {
       copyright: "© UBS 1998 – 2026. Tous droits réservés.",
     },
+    expenseModal: {
+      title: "Dépense",
+      employeeName: "Nom de l'employé",
+      department: "Département",
+      category: "Catégorie",
+      date: "Date",
+      currency: "Devise",
+      amount: "Montant",
+      description: "Description",
+      approve: "Approuver",
+      deny: "Refuser",
+    },
   },
 
   it: {
@@ -650,6 +698,18 @@ export const translations = {
       error: "Impossibile reimpostare la password",
     },    footer: {
       copyright: "© UBS 1998 – 2026. Tutti i diritti riservati.",
+    },
+    expenseModal: {
+      title: "Spesa",
+      employeeName: "Nome del dipendente",
+      department: "Dipartimento",
+      category: "Categoria",
+      date: "Data",
+      currency: "Valuta",
+      amount: "Importo",
+      description: "Descrizione",
+      approve: "Approva",
+      deny: "Rifiuta",
     },
   },
 
@@ -779,6 +839,18 @@ export const translations = {
     },
     footer: {
       copyright: "© UBS 1998 – 2026. Todos los derechos reservados.",
+    },
+    expenseModal: {
+      title: "Gasto",
+      employeeName: "Nombre del empleado",
+      department: "Departamento",
+      category: "Categoría",
+      date: "Fecha",
+      currency: "Moneda",
+      amount: "Monto",
+      description: "Descripción",
+      approve: "Aprobar",
+      deny: "Rechazar",
     },
   },
 } as const;

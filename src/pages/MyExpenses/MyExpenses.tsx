@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/i18n/I18nContext";
-import { NewExpenseModal } from "@/components/ui/Modal/ModalNewExpense/NewExpenseModal";
-import { ExpenseTable } from "@/components/layout/ExpenseTable";
-import { MyExpenseModal } from "@/components/ui/Modal/ModalExpense/MyExpenseModal";
+import { NewExpenseModal } from "@/pages/MyExpenses/NewExpenseModal";
+import { MyExpenseTable } from "@/pages/MyExpenses/MyExpenseTable";
+import { MyExpenseModal } from "@/pages/MyExpenses/MyExpenseModal";
 import type { ExpenseResponse } from "@/interfaces/Expense";
 import { Button, Snackbar, Alert } from "@mui/material";
 import type { AlertColor } from "@mui/material";
@@ -87,7 +87,7 @@ export function MyExpenses() {
             {t("myExpenses.newExpense")}
           </Button>
           <section className="p-2 sm:p-4">
-            <ExpenseTable rows={rows} onRowClick={openDetail} />
+            <MyExpenseTable rows={rows} onRowClick={openDetail} />
           </section>
         </div>
       </main>

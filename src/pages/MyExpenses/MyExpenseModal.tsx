@@ -1,16 +1,9 @@
 import { Dialog } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import CustomizedSteppers from "./ExpenseStepper";
+import CustomizedSteppers from "../../components/ui/ExpenseStepper";
 import { AuthService } from "@/services/AuthService";
 import type { ExpenseResponse } from "@/interfaces/Expense";
-
-// Format a Date to an unambiguous, global local-time string: YYYY-MM-DD HH:mm:ss
-function formatDateTime(d: Date) {
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
-    d.getHours()
-  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
+import { useI18n } from "@/i18n/I18nContext";
 
 interface Props {
   expense: ExpenseResponse;
@@ -18,13 +11,14 @@ interface Props {
 }
 
 export function MyExpenseModal({ expense, onClose }: Props) {
-  const dateFormatted = formatDateTime(new Date(expense.date));
+  const { t, formatDate } = useI18n();
+  const dateFormatted = formatDate(new Date(expense.date));
 
   return (
     <Dialog open onClose={onClose} maxWidth="lg" fullWidth>
       <div>
         <h1 className="text-2xl font-light tracking-tight p-5">
-          {AuthService.getUser()?.name ?? ""}&apos;s Expense
+          {AuthService.getUser()?.name ?? ""}&apos;s {t("expenseModal.title")}
         </h1>
 
         <CustomizedSteppers expense={expense} />
@@ -33,43 +27,43 @@ export function MyExpenseModal({ expense, onClose }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
             <TextField
-              label="Employee Name"
+              label={t("expenseModal.employeeName")}
               value={AuthService.getUser()?.name ?? ""}
               disabled
             />
 
             <TextField
-              label="Department"
+              label={t("expenseModal.department")}
               value={expense.departmentName ?? ""}
               disabled
             />
 
             <TextField
-              label="Category"
+              label={t("expenseModal.category")}
               value={expense.category ?? ""}
               disabled
             />
 
             <TextField
-              label="Date"
+              label={t("expenseModal.date")}
               value={dateFormatted}
               disabled
             />
 
             <TextField
-              label="Currency"
+              label={t("expenseModal.currency")}
               value={expense.currency ?? ""}
               disabled
             />
 
             <TextField
-              label="Amount"
+              label={t("expenseModal.amount")}
               value={expense.amount.toFixed(2)}
               disabled
             />
 
             <TextField
-              label="Description"
+              label={t("expenseModal.description")}
               value={expense.description ?? ""}
               disabled
               multiline

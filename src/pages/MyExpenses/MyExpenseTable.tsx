@@ -2,7 +2,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 import { useI18n } from "@/i18n/I18nContext";
-import { MyExpenseModal } from "../../pages/MyExpenses/MyExpenseModal";
+import { MyExpenseModal } from "./MyExpenseModal";
 import type { ExpenseResponse } from "@/interfaces/Expense";
 
 interface MyExpenseTableProps {

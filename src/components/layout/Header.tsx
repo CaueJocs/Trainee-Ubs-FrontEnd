@@ -263,6 +263,7 @@ export function Header({
               {t("header.myExpenses")}
             </Link>
             )}
+            {/* Linha 2: menu
             {canAccess([Role.EMPLOYEE]) && (
             <Link className="cursor-pointer hover:text-black" to="/my-expenses">
               {t("header.pendingExpenses")}
@@ -273,6 +274,7 @@ export function Header({
               {t("header.approvedExpenses")}
             </Link>
             )}
+            */}
             {canAccess([Role.MANAGER, Role.FINANCE]) && (
             <Link className="cursor-pointer hover:text-black" to="/my-approvals">
               {t("header.approvals")}

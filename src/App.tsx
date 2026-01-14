@@ -14,6 +14,7 @@ import { Home } from "./pages/Home";
 import { MyExpenses } from "./pages/MyExpenses";
 import { MyApprovals } from "./pages/MyApprovals";
 import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
+import { Report } from "./pages/Reports/Report";
 
 import { ProtectedRoutes } from "./pages/Auth/ProtectedRoutes";
 import { Access } from "./pages/Access/Access";
@@ -27,7 +28,7 @@ function App() {
           <Routes>
             {/* //Since layout has different header/footer we separate login route */}
             <Route path="/login" element={<Login />} />
-            <Route element={<ProtectedRoutes />}>
+            {/* <Route element={<ProtectedRoutes />}> */}
               <Route element={<MainLayout />}>
                 <Route path="/" element={<Navigate to="/home" replace />} />
                 <Route path="/home" element={<Home />} />
@@ -35,8 +36,9 @@ function App() {
                 <Route path="/my-approvals" element={<MyApprovals />} />
                 <Route path="/budget" element={<BudgetConfigurator />} />
                 <Route path="/access" element={<Access />} />
+                <Route path="/report" element={<Report />} />
               </Route>
-            </Route>
+            {/* </Route> */}
           </Routes>
         </Router>
       </LocalizationProvider>

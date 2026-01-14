@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/i18n/I18nContext";
 import { NewExpenseModal } from "@/components/ui/Modal/ModalNewExpense/NewExpenseModal";
 import { ExpenseTable } from "@/components/layout/ExpenseTable";
-import { ExpenseModal } from "@/components/ui/Modal/ModalExpense/ExpenseModal";
+import { MyExpenseModal } from "@/components/ui/Modal/ModalExpense/MyExpenseModal";
 import type { ExpenseResponse } from "@/interfaces/Expense";
 import { Button, Snackbar, Alert } from "@mui/material";
 import type { AlertColor } from "@mui/material";
@@ -100,8 +100,8 @@ export function MyExpenses() {
       )}
 
       {isDetailOpen && selectedExpense && (
-        <ExpenseModal
-          payload={{ type: "Expense", data: selectedExpense }}
+        <MyExpenseModal
+          expense={selectedExpense}
           onClose={closeDetail}
         />
       )}

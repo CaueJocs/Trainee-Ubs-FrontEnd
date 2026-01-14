@@ -2,7 +2,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 import { useI18n } from "@/i18n/I18nContext";
-import { ExpenseModal } from "../ui/Modal/ModalExpense/ExpenseModal";
+import { MyExpenseModal } from "../ui/Modal/ModalExpense/MyExpenseModal";
 import type { ExpenseResponse } from "@/interfaces/Expense";
 
 interface ExpenseTableProps {
@@ -29,8 +29,8 @@ export function ExpenseTable({ rows, onRowClick }: ExpenseTableProps) {
         headerName: t("myExpenses.date"),
         minWidth: 160,
         flex: 1,
-        valueGetter: (_value, row) => {
-          const d = new Date(row.date);
+        valueGetter: (_value, expense) => {
+          const d = new Date(expense.date);
           return `${formatDate(d)}`;
         },
       },
@@ -40,10 +40,9 @@ export function ExpenseTable({ rows, onRowClick }: ExpenseTableProps) {
         headerName: t("myExpenses.amount"),
         minWidth: 160,
         flex: 1,
-        valueGetter: (_value, row) => {
-          const amount = Number(row.amount ?? 0);
-          const currency = row.currency;
-          return `${currency} ${amount.toFixed(2)}`;
+        valueGetter: (_value, expense) => {
+
+          return `${expense.currency} ${expense.amount.toFixed(2)}`;
         },
       },
       { field: "status", headerName: t("myExpenses.status"), minWidth: 160, flex: 1 },
@@ -51,12 +50,12 @@ export function ExpenseTable({ rows, onRowClick }: ExpenseTableProps) {
     [t, formatDate]
   );
 
-  function handleOpenModal(row: ExpenseResponse) {
-    console.log("Opening modal for expense:", row);
+  function handleOpenModal(expense: ExpenseResponse) {
+    console.log("Opening modal for expense:", expense);
     if (onRowClick) {
-      onRowClick(row);
+      onRowClick(expense);
     } else {
-      setSelectedExpense(row);
+      setSelectedExpense(expense);
     }
   }
 
@@ -81,11 +80,8 @@ export function ExpenseTable({ rows, onRowClick }: ExpenseTableProps) {
         sx={{ mt: 2, overflow: "auto", height: "60vh" }}
       />
       {selectedExpense && (
-        <ExpenseModal
-          payload={{
-            type: "Expense",
-            data: selectedExpense,
-          }}
+        <MyExpenseModal
+          expense={selectedExpense}
           onClose={handleCloseModal}
         />
       )}

@@ -3,8 +3,12 @@ import type { ExpenseDetailResponse, ExpenseResponse } from '@/interfaces/Expens
 
 export type ModalPayload =
   | {
-      type: 'Expense'
-      data: ExpenseResponse | ExpenseDetailResponse
+      type: 'ApproveExpense'
+      data: ExpenseDetailResponse
+    }
+  | {
+      type: 'MyExpense'
+      data: ExpenseResponse
     }
   | {
       type: 'NewExpense'

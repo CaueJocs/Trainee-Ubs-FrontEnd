@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { ExpenseModal } from "../ui/Modal/ModalExpense/ExpenseModal";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -8,6 +7,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Card from "@mui/material/Card";
 import type { ExpenseResponse } from "@/interfaces/Expense";
+import { ApproveExpenseModal } from "../ui/Modal/ModalExpense/ApproveExpenseModal";
 
 export function PendingApprovalsTable() {
   const mockPendingApprovals: ExpenseResponse[] = [];
@@ -76,7 +76,7 @@ export function PendingApprovalsTable() {
                   "&:hover": { bgcolor: "action.hover" },
                 }}
               >
-                <TableCell>{approval.employeeName}</TableCell>
+                <TableCell>{approval.employeeId}</TableCell>
                 <TableCell>{approval.departmentName}</TableCell>
                 <TableCell>{approval.category}</TableCell>
                 <TableCell align="right">
@@ -89,9 +89,9 @@ export function PendingApprovalsTable() {
       </TableContainer>
 
       {selectedExpense && (
-        <ExpenseModal
+        <ApproveExpenseModal
           payload={{
-            type: "Expense",
+            type: "ApproveExpense",
             data: selectedExpense,
           }}
           onClose={handleCloseModal}

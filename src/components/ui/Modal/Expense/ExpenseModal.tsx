@@ -1,6 +1,6 @@
 import { Button, Dialog } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import CustomizedSteppers from "../../ExpenseStepper";
+import CustomizedSteppers from "./ExpenseStepper";
 import { AuthService } from "@/services/AuthService";
 import type { ExpenseResponse, FinanceDecisionInfoBase, ManagerDecisionInfoBase } from "@/interfaces/Expense";
 

@@ -1,8 +1,11 @@
-import { Button, Dialog } from "@mui/material";
+import { Button, Dialog, DialogActions } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import CustomizedSteppers from "../../ExpenseStepper";
+import CustomizedSteppers from "../../components/ui/Modal/Expense/ExpenseStepper";
 import { useI18n } from "@/i18n/I18nContext";
 import type { ExpenseDetailResponse } from "@/interfaces/Expense";
+import { useState } from "react";
+import ReceiptIcon from "@mui/icons-material/Receipt";
+import { ExpenseStatus } from "@/enums/ExpenseStatus";
 
 // Format a Date to an unambiguous, global local-time string: YYYY-MM-DD HH:mm:ss
 function formatDateTime(d: Date) {
@@ -15,24 +18,44 @@ function formatDateTime(d: Date) {
 interface Props {
   expense: ExpenseDetailResponse;
   onClose: () => void;
+  onApprove: (expenseId: string) => Promise<boolean>;
+  onDeny: (expenseId: string) => Promise<boolean>;
 }
 
-//Functions to be implemented later, when endpoints are ready
-function handleApproveClick() {
-  console.log("Approve button clicked");
-}
-
-function handleDenyClick() {
-  console.log("Deny button clicked");
-}
-
-export function ApproveExpenseModal({ expense, onClose }: Props) {
+export function ApproveExpenseModal({ expense, onClose, onApprove, onDeny }: Props) {
   const { t } = useI18n();
+  const [submitting, setSubmitting] = useState(false);
   
   // Extract employee name and department name from ExpenseDetailResponse
   const employeeName = expense.employee.name;
   const departmentName = expense.department.name;
   const dateFormatted = formatDateTime(new Date(expense.date));
+
+  const handleApproveClick = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const success = await onApprove(expense.id);
+      if (success) {
+        onClose();
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDenyClick = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const success = await onDeny(expense.id);
+      if (success) {
+        onClose();
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <Dialog open onClose={onClose} maxWidth="lg" fullWidth>
@@ -41,7 +64,10 @@ export function ApproveExpenseModal({ expense, onClose }: Props) {
           {employeeName}&apos;s {t("expenseModal.title")}
         </h1>
 
-        <CustomizedSteppers expense={expense} />
+        <div className="mb-4">
+          <CustomizedSteppers expense={expense} />
+        </div>
+        
         <div className="h-px bg-black/15" />
         <div className="flex flex-col gap-6 px-5 pb-6 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -91,24 +117,50 @@ export function ApproveExpenseModal({ expense, onClose }: Props) {
             />
           </div>
         </div>
-        <div className="flex justify-end gap-4 p-5">
+
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           {/* //Action buttons */}
+          <Button
+            onClick={onClose}
+            variant="contained"
+            color="secondary"
+            type="button"
+          >
+            {t("access.cancel")}
+          </Button>
+          <Button
+              variant="contained"
+              color="primary"
+              type="button"
+              endIcon={<ReceiptIcon />}
+              onClick={() => window.open(expense.receiptUrl, "_blank")}
+            >
+              {t("expenseModal.viewReceipt")}
+          </Button>
+
+          {expense.status === ExpenseStatus.APPROVED_BY_MANAGER && (
           <Button
             variant="contained"
             sx={{ bgcolor: "var(--ubs-charcoal)" }}
             onClick={handleDenyClick}
+            disabled={submitting}
           >
-            {t("expenseModal.deny")}
+            {submitting ? t("access.saving") : t("expenseModal.deny")}
           </Button>
+          )}  
           
+          {expense.status === ExpenseStatus.APPROVED_BY_MANAGER && (
           <Button
             variant="contained"
             sx={{ bgcolor: "var(--ubs-red)" }}
             onClick={handleApproveClick}
+            disabled={submitting}
           >
-            {t("expenseModal.approve")}
+            {submitting ? t("access.saving") : t("expenseModal.approve")}
           </Button>
-        </div>
+          )}
+
+        </DialogActions>
       </div>
     </Dialog>
   );

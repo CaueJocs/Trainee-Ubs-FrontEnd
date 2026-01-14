@@ -1,12 +1,14 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useI18n } from "@/i18n/I18nContext";
 import type { ExpenseResponse, ExpenseDetailResponse } from "@/interfaces/Expense";
-import { ApproveExpenseModal } from "../../components/ui/Modal/ModalExpense/ApproveExpenseModal";
+import { ApproveExpenseModal } from "./ApproveExpenseModal";
 import { ExpenseService } from "@/services/ExpenseService";
 import { useAuth } from "@/pages/Auth/useAuth";
 import { Role } from "@/enums/Role";
+import { Snackbar, Alert } from "@mui/material";
+import type { AlertColor } from "@mui/material";
 
 interface PendingApprovalsTableProps {
   onRowClick?: (expense: ExpenseDetailResponse) => void;
@@ -17,25 +19,27 @@ export function PendingApprovalsTable({ onRowClick }: PendingApprovalsTableProps
   const { canAccess } = useAuth();
   const [rows, setRows] = useState<ExpenseResponse[]>([]);
   const [selectedExpense, setSelectedExpense] = useState<ExpenseDetailResponse | null>(null);
+  
+  // Snackbar state
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<AlertColor>("success");
 
-  useEffect(() => {
-    let cancelled = false;
-    const fetchExpenses = async () => {
-      let expenses: ExpenseResponse[] = [];
-      if (canAccess([Role.FINANCE])) {
-        expenses = await ExpenseService.getPendingExpensesForFinance();
-      } else if (canAccess([Role.MANAGER])) {
-        expenses = await ExpenseService.getPendingExpensesForManager();
-      }
-      if (!cancelled) {
-        setRows(expenses);
-      }
-    };
-    fetchExpenses();
-    return () => {
-      cancelled = true;
-    };
+  const fetchExpensesList = useCallback(async () => {
+    let expenses: ExpenseResponse[] = [];
+    if (canAccess([Role.FINANCE])) {
+      expenses = await ExpenseService.getAllEmployeesExpenses();
+    } else if (canAccess([Role.MANAGER])) {
+      expenses = await ExpenseService.getEmployeesExpensesForManager();
+    }
+    setRows(expenses);
   }, [canAccess]);
+
+    useEffect(() => {
+      (async () => {
+        await fetchExpensesList();
+      })();
+    }, [fetchExpensesList]);
 
   const columns: GridColDef<ExpenseResponse>[] = useMemo(
     () => [
@@ -104,6 +108,38 @@ export function PendingApprovalsTable({ onRowClick }: PendingApprovalsTableProps
     setSelectedExpense(null);
   }
 
+  const showSnackbar = useCallback((message: string, severity: AlertColor) => {
+    setSnackMessage(message);
+    setSnackSeverity(severity);
+    setSnackOpen(true);
+  }, []);
+
+  const handleApprove = useCallback(async (expenseId: string) => {
+    const success = await ExpenseService.approve(expenseId);
+    
+    if (success) {
+      showSnackbar(t("myExpenses.expenseApproved"), "success");
+      await fetchExpensesList(); // Refresh the table
+      return true;
+    } else {
+      showSnackbar(t("myExpenses.expenseApproveFailed"), "error");
+      return false;
+    }
+  }, [showSnackbar, t, fetchExpensesList]);
+
+  const handleDeny = useCallback(async (expenseId: string) => {
+    const success = await ExpenseService.deny(expenseId);
+    
+    if (success) {
+      showSnackbar(t("myExpenses.expenseDenied"), "success");
+      await fetchExpensesList(); // Refresh the table
+      return true;
+    } else {
+      showSnackbar(t("myExpenses.expenseDenyFailed"), "error");
+      return false;
+    }
+  }, [showSnackbar, t, fetchExpensesList]);
+
   return (
     <div>
       <DataGrid
@@ -124,8 +160,27 @@ export function PendingApprovalsTable({ onRowClick }: PendingApprovalsTableProps
         <ApproveExpenseModal
           expense={selectedExpense}
           onClose={handleCloseModal}
+          onApprove={handleApprove}
+          onDeny={handleDeny}
         />
       )}
+      
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={5000}
+        onClose={(_: React.SyntheticEvent | Event, reason?: string) => {
+          if (reason === "clickaway") return;
+          setSnackOpen(false);
+        }}
+      >
+        <Alert
+          onClose={() => setSnackOpen(false)}
+          severity={snackSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

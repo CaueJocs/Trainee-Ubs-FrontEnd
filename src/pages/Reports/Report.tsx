@@ -1,15 +1,12 @@
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { Autocomplete, TextField, Checkbox } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
-import { useState } from "react";
-
 import { ExpenseCategory } from "@/enums/ExpenseCategory";
-import { type ExpenseResponse } from "@/components/layout/PendingApprovalsTable";
-import { ExpenseTable } from "@/components/layout/ExpenseTable";
+import { type ExpenseResponse } from "@/interfaces/Expense";
 import { ExpenseStatus } from "@/enums/ExpenseStatus";
 import { CurrencyCode } from "@/enums/CurrencyCode";
 import EmployeeReport from "./EmployeeReport";
@@ -17,718 +14,17 @@ import ExpenseTypeReport from "./ExpenseTypeReport";
 import AreaBudgetReport from "./AreaBudgetReport";
 import type { Dayjs } from "dayjs";
 
-// Payload to backend
-interface employeePayload {
-  id: number;
-  dateFrom: string;
-  dateTo: string;
-}
+import { ReportService } from "@/services/ReportService";
+import { DepartmentService } from "@/services/DepartmentService";
+import { EmployeeService } from "@/services/EmployeeService";
 
-interface expenseTypePayload {
-  expenseType: ExpenseCategory;
-  dateFrom: string;
-  dateTo: string;
-}
-
-interface areaBudgetPayload {
-  area: string;
-  dateFrom: string;
-  dateTo: string;
-}
+import type { EmployeeResponse } from "@/interfaces/Employee";
+import type { EmployeeReportRequest, ExpenseTypeReportRequest } from "@/interfaces/Report";
+import { type ExpenseReportReponse } from "@/interfaces/Report";
 
 const budgets = [
   { area: "Marketing", budget: 15000 },
   { area: "Engenharia", budget: 40000 },
-];
-
-const mockEmployee: ExpenseResponse[] = [
-  {
-    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    employeeId: "e1234567-89ab-cdef-0123-456789abcdef",
-    employeeName: "João Silva",
-    departmentName: "Marketing",
-    date: "2026-01-05T14:30:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 500.0,
-    currency: CurrencyCode.BRL,
-    description: "Almoço com cliente",
-    receiptUrl: "https://example.com/receipt/1",
-    createdAt: "2026-01-05T10:00:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Miguel Santos",
-    managerApprovalDate: "2026-01-05T12:00:00Z",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    employeeId: "f2345678-90ab-cdef-1234-56789abcdef0",
-    employeeName: "João Silva",
-    departmentName: "Vendas",
-    date: "2026-01-04T09:15:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 750.0,
-    currency: CurrencyCode.USD,
-    description: "Uber para reunião",
-    receiptUrl: "https://example.com/receipt/2",
-    createdAt: "2026-01-04T15:30:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "",
-    managerApprovalDate: "",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "c3d4e5f6-a7b8-9012-cdef-123456789012",
-    employeeId: "a3456789-01bc-def1-2345-6789abcdef01",
-    employeeName: "João Silva",
-    departmentName: "RH",
-    date: "2026-01-03T12:00:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 375.25,
-    currency: CurrencyCode.BRL,
-    description: "Coffee break equipe",
-    receiptUrl: "https://example.com/receipt/3",
-    createdAt: "2026-01-03T18:45:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Isabela Almeida",
-    managerApprovalDate: "2026-01-03T14:00:00Z",
-    financeApproval: "Rafael Gomes",
-    financeApprovalDate: "2026-01-04T15:00:00Z",
-  },
-  {
-    id: "d4e5f6a7-b8c9-0123-def1-234567890123",
-    employeeId: "b4567890-12cd-ef12-3456-789abcdef012",
-    employeeName: "João Silva",
-    departmentName: "TI",
-    date: "2025-12-28T08:00:00-03:00",
-    category: ExpenseCategory.TRAVEL,
-    amount: 2300.0,
-    currency: CurrencyCode.EUR,
-    description: "Viagem para conferência em São Paulo",
-    receiptUrl: "https://example.com/receipt/4",
-    createdAt: "2025-12-20T11:20:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "Mariana Costa",
-    managerApprovalDate: "2025-12-21T09:00:00Z",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "e5f6a7b8-c9d0-1234-ef12-345678901234",
-    employeeId: "c5678901-23de-f123-4567-89abcdef0123",
-    employeeName: "João Silva",
-    departmentName: "Operações",
-    date: "2026-01-02T16:45:00-03:00",
-    category: ExpenseCategory.OTHER,
-    amount: 1000.0,
-    currency: CurrencyCode.BRL,
-    description: "Material de escritório",
-    receiptUrl: "https://example.com/receipt/5",
-    createdAt: "2026-01-02T20:10:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Beatriz Sousa",
-    managerApprovalDate: "2026-01-02T17:00:00Z",
-    financeApproval: "Gabriel Ferreira",
-    financeApprovalDate: "2026-01-03T08:30:00Z",
-  },
-  {
-    id: "f6a7b8c9-d0e1-2345-f123-456789012345",
-    employeeId: "d6789012-34ef-1234-5678-9abcdef01234",
-    employeeName: "João Silva",
-    departmentName: "Financeiro",
-    date: "2026-01-06T11:20:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 890.5,
-    currency: CurrencyCode.BRL,
-    description: "Jantar com investidores",
-    receiptUrl: "https://example.com/receipt/6",
-    createdAt: "2026-01-06T14:15:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "",
-    managerApprovalDate: "",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "a7b8c9d0-e1f2-3456-1234-567890123456",
-    employeeId: "e7890123-45ef-2345-6789-abcdef012345",
-    employeeName: "João Silva",
-    departmentName: "Comercial",
-    date: "2025-12-30T13:45:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 1550.0,
-    currency: CurrencyCode.BRL,
-    description: "Passagem aérea para visita cliente",
-    receiptUrl: "https://example.com/receipt/7",
-    createdAt: "2025-12-29T09:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Fernanda Rocha",
-    managerApprovalDate: "2025-12-29T11:00:00Z",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "b8c9d0e1-f2a3-4567-2345-678901234567",
-    employeeId: "f8901234-56ef-3456-7890-bcdef0123456",
-    employeeName: "João Silva",
-    departmentName: "Jurídico",
-    date: "2026-01-01T10:30:00-03:00",
-    category: ExpenseCategory.OTHER,
-    amount: 2500.0,
-    currency: CurrencyCode.BRL,
-    description: "Taxas de registro e documentação",
-    receiptUrl: "https://example.com/receipt/8",
-    createdAt: "2025-12-31T16:45:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "Pedro Lima",
-    managerApprovalDate: "2025-12-31T09:00:00Z",
-    financeApproval: "Ana Paula",
-    financeApprovalDate: "2025-12-31T10:00:00Z",
-  },
-  {
-    id: "c9d0e1f2-a3b4-5678-3456-789012345678",
-    employeeId: "a9012345-67ef-4567-8901-cdef01234567",
-    employeeName: "João Silva",
-    departmentName: "Logística",
-    date: "2025-12-27T15:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 4200.0,
-    currency: CurrencyCode.USD,
-    description: "Frete internacional de equipamentos",
-    receiptUrl: "https://example.com/receipt/9",
-    createdAt: "2025-12-27T18:20:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Ricardo Carvalho",
-    managerApprovalDate: "2025-12-27T19:00:00Z",
-    financeApproval: "Sofia Mendes",
-    financeApprovalDate: "2025-12-28T08:00:00Z",
-  },
-  {
-    id: "cz-1",
-    employeeId: "cz-emp-1",
-    employeeName: "Caue Zanatti",
-    departmentName: "Marketing",
-    date: "2026-01-05T14:30:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 120.0,
-    currency: CurrencyCode.BRL,
-    description: "Café da manhã com equipe",
-    receiptUrl: "https://example.com/receipt/cz1",
-    createdAt: "2026-01-10T09:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "João Silva",
-    managerApprovalDate: "2026-01-10T10:00:00Z",
-    financeApproval: "Maria Oliveira",
-    financeApprovalDate: "2026-01-10T11:00:00Z",
-  },
-  {
-    id: "cz-2",
-    employeeId: "cz-emp-2",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-04T09:15:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 800.0,
-    currency: CurrencyCode.USD,
-    description: "Viagem para conferência",
-    receiptUrl: "https://example.com/receipt/cz2",
-    createdAt: "2026-01-11T14:30:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "Rafaela Santos",
-    managerApprovalDate: "2026-01-11T15:00:00Z",
-    financeApproval: "Pedro Costa",
-    financeApprovalDate: "2026-01-11T16:00:00Z",
-  },
-  {
-    id: "cz-3",
-    employeeId: "cz-emp-3",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2025-12-28T08:00:00-03:00",
-    category: ExpenseCategory.OTHER,
-    amount: 300.0,
-    currency: CurrencyCode.BRL,
-    description: "Material promocional",
-    receiptUrl: "https://example.com/receipt/cz3",
-    createdAt: "2026-01-12T12:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Lucas Mendes",
-    managerApprovalDate: "2026-01-12T13:00:00Z",
-    financeApproval: "Fernanda Lima",
-    financeApprovalDate: "2026-01-12T14:00:00Z",
-  },
-  {
-    id: "cz-4",
-    employeeId: "cz-emp-4",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-02T16:45:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 50.0,
-    currency: CurrencyCode.BRL,
-    description: "Coffee break",
-    receiptUrl: "https://example.com/receipt/cz4",
-    createdAt: "2026-01-13T08:30:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "Roberto Alves",
-    managerApprovalDate: "2026-01-13T09:00:00Z",
-    financeApproval: "Ana Rodrigues",
-    financeApprovalDate: "2026-01-13T10:00:00Z",
-  },
-  {
-    id: "cz-5",
-    employeeId: "cz-emp-5",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-06T11:20:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 200.0,
-    currency: CurrencyCode.BRL,
-    description: "Uber para reunião",
-    receiptUrl: "https://example.com/receipt/cz5",
-    createdAt: "2026-01-14T10:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Beatriz Sousa",
-    managerApprovalDate: "2026-01-14T11:00:00Z",
-    financeApproval: "Gabriel Ferreira",
-    financeApprovalDate: "2026-01-14T12:00:00Z",
-  },
-  {
-    id: "cz-6",
-    employeeId: "cz-emp-6",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2025-12-30T13:45:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 150.0,
-    currency: CurrencyCode.BRL,
-    description: "Material de escritório",
-    receiptUrl: "https://example.com/receipt/cz6",
-    createdAt: "2026-01-15T16:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Isabela Almeida",
-    managerApprovalDate: "2026-01-15T17:00:00Z",
-    financeApproval: "Rafael Gomes",
-    financeApprovalDate: "2026-01-15T18:00:00Z",
-  },
-  {
-    id: "cz-7",
-    employeeId: "cz-emp-7",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-01T10:30:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 80.0,
-    currency: CurrencyCode.BRL,
-    description: "Almoço com cliente",
-    receiptUrl: "https://example.com/receipt/cz7",
-    createdAt: "2026-01-16T11:30:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "Pedro Lima",
-    managerApprovalDate: "2026-01-16T12:00:00Z",
-    financeApproval: "Ana Paula",
-    financeApprovalDate: "2026-01-16T13:00:00Z",
-  },
-  {
-    id: "cz-8",
-    employeeId: "cz-emp-8",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2025-12-27T15:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 500.0,
-    currency: CurrencyCode.USD,
-    description: "Frete internacional",
-    receiptUrl: "https://example.com/receipt/cz8",
-    createdAt: "2026-01-17T15:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Ricardo Carvalho",
-    managerApprovalDate: "2026-01-17T16:00:00Z",
-    financeApproval: "Sofia Mendes",
-    financeApprovalDate: "2026-01-17T17:00:00Z",
-  },
-  {
-    id: "cz-9",
-    employeeId: "cz-emp-9",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-18T13:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 60.0,
-    currency: CurrencyCode.BRL,
-    description: "Jantar com investidores",
-    receiptUrl: "https://example.com/receipt/cz9",
-    createdAt: "2026-01-18T13:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Fernanda Rocha",
-    managerApprovalDate: "2026-01-18T14:00:00Z",
-    financeApproval: "Lucas Mendes",
-    financeApprovalDate: "2026-01-18T15:00:00Z",
-  },
-  {
-    id: "cz-10",
-    employeeId: "cz-emp-10",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-19T09:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 110.0,
-    currency: CurrencyCode.BRL,
-    description: "Taxas de registro",
-    receiptUrl: "https://example.com/receipt/cz10",
-    createdAt: "2026-01-19T09:30:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "João Silva",
-    managerApprovalDate: "2026-01-19T10:00:00Z",
-    financeApproval: "Maria Oliveira",
-    financeApprovalDate: "2026-01-19T11:00:00Z",
-  },
-];
-
-const mockExpenseType: ExpenseResponse[] = [
-  {
-    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    employeeId: "e1234567-89ab-cdef-0123-456789abcdef",
-    employeeName: "João Silva",
-    departmentName: "Marketing",
-    date: "2026-01-05T14:30:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 500.0,
-    currency: CurrencyCode.BRL,
-    description: "Almoço com cliente",
-    receiptUrl: "https://example.com/receipt/1",
-    createdAt: "2026-01-05T10:00:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Miguel Santos",
-    managerApprovalDate: "2026-01-05T12:00:00Z",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    employeeId: "f2345678-90ab-cdef-1234-56789abcdef0",
-    employeeName: "João Silva",
-    departmentName: "Vendas",
-    date: "2026-01-04T09:15:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 750.0,
-    currency: CurrencyCode.USD,
-    description: "Uber para reunião",
-    receiptUrl: "https://example.com/receipt/2",
-    createdAt: "2026-01-04T15:30:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "",
-    managerApprovalDate: "",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "c3d4e5f6-a7b8-9012-cdef-123456789012",
-    employeeId: "a3456789-01bc-def1-2345-6789abcdef01",
-    employeeName: "João Silva",
-    departmentName: "RH",
-    date: "2026-01-03T12:00:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 375.25,
-    currency: CurrencyCode.BRL,
-    description: "Coffee break equipe",
-    receiptUrl: "https://example.com/receipt/3",
-    createdAt: "2026-01-03T18:45:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Isabela Almeida",
-    managerApprovalDate: "2026-01-03T14:00:00Z",
-    financeApproval: "Rafael Gomes",
-    financeApprovalDate: "2026-01-04T15:00:00Z",
-  },
-  {
-    id: "d4e5f6a7-b8c9-0123-def1-234567890123",
-    employeeId: "b4567890-12cd-ef12-3456-789abcdef012",
-    employeeName: "João Silva",
-    departmentName: "TI",
-    date: "2025-12-28T08:00:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 23000.0,
-    currency: CurrencyCode.EUR,
-    description: "Viagem para conferência em São Paulo",
-    receiptUrl: "https://example.com/receipt/4",
-    createdAt: "2025-12-20T11:20:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "Mariana Costa",
-    managerApprovalDate: "2025-12-21T09:00:00Z",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "e5f6a7b8-c9d0-1234-ef12-345678901234",
-    employeeId: "c5678901-23de-f123-4567-89abcdef0123",
-    employeeName: "João Silva",
-    departmentName: "Operações",
-    date: "2026-01-02T16:45:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 1000.0,
-    currency: CurrencyCode.BRL,
-    description: "Material de escritório",
-    receiptUrl: "https://example.com/receipt/5",
-    createdAt: "2026-01-02T20:10:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Beatriz Sousa",
-    managerApprovalDate: "2026-01-02T17:00:00Z",
-    financeApproval: "Gabriel Ferreira",
-    financeApprovalDate: "2026-01-03T08:30:00Z",
-  },
-  {
-    id: "f6a7b8c9-d0e1-2345-f123-456789012345",
-    employeeId: "d6789012-34ef-1234-5678-9abcdef01234",
-    employeeName: "João Silva",
-    departmentName: "Financeiro",
-    date: "2026-01-06T11:20:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 890.5,
-    currency: CurrencyCode.BRL,
-    description: "Jantar com investidores",
-    receiptUrl: "https://example.com/receipt/6",
-    createdAt: "2026-01-06T14:15:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "",
-    managerApprovalDate: "",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "a7b8c9d0-e1f2-3456-1234-567890123456",
-    employeeId: "e7890123-45ef-2345-6789-abcdef012345",
-    employeeName: "João Silva",
-    departmentName: "Comercial",
-    date: "2025-12-30T13:45:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 15500.0,
-    currency: CurrencyCode.BRL,
-    description: "Passagem aérea para visita cliente",
-    receiptUrl: "https://example.com/receipt/7",
-    createdAt: "2025-12-29T09:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Fernanda Rocha",
-    managerApprovalDate: "2025-12-29T11:00:00Z",
-    financeApproval: "",
-    financeApprovalDate: "",
-  },
-  {
-    id: "b8c9d0e1-f2a3-4567-2345-678901234567",
-    employeeId: "f8901234-56ef-3456-7890-bcdef0123456",
-    employeeName: "João Silva",
-    departmentName: "Jurídico",
-    date: "2026-01-01T10:30:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 2500.0,
-    currency: CurrencyCode.BRL,
-    description: "Taxas de registro e documentação",
-    receiptUrl: "https://example.com/receipt/8",
-    createdAt: "2025-12-31T16:45:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "Pedro Lima",
-    managerApprovalDate: "2025-12-31T09:00:00Z",
-    financeApproval: "Ana Paula",
-    financeApprovalDate: "2025-12-31T10:00:00Z",
-  },
-  {
-    id: "c9d0e1f2-a3b4-5678-3456-789012345678",
-    employeeId: "a9012345-67ef-4567-8901-cdef01234567",
-    employeeName: "João Silva",
-    departmentName: "Logística",
-    date: "2025-12-27T15:00:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 4200.0,
-    currency: CurrencyCode.USD,
-    description: "Frete internacional de equipamentos",
-    receiptUrl: "https://example.com/receipt/9",
-    createdAt: "2025-12-27T18:20:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Ricardo Carvalho",
-    managerApprovalDate: "2025-12-27T19:00:00Z",
-    financeApproval: "Sofia Mendes",
-    financeApprovalDate: "2025-12-28T08:00:00Z",
-  },
-  {
-    id: "cz-1",
-    employeeId: "cz-emp-1",
-    employeeName: "Caue Zanatti",
-    departmentName: "Marketing",
-    date: "2026-01-10T09:00:00-03:00",
-    category: ExpenseCategory.MEAL,
-    amount: 120.0,
-    currency: CurrencyCode.BRL,
-    description: "Café da manhã com equipe",
-    receiptUrl: "https://example.com/receipt/cz1",
-    createdAt: "2026-01-10T09:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "João Silva",
-    managerApprovalDate: "2026-01-10T10:00:00Z",
-    financeApproval: "Maria Oliveira",
-    financeApprovalDate: "2026-01-10T11:00:00Z",
-  },
-  {
-    id: "cz-2",
-    employeeId: "cz-emp-2",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-11T14:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 800.0,
-    currency: CurrencyCode.USD,
-    description: "Viagem para conferência",
-    receiptUrl: "https://example.com/receipt/cz2",
-    createdAt: "2026-01-11T14:30:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "Rafaela Santos",
-    managerApprovalDate: "2026-01-11T15:00:00Z",
-    financeApproval: "Pedro Costa",
-    financeApprovalDate: "2026-01-11T16:00:00Z",
-  },
-  {
-    id: "cz-3",
-    employeeId: "cz-emp-3",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-12T12:00:00-03:00",
-    category: ExpenseCategory.OTHER,
-    amount: 300.0,
-    currency: CurrencyCode.BRL,
-    description: "Material promocional",
-    receiptUrl: "https://example.com/receipt/cz3",
-    createdAt: "2026-01-12T12:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Lucas Mendes",
-    managerApprovalDate: "2026-01-12T13:00:00Z",
-    financeApproval: "Fernanda Lima",
-    financeApprovalDate: "2026-01-12T14:00:00Z",
-  },
-  {
-    id: "cz-4",
-    employeeId: "cz-emp-4",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-13T08:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 50.0,
-    currency: CurrencyCode.BRL,
-    description: "Coffee break",
-    receiptUrl: "https://example.com/receipt/cz4",
-    createdAt: "2026-01-13T08:30:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "Roberto Alves",
-    managerApprovalDate: "2026-01-13T09:00:00Z",
-    financeApproval: "Ana Rodrigues",
-    financeApprovalDate: "2026-01-13T10:00:00Z",
-  },
-  {
-    id: "cz-5",
-    employeeId: "cz-emp-5",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-14T10:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 200.0,
-    currency: CurrencyCode.BRL,
-    description: "Uber para reunião",
-    receiptUrl: "https://example.com/receipt/cz5",
-    createdAt: "2026-01-14T10:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Beatriz Sousa",
-    managerApprovalDate: "2026-01-14T11:00:00Z",
-    financeApproval: "Gabriel Ferreira",
-    financeApprovalDate: "2026-01-14T12:00:00Z",
-  },
-  {
-    id: "cz-6",
-    employeeId: "cz-emp-6",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-15T16:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 150.0,
-    currency: CurrencyCode.BRL,
-    description: "Material de escritório",
-    receiptUrl: "https://example.com/receipt/cz6",
-    createdAt: "2026-01-15T16:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Isabela Almeida",
-    managerApprovalDate: "2026-01-15T17:00:00Z",
-    financeApproval: "Rafael Gomes",
-    financeApprovalDate: "2026-01-15T18:00:00Z",
-  },
-  {
-    id: "cz-7",
-    employeeId: "cz-emp-7",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-16T11:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 80.0,
-    currency: CurrencyCode.BRL,
-    description: "Almoço com cliente",
-    receiptUrl: "https://example.com/receipt/cz7",
-    createdAt: "2026-01-16T11:30:00Z",
-    status: ExpenseStatus.PENDING,
-    managerApproval: "Pedro Lima",
-    managerApprovalDate: "2026-01-16T12:00:00Z",
-    financeApproval: "Ana Paula",
-    financeApprovalDate: "2026-01-16T13:00:00Z",
-  },
-  {
-    id: "cz-8",
-    employeeId: "cz-emp-8",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-17T15:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 500.0,
-    currency: CurrencyCode.USD,
-    description: "Frete internacional",
-    receiptUrl: "https://example.com/receipt/cz8",
-    createdAt: "2026-01-17T15:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_FINANCE,
-    managerApproval: "Ricardo Carvalho",
-    managerApprovalDate: "2026-01-17T16:00:00Z",
-    financeApproval: "Sofia Mendes",
-    financeApprovalDate: "2026-01-17T17:00:00Z",
-  },
-  {
-    id: "cz-9",
-    employeeId: "cz-emp-9",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-18T13:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 60.0,
-    currency: CurrencyCode.BRL,
-    description: "Jantar com investidores",
-    receiptUrl: "https://example.com/receipt/cz9",
-    createdAt: "2026-01-18T13:30:00Z",
-    status: ExpenseStatus.APPROVED_BY_MANAGER,
-    managerApproval: "Fernanda Rocha",
-    managerApprovalDate: "2026-01-18T14:00:00Z",
-    financeApproval: "Lucas Mendes",
-    financeApprovalDate: "2026-01-18T15:00:00Z",
-  },
-  {
-    id: "cz-10",
-    employeeId: "cz-emp-10",
-    employeeName: "Caue Zanatti",
-    departmentName: "Engenharia",
-    date: "2026-01-19T09:00:00-03:00",
-    category: ExpenseCategory.TRANSPORT,
-    amount: 110.0,
-    currency: CurrencyCode.BRL,
-    description: "Taxas de registro",
-    receiptUrl: "https://example.com/receipt/cz10",
-    createdAt: "2026-01-19T09:30:00Z",
-    status: ExpenseStatus.REJECTED,
-    managerApproval: "João Silva",
-    managerApprovalDate: "2026-01-19T10:00:00Z",
-    financeApproval: "Maria Oliveira",
-    financeApprovalDate: "2026-01-19T11:00:00Z",
-  },
 ];
 
 const mockArea: ExpenseResponse[] = [
@@ -1080,16 +376,37 @@ export function Report() {
   const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
   const [selectedReport, setSelectedReport] = useState<string>("EMP");
-  const [employees, setEmployees] = useState<string[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [createReport, setCreateReport] = useState<boolean>(false);
+  const [expenses, setExpenses] = useState<ExpenseReportReponse[]>([]);
 
-  const employeeOptions = ["João Silva", "Caue Zanatti"];
-  const expenseTypeOptions = ["MEAL", "TRANSPORT"];
-  const areaOptions = ["Marketing", "Engenharia"];
+  const [userOptions, setUserOptions] = useState<EmployeeResponse[]>([]);
+  const expenseTypeOptions = [
+    ExpenseCategory.MEAL,
+    ExpenseCategory.TRAVEL,
+    ExpenseCategory.TRANSPORT,
+    ExpenseCategory.OTHER,
+  ];
+  const [areaOptions, setAreaOptions] = useState<string[]>([]);
+  const employeeNameById = Object.fromEntries(
+    userOptions.map((user) => [user.id, user.name])
+  );
+
+  useEffect(() => {
+    EmployeeService.getAllEmployees().then((users) => {
+      setUserOptions(users.map((user) => user));
+    });
+  }, []);
+
+  useEffect(() => {
+    DepartmentService.getDepartments().then((departments) => {
+      setAreaOptions(departments.map((dept) => dept.name));
+    });
+  }, []);
 
   function getOptions() {
     if (selectedReport === "EMP") {
-      return employeeOptions;
+      return userOptions.map((user) => user.name);
     } else if (selectedReport === "EXP") {
       return expenseTypeOptions;
     } else if (selectedReport === "ARE") {
@@ -1106,7 +423,43 @@ export function Report() {
   function handleAreaBudgetReport() {
     setSelectedReport("ARE");
   }
-  function handleCreateReport() {
+
+  async function employeeExpense () {
+    const employeeReportRequest: EmployeeReportRequest = {
+      employeeIds: userOptions
+        .filter((user) => selectedOptions.includes(user.name))
+        .map((user) => user.id),
+      dateFrom: dateFrom ? dateFrom.toISOString() : "",
+      dateTo: dateTo ? dateTo.toISOString() : "",
+    };
+    // Await the promise and ensure the type matches
+    const expensess: ExpenseReportReponse[] =
+      await ReportService.getEmployeeReport(employeeReportRequest);
+    setExpenses(expensess);
+  }
+
+  async function expenseTypeExpenses() {
+    const expenseTypeReportRequest: ExpenseTypeReportRequest = {
+      categories: selectedOptions as ExpenseCategory[],
+      dateFrom: dateFrom ? dateFrom.toISOString() : "",
+      dateTo: dateTo ? dateTo.toISOString() : "",
+    };
+    const expensess: ExpenseReportReponse[] =
+      await ReportService.getExpenseTypeReport(expenseTypeReportRequest);
+    setExpenses(expensess);
+
+    console.log(expensess)
+    
+  }
+
+  async function handleCreateReport() {
+    if (selectedReport === "EMP") {
+      await employeeExpense();
+    }
+    if (selectedReport === "EXP") {
+      await expenseTypeExpenses();
+    }
+
     setCreateReport(true);
   }
 
@@ -1163,8 +516,8 @@ export function Report() {
             <Autocomplete
               multiple
               options={getOptions() || []}
-              value={employees}
-              onChange={(_, newValue) => setEmployees(newValue)}
+              value={selectedOptions}
+              onChange={(_, newValue) => setSelectedOptions(newValue)}
               disableCloseOnSelect
               renderOption={(props, option, { selected }) => (
                 <li {...props}>
@@ -1234,7 +587,9 @@ export function Report() {
                 },
               }}
               disabled={
-                employees.length === 0 || dateFrom === null || dateTo === null
+                selectedOptions.length === 0 ||
+                dateFrom === null ||
+                dateTo === null
               }
             >
               Create Report
@@ -1244,31 +599,34 @@ export function Report() {
           <div className="flex justify-center w-full pt-5">
             {createReport &&
               selectedReport === "EMP" &&
-              employees.length > 0 && (
-                <EmployeeReport data={mockEmployee} employees={employees} />
+              selectedOptions.length > 0 && (
+                <EmployeeReport
+                  data={expenses}
+                  employees={userOptions
+                    .filter((u) => selectedOptions.includes(u.name))
+                    .map((u) => u.id)}
+                  employeeNameById={employeeNameById}
+                />
               )}
             {createReport &&
               selectedReport === "EXP" &&
-              employees.length > 0 && (
+              selectedOptions.length > 0 && (
                 <ExpenseTypeReport
-                  data={mockExpenseType}
-                  expenseTypes={employees}
+                  data={expenses}
+                  expenseTypes={selectedOptions}
                 />
               )}
             {createReport &&
               selectedReport === "ARE" &&
-              employees.length > 0 && (
+              selectedOptions.length > 0 && (
                 <AreaBudgetReport
                   data={mockArea}
-                  areas={employees}
+                  areas={selectedOptions}
                   budgets={budgets}
                 />
               )}
-              
           </div>
-          <div>
-            <ExpenseTable />
-          </div>
+          <div></div>
         </div>
       </main>
     </div>

@@ -9,10 +9,10 @@ import {
   Cell,
 } from "recharts";
 
-import { type ExpenseResponse } from "@/components/layout/PendingApprovalsTable";
+import type { ExpenseReportReponse } from "@/interfaces/Report";
 
 type ExpenseTypeReportProps = {
-  data: ExpenseResponse[];
+  data: ExpenseReportReponse[];
   expenseTypes: string[];
 };
 
@@ -20,7 +20,7 @@ export default function ExpenseTypeReport({
   data,
   expenseTypes,
 }: ExpenseTypeReportProps) {
-  function buildChartData(expenses: ExpenseResponse[], types: string[]) {
+  function buildChartData(expenses: ExpenseReportReponse[], types: string[]) {
     const map: Record<string, number> = {};
 
     types.forEach((type) => {

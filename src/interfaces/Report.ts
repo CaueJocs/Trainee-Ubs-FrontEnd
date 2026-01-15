@@ -1,27 +1,23 @@
-import { ExpenseCategory } from @/enums/ExpenseCategory;
+import { ExpenseCategory } from "@/enums/ExpenseCategory";
+import type { ExpenseDetailResponse } from "./Expense";
 
-
-export interface employeeReportRequest {
+export interface ExpenseReportReponse extends ExpenseDetailResponse {
+    employeeId: string;
+}
+export interface EmployeeReportRequest {
     employeeIds: string[];
-    categories: ExpenseCategory[];
-    departmentNames: string[];
     dateFrom: string;
     dateTo: string;  
 }
 
-export interface EmployeeReportResponse {
-    id: string;
-    employeeId: string;
-    departmentName: string;
-    date: string;
-    category: ExpenseCategory;
-    amount: number;
-    currency: string;
-    exchangeRate: number;
-    description: string;
-    receiptUrl: string;
-    revision: boolean;
-    createdAt: string;
-    updatedAt: string;
-    status: string;
+export interface ExpenseTypeReportRequest {
+    categories: ExpenseCategory[];
+    dateFrom: string;
+    dateTo: string;  
+}
+
+export interface DepartmentReportRequest {
+    departments: string[];
+    dateFrom: string;
+    dateTo: string;  
 }

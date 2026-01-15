@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   LineChart,
   Line,
@@ -9,41 +8,51 @@ import {
   Legend,
 } from "recharts";
 
-import { type ExpenseResponse } from "@/components/layout/PendingApprovalsTable";
+import type { ExpenseReportReponse } from "@/interfaces/Report";
 
 type EmployeeReportProps = {
-  data: ExpenseResponse[];
+  data: ExpenseReportReponse[];
   employees: string[];
+  employeeNameById: Record<string, string>;
 };
 
-export default function EmployeeReport({ data, employees }: EmployeeReportProps) {
-  function buildChartData(
-    expenses: ExpenseResponse[],
-    employeeNames: string[]
-  ) {
-    const map: Record<string, any> = {};
+type ChartRow = {
+  date: string;
+  [employeeId: string]: number | string;
+};
 
-    expenses.forEach((expense) => {
-      const date = expense.date.split("T")[0];
+function buildChartData(
+  expenses: ExpenseReportReponse[],
+  employeeIds: string[]
+): ChartRow[] {
+  const map: Record<string, ChartRow> = {};
 
-      if (!map[date]) {
-        map[date] = { date };
-        employeeNames.forEach((name) => {
-          map[date][name] = 0;
-        });
-      }
+  expenses.forEach((expense) => {
+    const date = expense.date.split("T")[0];
 
-      if (employeeNames.includes(expense.employeeName)) {
-        map[date][expense.employeeName] += expense.amount;
-      }
-    });
+    if (!map[date]) {
+      map[date] = { date };
+      employeeIds.forEach((id) => {
+        map[date][id] = 0;
+      });
+    }
 
-    return Object.values(map).sort((a: any, b: any) =>
-      a.date.localeCompare(b.date)
-    );
-  }
+    if (employeeIds.includes(expense.employeeId)) {
+      map[date][expense.employeeId] =
+        (map[date][expense.employeeId] as number) + expense.amount;
+    }
+  });
 
+  return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export default function EmployeeReport({
+  data,
+  employees,
+  employeeNameById,
+}: EmployeeReportProps) {
   const chartData = buildChartData(data, employees);
+
   const COLORS = ["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c"];
 
   return (
@@ -59,11 +68,12 @@ export default function EmployeeReport({ data, employees }: EmployeeReportProps)
       <Tooltip />
       <Legend />
 
-      {employees.map((name, index) => (
+      {employees.map((id, index) => (
         <Line
-          key={name}
+          key={id}
           type="monotone"
-          dataKey={name}
+          dataKey={id}
+          name={employeeNameById[id] ?? id}
           stroke={COLORS[index % COLORS.length]}
           strokeWidth={2}
           dot={false}

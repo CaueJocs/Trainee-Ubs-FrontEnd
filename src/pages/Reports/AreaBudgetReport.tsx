@@ -9,7 +9,7 @@ import {
   Legend,
 } from "recharts";
 
-import { type ExpenseResponse } from "@/components/layout/PendingApprovalsTable";
+import { type ExpenseResponse } from "@/interfaces/Expense";
 
 type AreaBudgetReportProps = {
   data: ExpenseResponse[];

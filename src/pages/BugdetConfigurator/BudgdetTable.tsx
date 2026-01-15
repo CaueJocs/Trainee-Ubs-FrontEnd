@@ -1,24 +1,28 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { DepartmentService } from "@/services/DepartmentService";
 import type { DepartmentDetailedResponse, DepartmentResponse } from "@/interfaces/Department";
 import { BudgetModal } from "./BugdetModal";
 import { Alert, Snackbar } from "@mui/material";
+import { useI18n } from "@/i18n/I18nContext";
 
-const columns: GridColDef<DepartmentResponse>[] = [
-  { field: "name", headerName: "Area", flex: 1 },
-  {
-    field: "currency",
-    headerName: "Currency",
-    flex: 0,
-    minWidth: 75,
-    align: "center",
-    headerAlign: "center",
-  }
-];
 
 export default function BudgdetTable() {
+  const { t } = useI18n();
+
+  const columns: GridColDef<DepartmentResponse>[] = useMemo(() => [
+    { field: "name", headerName: t("departments.name"), flex: 1 },
+    {
+      field: "currency",
+      headerName: t("departments.currency"),
+      flex: 0,
+      minWidth: 75,
+      align: "center",
+      headerAlign: "center",
+    }
+  ], [t]);
+
   const [rows, setRows] = useState<DepartmentResponse[]>([]);
   const [selectedArea, setSelectedArea] = useState<DepartmentResponse | null>(null);
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentDetailedResponse | null>(null);
@@ -71,16 +75,15 @@ export default function BudgdetTable() {
             }}
             onSaved={async (success: boolean) => {
               if (success) {
-                // Atualiza a lista de departamentos após salvar
                 const list = await DepartmentService.getDepartments();
                 setRows(list);
                 setSnackSeverity("success");
-                setSnackMessage("Orçamento salvo com sucesso!");
+                setSnackMessage(t("departments.budgetSavedSuccess"));
                 setSelectedArea(null);
                 setSelectedDepartment(null);
               } else {
                 setSnackSeverity("error");
-                setSnackMessage("Falha ao salvar orçamento.");
+                setSnackMessage(t("departments.budgetSavedError"));
               }
               setSnackOpen(true);
             }}

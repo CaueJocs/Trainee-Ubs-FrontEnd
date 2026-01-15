@@ -14,6 +14,7 @@ import { Home } from "./pages/Home";
 import { MyExpenses } from "./pages/MyExpenses/MyExpenses";
 import { MyApprovals } from "./pages/MyApprovals/MyApprovals";
 import { BudgetConfigurator } from "./pages/BugdetConfigurator/BugdetConfigurator";
+import { Report } from "./pages/Reports/Report";
 import { Access } from "./pages/Access/Access";
 import { Departments } from "./pages/Departments/Departments";
 
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/my-approvals" element={<MyApprovals />} />
                 <Route path="/budget" element={<BudgetConfigurator />} />
                 <Route path="/access" element={<Access />} />
+                <Route path="/report" element={<Report />} />
                 <Route path="/departments" element={<Departments />} />
               </Route>
             </Route>

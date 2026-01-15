@@ -9,7 +9,7 @@ export const AlertsApi = {
   },
 
   resolveAlert: async (id: string): Promise<void> => {
-    await http.post(`/alerts/${id}/resolve`);
+    await http.patch(`/alerts/${id}/resolve`);
   }
 
 };

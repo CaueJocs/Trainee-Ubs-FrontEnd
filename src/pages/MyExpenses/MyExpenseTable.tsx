@@ -23,7 +23,12 @@ export function MyExpenseTable({ rows, onRowClick }: MyExpenseTableProps) {
         minWidth: 200,
         flex: 1,
       },
-      { field: "category", headerName: t("myExpenses.category"), minWidth: 100, flex: 1 },
+      { 
+        field: "category", 
+        headerName: t("myExpenses.category"), 
+        minWidth: 100, 
+        flex: 1 
+      },
       {
         field: "date",
         headerName: t("myExpenses.date"),

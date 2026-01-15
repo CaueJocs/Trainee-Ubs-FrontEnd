@@ -7,7 +7,7 @@ import { ApproveExpenseModal } from "./ApproveExpenseModal";
 import { ExpenseService } from "@/services/ExpenseService";
 import { useAuth } from "@/pages/Auth/useAuth";
 import { Role } from "@/enums/Role";
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar, Alert, Checkbox } from "@mui/material";
 import type { AlertColor } from "@mui/material";
 
 interface PendingApprovalsTableProps {
@@ -81,6 +81,18 @@ export function PendingApprovalsTable({ onRowClick }: PendingApprovalsTableProps
         headerName: t("myExpenses.status"),
         minWidth: 100,
         flex: 1,
+      },
+      {
+        field: "revision",
+        headerName: t("myExpenses.revision"),
+        flex: 0,
+        renderCell: (params) => (
+          <Checkbox
+            checked={Boolean(params.value)}
+            disabled
+            size="small"
+          />
+        ),
       },
     ],
     [t, formatDate]

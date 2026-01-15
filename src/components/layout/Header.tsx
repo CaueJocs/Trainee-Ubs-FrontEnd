@@ -285,11 +285,13 @@ export function Header({
               {t("header.budget")}
             </Link>
             )}
+            {/*
             {canAccess([Role.FINANCE]) && (
             <Link className="cursor-pointer hover:text-black" to="/reports">
               {t("header.reports")}
             </Link>
             )}
+            */}
           </nav>
         </div>
       </div>

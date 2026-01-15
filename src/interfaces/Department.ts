@@ -8,12 +8,23 @@ export interface DepartmentResponse {
     monthlyBudget: number;
 }
 
-
 export interface DepartmentDetailedResponse extends DepartmentResponse {
   spendingSettings: SpendingSettingResponse[];
 }
 
 export interface SpendingSettingResponse {
+    category: ExpenseCategory;
+    type: SpendingType;
+    budget: number;
+}
+
+export interface UpdateDepartmentRequest {
+    currency: CurrencyCode;
+    monthlyBudget: number;
+    spendingSettings: SpendingSettingRequest[];
+}
+
+export interface SpendingSettingRequest {
     category: ExpenseCategory;
     type: SpendingType;
     budget: number;

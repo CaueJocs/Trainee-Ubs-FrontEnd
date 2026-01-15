@@ -1,125 +1,111 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import Paper from "@mui/material/Paper";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { DepartmentService } from "@/services/DepartmentService";
+import type { DepartmentDetailedResponse, DepartmentResponse } from "@/interfaces/Department";
 import { BudgetModal } from "./BugdetModal";
+import { Alert, Snackbar } from "@mui/material";
+import { useI18n } from "@/i18n/I18nContext";
 
-interface areaBugdetResponse {
-  id : number
-  areaName: string;
-  monthlyBudget: number;
-}
-
-const columns: GridColDef[] = [
-  {
-    field: "areaName",
-    headerName: "Area",
-    flex: 1,
-  },
-  {
-    field: "monthlyBudget",
-    headerName: "Monthly Budgdet",
-    type: "number",
-    flex: 1,
-  },
-];
-
-const paginationModel = { page: 0, pageSize: 5 };
 
 export default function BudgdetTable() {
-  const [rows, setRows] = useState<areaBugdetResponse[]>([
+  const { t } = useI18n();
+
+  const columns: GridColDef<DepartmentResponse>[] = useMemo(() => [
+    { field: "name", headerName: t("departments.name"), flex: 1 },
     {
-      id: 1,
-      areaName: "Marketing",
+      field: "currency",
+      headerName: t("departments.currency"),
+      flex: 0,
+      minWidth: 75,
+      align: "center",
+      headerAlign: "center",
+    }
+  ], [t]);
 
-      monthlyBudget: 120000,
-    },
-    {
-      id: 2,
-      areaName: "Engineering",
+  const [rows, setRows] = useState<DepartmentResponse[]>([]);
+  const [selectedArea, setSelectedArea] = useState<DepartmentResponse | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<DepartmentDetailedResponse | null>(null);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [snackSeverity, setSnackSeverity] = useState<"success" | "error">("success");
 
-      monthlyBudget: 300000,
-    },
-    {
-      id: 3,
-      areaName: "Sales",
+  useEffect(() => {
+    let cancelled = false;
+    DepartmentService.getDepartments().then((list) => {
+      if (cancelled) return;
+      setRows(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-      monthlyBudget: 180000,
-    },
-    {
-      id: 4,
-      areaName: "Human Resources",
-
-      monthlyBudget: 60000,
-    },
-    {
-      id: 5,
-      areaName: "Finance",
-
-      monthlyBudget: 90000,
-    },
-    {
-      id: 6,
-      areaName: "Customer Support",
-
-      monthlyBudget: 75000,
-    },
-    {
-      id: 7,
-      areaName: "Product",
-
-      monthlyBudget: 150000,
-    },
-    {
-      id: 8,
-      areaName: "Operations",
-
-      monthlyBudget: 110000,
-    },
-    {
-      id: 9,
-      areaName: "Legal",
-
-      monthlyBudget: 50000,
-    },
-    {
-      id: 10,
-      areaName: "IT Infrastructure",
-
-      monthlyBudget: 130000,
-    },
-  ]);
-
-  const [selectedArea, setSelectedArea] = useState<areaBugdetResponse | null>(
-    null
-  );
-
-  function handleOpenModal(area: areaBugdetResponse) {
+  async function handleOpenModal(area: DepartmentResponse) {
     setSelectedArea(area);
+    const detailedDepartment = await DepartmentService.getDepartment(area.name);
+    setSelectedDepartment(detailedDepartment);
   }
 
   return (
-    <Paper sx={{ height: 400, width: "100%" }}>
+    <div className="w-full">
       <DataGrid
         disableRowSelectionOnClick
         rows={rows}
         columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
-        sx={{ border: 0 }}
+        getRowId={(row) => row.name}
+        initialState={{
+          pagination: { paginationModel: { page: 0, pageSize: 10 } },
+          sorting: {
+            sortModel: [{ field: "name", sort: "asc" }],
+          },
+        }}
+        pageSizeOptions={[10, 25, 50]}
+        sx={{ mt: 2, overflow: "auto", height: "60vh" }}
         onRowClick={(params) => handleOpenModal(params.row)}
       />
 
-      {selectedArea && (
-        <BudgetModal
-          open
-          payload={{
-            areaName: selectedArea.areaName,
-            areaBudget: selectedArea.monthlyBudget,
+        {selectedArea && selectedDepartment && (
+          <BudgetModal
+            open
+            department={selectedDepartment}
+            onClose={() => {
+              setSelectedArea(null);
+              setSelectedDepartment(null);
+            }}
+            onSaved={async (success: boolean) => {
+              if (success) {
+                const list = await DepartmentService.getDepartments();
+                setRows(list);
+                setSnackSeverity("success");
+                setSnackMessage(t("departments.budgetSavedSuccess"));
+                setSelectedArea(null);
+                setSelectedDepartment(null);
+              } else {
+                setSnackSeverity("error");
+                setSnackMessage(t("departments.budgetSavedError"));
+              }
+              setSnackOpen(true);
+            }}
+          />
+        )}
+
+        <Snackbar
+          open={snackOpen}
+          autoHideDuration={5000}
+          onClose={(_: React.SyntheticEvent | Event, reason?: string) => {
+            if (reason === "clickaway") return;
+            setSnackOpen(false);
           }}
-          onClose={() => setSelectedArea(null)}
-        />
-      )}
-    </Paper>
+        >
+          <Alert
+            onClose={() => setSnackOpen(false)}
+            severity={snackSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackMessage}
+          </Alert>
+        </Snackbar>
+    </div>
   );
 }

@@ -1,10 +1,15 @@
-import type { DepartmentResponse } from "@/interfaces/Department";
+import type { DepartmentDetailedResponse, DepartmentResponse, UpdateDepartmentRequest } from "@/interfaces/Department";
 import { http } from "./BaseApi";
 
 export const DepartmentApi = {
 
   getAllDepartments: async (): Promise<DepartmentResponse[]> => {
     const response = await http.get<DepartmentResponse[]>('/departments');
+    return response.data;
+  },
+
+  getDepartment: async (name: string): Promise<DepartmentDetailedResponse> => {
+    const response = await http.get<DepartmentDetailedResponse>(`/departments/${name}`);
     return response.data;
   },
 
@@ -24,6 +29,11 @@ export const DepartmentApi = {
 
   deleteDepartment: async (name: string): Promise<void> => {
     await http.delete(`/departments/${name}`);
+  },
+
+  updateDepartment: async (name: string, data: UpdateDepartmentRequest): Promise<DepartmentDetailedResponse> => {
+    const response = await http.put<DepartmentDetailedResponse>(`/departments/${name}`, data);
+    return response.data;
   }
 
 };
